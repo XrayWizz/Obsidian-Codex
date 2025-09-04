@@ -1,6 +1,8 @@
 -- Obsidian-Codex - Advanced Roblox Enhancement Suite
 -- Deep Dark Metallic UI + Comprehensive Game Features
 
+print("Script starting...")
+
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -2031,19 +2033,30 @@ LocalPlayer.CharacterAdded:Connect(function(character)
     end
 end)
 
--- Create sidebar buttons FIRST
-print("Creating HomepageButton...")
-local HomepageButton = createButton("Home", "🏠", showHomepage)
-print("HomepageButton created:", HomepageButton ~= nil)
+-- Create sidebar buttons FIRST (without callbacks to avoid circular reference)
+print("About to create buttons...")
+local HomepageButton = createButton("Home", "🏠", nil)
+local PlayersButton = createButton("Players", "👤", nil)
+local AIButton = createButton("AI Player", "🤖", nil)
+local FarmingButton = createButton("Farming", "⚔️", nil)
+local QuestsButton = createButton("Quests", "🍒", nil)
+local TeleportButton = createButton("Teleport", "🧭", nil)
+local VisualsButton = createButton("Visuals", "🌈", nil)
+local ShopButton = createButton("Shop", "🛒", nil)
+local MiscButton = createButton("Misc", "⚙️", nil)
 
-local PlayersButton = createButton("Players", "👤", showPlayers)
-local AIButton = createButton("AI Player", "🤖", showAI)
-local FarmingButton = createButton("Farming", "⚔️", showFarming)
-local QuestsButton = createButton("Quests", "🍒", showQuests)
-local TeleportButton = createButton("Teleport", "🧭", showTeleport)
-local VisualsButton = createButton("Visuals", "🌈", showVisuals)
-local ShopButton = createButton("Shop", "🛒", showShop)
-local MiscButton = createButton("Misc", "⚙️", showMisc)
+print("All buttons created, adding callbacks...")
+
+-- Now add the callbacks
+HomepageButton.MouseButton1Click:Connect(showHomepage)
+PlayersButton.MouseButton1Click:Connect(showPlayers)
+AIButton.MouseButton1Click:Connect(showAI)
+FarmingButton.MouseButton1Click:Connect(showFarming)
+QuestsButton.MouseButton1Click:Connect(showQuests)
+TeleportButton.MouseButton1Click:Connect(showTeleport)
+VisualsButton.MouseButton1Click:Connect(showVisuals)
+ShopButton.MouseButton1Click:Connect(showShop)
+MiscButton.MouseButton1Click:Connect(showMisc)
 
 print("All buttons created")
 
