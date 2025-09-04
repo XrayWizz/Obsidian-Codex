@@ -456,21 +456,40 @@ local function createToggleWithDropdown(name, icon, callback, dropdownContent)
         toggleButton.BackgroundColor3 = isEnabled and Colors.Success or Colors.Error
         toggleButton.Text = isEnabled and "ON" or "OFF"
         
-        -- Show/hide dropdown with animation
+        -- Show/hide dropdown with animation and expand/collapse main frame
         if isEnabled then
             dropdownFrame.Visible = true
             dropdownFrame.Size = UDim2.new(1, -16, 0, 0)
+            
+            -- Wait for content to be added, then animate
+            task.wait(0.1)
+            local targetHeight = dropdownLayout.AbsoluteContentSize.Y + 8 -- Add some padding
+            
             dropdownFrame:TweenSize(
-                UDim2.new(1, -16, 0, dropdownLayout.AbsoluteContentSize.Y),
+                UDim2.new(1, -16, 0, targetHeight),
+                "Out", "Quad", 0.2, true
+            )
+            
+            -- Expand the main toggle frame to accommodate dropdown
+            toggleFrame:TweenSize(
+                UDim2.new(1, -8, 0, 32 + targetHeight + 8),
                 "Out", "Quad", 0.2, true
             )
         else
+            local currentHeight = dropdownFrame.Size.Y.Offset
+            
             dropdownFrame:TweenSize(
                 UDim2.new(1, -16, 0, 0),
                 "Out", "Quad", 0.2, true,
                 function()
                     dropdownFrame.Visible = false
                 end
+            )
+            
+            -- Collapse the main toggle frame back to original size
+            toggleFrame:TweenSize(
+                UDim2.new(1, -8, 0, 32),
+                "Out", "Quad", 0.2, true
             )
         end
         
