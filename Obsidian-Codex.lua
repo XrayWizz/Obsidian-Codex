@@ -12,18 +12,18 @@ local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
--- Modern Color Scheme - Metallic Theme
+-- Deep Dark Metallic Color Scheme - Industrial Theme
 local Colors = {
-    Primary = Color3.fromRGB(45, 45, 50),      -- Dark metallic
-    Secondary = Color3.fromRGB(60, 60, 65),    -- Medium metallic
-    Accent = Color3.fromRGB(100, 200, 255),    -- Bright blue accent
-    Text = Color3.fromRGB(220, 220, 225),      -- Light text
-    TextDim = Color3.fromRGB(150, 150, 155),   -- Dimmed text
-    Success = Color3.fromRGB(100, 255, 100),   -- Green
-    Warning = Color3.fromRGB(255, 200, 100),   -- Orange
-    Error = Color3.fromRGB(255, 100, 100),     -- Red
-    Border = Color3.fromRGB(80, 80, 85),       -- Border color
-    Glow = Color3.fromRGB(120, 180, 255)       -- Glow effect
+    Primary = Color3.fromRGB(15, 15, 18),      -- Deep charcoal metallic
+    Secondary = Color3.fromRGB(22, 22, 26),    -- Dark steel
+    Accent = Color3.fromRGB(70, 130, 180),     -- Steel blue accent
+    Text = Color3.fromRGB(180, 180, 185),      -- Muted light text
+    TextDim = Color3.fromRGB(100, 100, 105),   -- Dark dimmed text
+    Success = Color3.fromRGB(60, 180, 60),     -- Dark green
+    Warning = Color3.fromRGB(200, 140, 60),    -- Dark orange
+    Error = Color3.fromRGB(180, 60, 60),       -- Dark red
+    Border = Color3.fromRGB(35, 35, 40),       -- Dark border
+    Glow = Color3.fromRGB(80, 120, 160)        -- Subtle glow
 }
 
 -- Configuration
@@ -52,18 +52,18 @@ MainWindow.BorderSizePixel = 0
 MainWindow.Parent = ScreenGui
 MainWindow.ClipsDescendants = true
 
--- Metallic border with glow
+-- Deep metallic border with subtle glow
 local MainBorder = Instance.new("UIStroke")
 MainBorder.Thickness = 2
 MainBorder.Color = Colors.Border
-MainBorder.Transparency = 0
+MainBorder.Transparency = 0.2
 MainBorder.Parent = MainWindow
 
--- Inner glow effect
+-- Inner metallic glow effect
 local InnerGlow = Instance.new("UIStroke")
 InnerGlow.Thickness = 1
 InnerGlow.Color = Colors.Glow
-InnerGlow.Transparency = 0.7
+InnerGlow.Transparency = 0.85
 InnerGlow.Parent = MainWindow
 
 -- Rounded corners
@@ -146,7 +146,7 @@ SidebarCorner.Parent = Sidebar
 local SidebarBorder = Instance.new("UIStroke")
 SidebarBorder.Thickness = 1
 SidebarBorder.Color = Colors.Border
-SidebarBorder.Transparency = 0.5
+SidebarBorder.Transparency = 0.7
 SidebarBorder.Parent = Sidebar
 
 -- Sidebar scrolling
@@ -184,7 +184,7 @@ ContentCorner.Parent = MainContent
 local ContentBorder = Instance.new("UIStroke")
 ContentBorder.Thickness = 1
 ContentBorder.Color = Colors.Border
-ContentBorder.Transparency = 0.5
+ContentBorder.Transparency = 0.7
 ContentBorder.Parent = MainContent
 
 -- Content scrolling
@@ -260,7 +260,7 @@ local function createButton(text, icon, callback)
     local buttonBorder = Instance.new("UIStroke")
     buttonBorder.Thickness = 1
     buttonBorder.Color = Colors.Border
-    buttonBorder.Transparency = 0.8
+    buttonBorder.Transparency = 0.9
     buttonBorder.Parent = button
     
     -- Hover effects
@@ -305,7 +305,7 @@ local function createToggle(name, icon, callback)
     local toggleBorder = Instance.new("UIStroke")
     toggleBorder.Thickness = 1
     toggleBorder.Color = Colors.Border
-    toggleBorder.Transparency = 0.7
+    toggleBorder.Transparency = 0.8
     toggleBorder.Parent = toggleFrame
     
     local toggleLabel = Instance.new("TextLabel")
@@ -368,7 +368,7 @@ local function createActionButton(name, icon, callback)
     local buttonBorder = Instance.new("UIStroke")
     buttonBorder.Thickness = 1
     buttonBorder.Color = Colors.Border
-    buttonBorder.Transparency = 0.7
+    buttonBorder.Transparency = 0.8
     buttonBorder.Parent = button
     
     -- Hover effects
