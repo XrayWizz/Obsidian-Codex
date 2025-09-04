@@ -1934,6 +1934,175 @@ local function showPlayers()
         trackingEnabled = enabled
         notify("Player Tracking: " .. (enabled and "ON" or "OFF"), enabled and "success" or "info")
     end)
+    
+    createSection("📊 Advanced Player Stats")
+    
+    createToggleWithDropdown("Advanced Player Stats", "📈", function(enabled)
+        notify("Advanced Player Stats: " .. (enabled and "ON" or "OFF"), enabled and "success" or "info")
+    end, function(dropdownFrame)
+        -- Player selector dropdown
+        local playerSelectorFrame = Instance.new("Frame")
+        playerSelectorFrame.Size = UDim2.new(1, 0, 0, 32)
+        playerSelectorFrame.BackgroundTransparency = 1
+        playerSelectorFrame.Parent = dropdownFrame
+        
+        local playerSelectorLabel = Instance.new("TextLabel")
+        playerSelectorLabel.Size = UDim2.new(0.4, 0, 1, 0)
+        playerSelectorLabel.BackgroundTransparency = 1
+        playerSelectorLabel.Font = Enum.Font.GothamSemibold
+        playerSelectorLabel.TextSize = 12
+        playerSelectorLabel.TextColor3 = Colors.Text
+        playerSelectorLabel.TextXAlignment = Enum.TextXAlignment.Left
+        playerSelectorLabel.Text = "Choose player:"
+        playerSelectorLabel.Parent = playerSelectorFrame
+        
+        local playerDropdown = Instance.new("TextButton")
+        playerDropdown.Size = UDim2.new(0.6, -8, 1, 0)
+        playerDropdown.Position = UDim2.new(0.4, 8, 0, 0)
+        playerDropdown.BackgroundColor3 = Colors.Secondary
+        playerDropdown.BorderSizePixel = 0
+        playerDropdown.AutoButtonColor = false
+        playerDropdown.Font = Enum.Font.Gotham
+        playerDropdown.TextSize = 11
+        playerDropdown.TextColor3 = Colors.Text
+        playerDropdown.Text = "Select Player"
+        playerDropdown.Parent = playerSelectorFrame
+        
+        local playerDropdownCorner = Instance.new("UICorner")
+        playerDropdownCorner.CornerRadius = UDim.new(0, 4)
+        playerDropdownCorner.Parent = playerDropdown
+        
+        local playerDropdownBorder = Instance.new("UIStroke")
+        playerDropdownBorder.Thickness = 1
+        playerDropdownBorder.Color = Colors.Border
+        playerDropdownBorder.Transparency = 0.8
+        playerDropdownBorder.Parent = playerDropdown
+        
+        -- Player stats display
+        local statsDisplayFrame = Instance.new("Frame")
+        statsDisplayFrame.Size = UDim2.new(1, 0, 0, 120)
+        statsDisplayFrame.BackgroundColor3 = Colors.Secondary
+        statsDisplayFrame.BorderSizePixel = 0
+        statsDisplayFrame.Visible = false
+        statsDisplayFrame.Parent = dropdownFrame
+        
+        local statsDisplayCorner = Instance.new("UICorner")
+        statsDisplayCorner.CornerRadius = UDim.new(0, 4)
+        statsDisplayCorner.Parent = statsDisplayFrame
+        
+        local statsDisplayBorder = Instance.new("UIStroke")
+        statsDisplayBorder.Thickness = 1
+        statsDisplayBorder.Color = Colors.Border
+        statsDisplayBorder.Transparency = 0.8
+        statsDisplayBorder.Parent = statsDisplayFrame
+        
+        local statsText = Instance.new("TextLabel")
+        statsText.Size = UDim2.new(1, -16, 1, -16)
+        statsText.Position = UDim2.new(0, 8, 0, 8)
+        statsText.BackgroundTransparency = 1
+        statsText.Font = Enum.Font.Gotham
+        statsText.TextSize = 10
+        statsText.TextColor3 = Colors.Text
+        statsText.TextXAlignment = Enum.TextXAlignment.Left
+        statsText.TextYAlignment = Enum.TextYAlignment.Top
+        statsText.TextWrapped = true
+        statsText.Text = "Select a player to view their stats"
+        statsText.Parent = statsDisplayFrame
+        
+        local selectedPlayer = nil
+        local statsConnection = nil
+        
+        -- Function to update player stats
+        local function updatePlayerStats(player)
+            if not player or not player.Character then
+                statsText.Text = "Player not found or not loaded"
+                return
+            end
+            
+            local character = player.Character
+            local humanoid = character:FindFirstChild("Humanoid")
+            local health = humanoid and math.floor(humanoid.Health) or "N/A"
+            local maxHealth = humanoid and math.floor(humanoid.MaxHealth) or "N/A"
+            
+            -- Try to get player data (this might not work in all games)
+            local playerData = "N/A"
+            local fruit = "N/A"
+            local beli = "N/A"
+            local frags = "N/A"
+            
+            -- Attempt to get player stats (game-specific)
+            if character:FindFirstChild("Humanoid") then
+                -- This is a generic approach - actual implementation depends on the game
+                playerData = "Level: " .. (humanoid.Level or "N/A")
+            end
+            
+            statsText.Text = string.format(
+                "👤 Username: %s\n🏷️ Display Name: %s\n❤️ Health: %s/%s\n💰 Beli: %s\n💎 Fragments: %s\n🍎 Fruit: %s\n📊 %s",
+                player.Name,
+                player.DisplayName,
+                health,
+                maxHealth,
+                beli,
+                frags,
+                fruit,
+                playerData
+            )
+        end
+        
+        -- Function to populate player dropdown
+        local function populatePlayerDropdown()
+            local players = Players:GetPlayers()
+            playerDropdown.Text = "Select Player (" .. #players .. " online)"
+        end
+        
+        -- Player dropdown click handler
+        playerDropdown.MouseButton1Click:Connect(function()
+            local players = Players:GetPlayers()
+            if #players > 1 then
+                -- Simple player selection (in a real implementation, you'd want a proper dropdown)
+                local currentIndex = 1
+                if selectedPlayer then
+                    for i, player in ipairs(players) do
+                        if player == selectedPlayer then
+                            currentIndex = i
+                            break
+                        end
+                    end
+                end
+                
+                currentIndex = currentIndex + 1
+                if currentIndex > #players then
+                    currentIndex = 1
+                end
+                
+                selectedPlayer = players[currentIndex]
+                playerDropdown.Text = selectedPlayer.DisplayName
+                statsDisplayFrame.Visible = true
+                updatePlayerStats(selectedPlayer)
+                
+                -- Start live stats monitoring
+                if statsConnection then
+                    statsConnection:Disconnect()
+                end
+                statsConnection = RunService.Heartbeat:Connect(function()
+                    if selectedPlayer then
+                        updatePlayerStats(selectedPlayer)
+                    end
+                end)
+                
+                notify("Now monitoring: " .. selectedPlayer.DisplayName, "success")
+            else
+                notify("No other players to monitor", "warning")
+            end
+        end)
+        
+        -- Initialize dropdown
+        populatePlayerDropdown()
+        
+        -- Update dropdown when players join/leave
+        Players.PlayerAdded:Connect(populatePlayerDropdown)
+        Players.PlayerRemoving:Connect(populatePlayerDropdown)
+    end)
 end
 
 local function showAI()
@@ -2382,6 +2551,158 @@ local function showMisc()
     createToggle("Auto Claim Rewards", "🎁", function(enabled)
         autoClaim = enabled
         notify("Auto Claim Rewards: " .. (enabled and "ON" or "OFF"), enabled and "success" or "info")
+    end)
+    
+    -- Server Settings Collapsible Section
+    local serverSettingsFrame = Instance.new("Frame")
+    serverSettingsFrame.Size = UDim2.new(1, -8, 0, 32)
+    serverSettingsFrame.BackgroundColor3 = Colors.Secondary
+    serverSettingsFrame.BorderSizePixel = 0
+    serverSettingsFrame.Parent = ContentScroller
+    
+    local serverSettingsCorner = Instance.new("UICorner")
+    serverSettingsCorner.CornerRadius = UDim.new(0, 4)
+    serverSettingsCorner.Parent = serverSettingsFrame
+    
+    local serverSettingsBorder = Instance.new("UIStroke")
+    serverSettingsBorder.Thickness = 1
+    serverSettingsBorder.Color = Colors.Border
+    serverSettingsBorder.Transparency = 0.8
+    serverSettingsBorder.Parent = serverSettingsFrame
+    
+    local serverSettingsButton = Instance.new("TextButton")
+    serverSettingsButton.Size = UDim2.new(1, 0, 1, 0)
+    serverSettingsButton.BackgroundTransparency = 1
+    serverSettingsButton.Font = Enum.Font.GothamSemibold
+    serverSettingsButton.TextSize = 12
+    serverSettingsButton.TextColor3 = Colors.Text
+    serverSettingsButton.TextXAlignment = Enum.TextXAlignment.Left
+    serverSettingsButton.Text = "🌐 Server Settings"
+    serverSettingsButton.Parent = serverSettingsFrame
+    
+    local serverDropdownIcon = Instance.new("TextLabel")
+    serverDropdownIcon.Size = UDim2.new(0, 20, 0, 20)
+    serverDropdownIcon.Position = UDim2.new(1, -25, 0, 6)
+    serverDropdownIcon.BackgroundTransparency = 1
+    serverDropdownIcon.Font = Enum.Font.GothamBold
+    serverDropdownIcon.TextSize = 14
+    serverDropdownIcon.TextColor3 = Colors.Text
+    serverDropdownIcon.TextXAlignment = Enum.TextXAlignment.Center
+    serverDropdownIcon.Text = "▼"
+    serverDropdownIcon.Parent = serverSettingsFrame
+    
+    local serverSettingsDropdown = Instance.new("Frame")
+    serverSettingsDropdown.Size = UDim2.new(1, -16, 0, 0)
+    serverSettingsDropdown.Position = UDim2.new(0, 8, 0, 32)
+    serverSettingsDropdown.BackgroundTransparency = 1
+    serverSettingsDropdown.Visible = false
+    serverSettingsDropdown.Parent = serverSettingsFrame
+    
+    local serverSettingsLayout = Instance.new("UIListLayout")
+    serverSettingsLayout.FillDirection = Enum.FillDirection.Vertical
+    serverSettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    serverSettingsLayout.Padding = UDim.new(0, 4)
+    serverSettingsLayout.Parent = serverSettingsDropdown
+    
+    local isServerSettingsExpanded = false
+    
+    serverSettingsButton.MouseButton1Click:Connect(function()
+        isServerSettingsExpanded = not isServerSettingsExpanded
+        serverSettingsDropdown.Visible = isServerSettingsExpanded
+        serverDropdownIcon.Text = isServerSettingsExpanded and "▲" or "▼"
+        
+        if isServerSettingsExpanded then
+            serverSettingsDropdown.Size = UDim2.new(1, -16, 0, 0)
+            task.wait(0.1)
+            local targetHeight = serverSettingsLayout.AbsoluteContentSize.Y + 8
+            serverSettingsDropdown:TweenSize(
+                UDim2.new(1, -16, 0, targetHeight),
+                "Out", "Quad", 0.2, true
+            )
+            serverSettingsFrame:TweenSize(
+                UDim2.new(1, -8, 0, 32 + targetHeight + 8),
+                "Out", "Quad", 0.2, true
+            )
+        else
+            serverSettingsDropdown:TweenSize(
+                UDim2.new(1, -16, 0, 0),
+                "Out", "Quad", 0.2, true,
+                function()
+                    serverSettingsDropdown.Visible = false
+                end
+            )
+            serverSettingsFrame:TweenSize(
+                UDim2.new(1, -8, 0, 32),
+                "Out", "Quad", 0.2, true
+            )
+        end
+    end)
+    
+    -- Rejoin Current Server Button
+    local rejoinButton = Instance.new("TextButton")
+    rejoinButton.Size = UDim2.new(1, 0, 0, 28)
+    rejoinButton.BackgroundColor3 = Colors.Secondary
+    rejoinButton.BorderSizePixel = 0
+    rejoinButton.AutoButtonColor = false
+    rejoinButton.Font = Enum.Font.GothamSemibold
+    rejoinButton.TextSize = 12
+    rejoinButton.TextColor3 = Colors.Text
+    rejoinButton.Text = "🔄 Rejoin Current Server"
+    rejoinButton.Parent = serverSettingsDropdown
+    
+    local rejoinCorner = Instance.new("UICorner")
+    rejoinCorner.CornerRadius = UDim.new(0, 4)
+    rejoinCorner.Parent = rejoinButton
+    
+    rejoinButton.MouseButton1Click:Connect(function()
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+        notify("Rejoining current server...", "info")
+    end)
+    
+    -- Respawn Button
+    local respawnButton = Instance.new("TextButton")
+    respawnButton.Size = UDim2.new(1, 0, 0, 28)
+    respawnButton.BackgroundColor3 = Colors.Secondary
+    respawnButton.BorderSizePixel = 0
+    respawnButton.AutoButtonColor = false
+    respawnButton.Font = Enum.Font.GothamSemibold
+    respawnButton.TextSize = 12
+    respawnButton.TextColor3 = Colors.Text
+    respawnButton.Text = "💀 Respawn Player"
+    respawnButton.Parent = serverSettingsDropdown
+    
+    local respawnCorner = Instance.new("UICorner")
+    respawnCorner.CornerRadius = UDim.new(0, 4)
+    respawnCorner.Parent = respawnButton
+    
+    respawnButton.MouseButton1Click:Connect(function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.Health = 0
+            notify("Player respawned", "success")
+        else
+            notify("Character not found", "error")
+        end
+    end)
+    
+    -- Exit Server Button
+    local exitButton = Instance.new("TextButton")
+    exitButton.Size = UDim2.new(1, 0, 0, 28)
+    exitButton.BackgroundColor3 = Color3.fromRGB(150, 50, 50) -- Red background for exit
+    exitButton.BorderSizePixel = 0
+    exitButton.AutoButtonColor = false
+    exitButton.Font = Enum.Font.GothamSemibold
+    exitButton.TextSize = 12
+    exitButton.TextColor3 = Colors.Text
+    exitButton.Text = "🚪 Exit Server"
+    exitButton.Parent = serverSettingsDropdown
+    
+    local exitCorner = Instance.new("UICorner")
+    exitCorner.CornerRadius = UDim.new(0, 4)
+    exitCorner.Parent = exitButton
+    
+    exitButton.MouseButton1Click:Connect(function()
+        LocalPlayer:Kick("Exited via Obsidian-Codex")
+        notify("Exiting server...", "warning")
     end)
 end
 
