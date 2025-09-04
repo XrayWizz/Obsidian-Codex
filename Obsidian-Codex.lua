@@ -474,6 +474,8 @@ end
 -- Active button tracking
 local activeButton = nil
 local function setActiveButton(button)
+    print("setActiveButton called with button:", button ~= nil)
+    
     if activeButton then
         TweenService:Create(activeButton, TweenInfo.new(Config.AnimationSpeed), {
             BackgroundColor3 = Colors.Secondary,
@@ -481,11 +483,16 @@ local function setActiveButton(button)
         }):Play()
     end
     
-    activeButton = button
-    TweenService:Create(button, TweenInfo.new(Config.AnimationSpeed), {
-        BackgroundColor3 = Colors.Accent,
-        TextColor3 = Colors.Primary
-    }):Play()
+    if button then
+        activeButton = button
+        TweenService:Create(button, TweenInfo.new(Config.AnimationSpeed), {
+            BackgroundColor3 = Colors.Accent,
+            TextColor3 = Colors.Primary
+        }):Play()
+        print("Button tweened successfully")
+    else
+        print("ERROR: Button is null in setActiveButton!")
+    end
 end
 
 -- Notification system
@@ -1363,6 +1370,8 @@ local function showHomepage()
     
     createSection("🏠 Welcome to Obsidian-Codex v1.0")
     print("Section created, children count:", #ContentScroller:GetChildren())
+    
+    print("About to create test frame...")
     
     -- Test: Add a visible background first
     local testFrame = Instance.new("Frame")
