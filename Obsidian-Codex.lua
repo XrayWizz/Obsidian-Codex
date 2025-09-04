@@ -192,8 +192,7 @@ local ContentScroller = Instance.new("ScrollingFrame")
 ContentScroller.Name = "ContentScroller"
 ContentScroller.Size = UDim2.new(1, -8, 1, -8)
 ContentScroller.Position = UDim2.new(0, 4, 0, 4)
-ContentScroller.BackgroundTransparency = 0.5 -- Temporarily make it visible for debugging
-ContentScroller.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red background for debugging
+ContentScroller.BackgroundTransparency = 1
 ContentScroller.BorderSizePixel = 0
 ContentScroller.ScrollBarThickness = 3
 ContentScroller.ScrollBarImageColor3 = Colors.Accent
@@ -439,12 +438,10 @@ local function createActionButton(name, icon, callback)
 end
 
 local function createSection(title)
-    print("Creating section:", title)
     local sectionFrame = Instance.new("Frame")
     sectionFrame.Size = UDim2.new(1, -8, 0, 24)
     sectionFrame.BackgroundTransparency = 1
     sectionFrame.Parent = ContentScroller
-    print("Section parented to ContentScroller")
     
     local sectionLabel = Instance.new("TextLabel")
     sectionLabel.Size = UDim2.new(1, 0, 1, 0)
@@ -1352,13 +1349,10 @@ end
 
 -- Tab Content Functions
 local function showHomepage()
-    print("showHomepage called")
     clearContent()
-    print("Content cleared, children count:", #ContentScroller:GetChildren())
     setActiveButton(HomepageButton)
     
     createSection("🏠 Welcome to Obsidian-Codex v1.0")
-    print("Section created, children count:", #ContentScroller:GetChildren())
     
     local welcomeText = Instance.new("TextLabel")
     welcomeText.Size = UDim2.new(1, -8, 0, 80)
@@ -2015,20 +2009,20 @@ LocalPlayer.CharacterAdded:Connect(function(character)
     end
 end)
 
+-- Create sidebar buttons FIRST
+local HomepageButton = createButton("Home", "🏠", showHomepage)
+local PlayersButton = createButton("Players", "👤", showPlayers)
+local AIButton = createButton("AI Player", "🤖", showAI)
+local FarmingButton = createButton("Farming", "⚔️", showFarming)
+local QuestsButton = createButton("Quests", "🍒", showQuests)
+local TeleportButton = createButton("Teleport", "🧭", showTeleport)
+local VisualsButton = createButton("Visuals", "🌈", showVisuals)
+local ShopButton = createButton("Shop", "🛒", showShop)
+local MiscButton = createButton("Misc", "⚙️", showMisc)
+
 -- Show default content
 task.wait(0.1) -- Small delay to ensure UI is fully loaded
-
--- Debug: Check if ContentScroller exists and is visible
-print("ContentScroller exists:", ContentScroller ~= nil)
-print("ContentScroller visible:", ContentScroller.Visible)
-print("ContentScroller size:", ContentScroller.Size)
-print("ContentScroller position:", ContentScroller.Position)
-
 showHomepage()
-
--- Debug: Check content after showHomepage
-task.wait(0.1)
-print("ContentScroller children count:", #ContentScroller:GetChildren())
 
 -- Initialize UI
 notify("Obsidian-Codex v1.0 loaded successfully!", "success")
