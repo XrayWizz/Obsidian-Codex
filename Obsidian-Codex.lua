@@ -1,8 +1,6 @@
 -- Obsidian-Codex - Advanced Roblox Enhancement Suite
 -- Deep Dark Metallic UI + Comprehensive Game Features
 
-print("Script starting...")
-
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -95,7 +93,7 @@ TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 12
 TitleText.TextColor3 = Colors.Text
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
-TitleText.Text = "Obsidian-Codex v1.0"
+TitleText.Text = "Obsidian-Codex v1.1"
 TitleText.Parent = TitleBar
 
 -- Window controls
@@ -334,7 +332,6 @@ local function createButton(text, icon, callback)
         button.MouseButton1Click:Connect(callback)
     end
     
-    print("createButton returning button:", button ~= nil, "for text:", text)
     return button
 end
 
@@ -441,23 +438,20 @@ local function createActionButton(name, icon, callback)
 end
 
 local function createSection(title)
-    print("Creating section:", title)
     local sectionFrame = Instance.new("Frame")
     sectionFrame.Size = UDim2.new(1, -8, 0, 24)
     sectionFrame.BackgroundTransparency = 1
     sectionFrame.Parent = ContentScroller
-    print("Section parented, children count:", #ContentScroller:GetChildren())
     
     local sectionLabel = Instance.new("TextLabel")
     sectionLabel.Size = UDim2.new(1, 0, 1, 0)
     sectionLabel.BackgroundTransparency = 1
     sectionLabel.Font = Enum.Font.GothamBold
-    sectionLabel.TextSize = 14
-    sectionLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Bright white text
+    sectionLabel.TextSize = 12
+    sectionLabel.TextColor3 = Colors.Accent
     sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
     sectionLabel.Text = title
     sectionLabel.Parent = sectionFrame
-    print("Section label created and parented")
     
     return sectionFrame
 end
@@ -474,8 +468,6 @@ end
 -- Active button tracking
 local activeButton = nil
 local function setActiveButton(button)
-    print("setActiveButton called with button:", button ~= nil)
-    
     if activeButton then
         TweenService:Create(activeButton, TweenInfo.new(Config.AnimationSpeed), {
             BackgroundColor3 = Colors.Secondary,
@@ -489,9 +481,6 @@ local function setActiveButton(button)
             BackgroundColor3 = Colors.Accent,
             TextColor3 = Colors.Primary
         }):Play()
-        print("Button tweened successfully")
-    else
-        print("ERROR: Button is null in setActiveButton!")
     end
 end
 
@@ -1362,42 +1351,22 @@ end
 
 -- Tab Content Functions
 local function showHomepage()
-    print("showHomepage called")
     clearContent()
-    print("Content cleared, children count:", #ContentScroller:GetChildren())
     setActiveButton(HomepageButton)
-    print("Active button set")
     
-    createSection("🏠 Welcome to Obsidian-Codex v1.0")
-    print("Section created, children count:", #ContentScroller:GetChildren())
-    
-    print("About to create test frame...")
-    
-    -- Test: Add a visible background first
-    local testFrame = Instance.new("Frame")
-    testFrame.Size = UDim2.new(1, -8, 0, 100)
-    testFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background
-    testFrame.BorderSizePixel = 0
-    testFrame.Parent = ContentScroller
-    
-    local testCorner = Instance.new("UICorner")
-    testCorner.CornerRadius = UDim.new(0, 4)
-    testCorner.Parent = testFrame
+    createSection("🏠 Welcome to Obsidian-Codex v1.1")
     
     local welcomeText = Instance.new("TextLabel")
-    welcomeText.Size = UDim2.new(1, -16, 1, -16)
-    welcomeText.Position = UDim2.new(0, 8, 0, 8)
+    welcomeText.Size = UDim2.new(1, -8, 0, 80)
     welcomeText.BackgroundTransparency = 1
     welcomeText.Font = Enum.Font.Gotham
-    welcomeText.TextSize = 12
-    welcomeText.TextColor3 = Color3.fromRGB(255, 255, 255) -- Bright white text
+    welcomeText.TextSize = 11
+    welcomeText.TextColor3 = Colors.TextDim
     welcomeText.TextXAlignment = Enum.TextXAlignment.Left
     welcomeText.TextYAlignment = Enum.TextYAlignment.Top
     welcomeText.TextWrapped = true
     welcomeText.Text = "Advanced Roblox enhancement suite with comprehensive features:\n\n• Advanced Player Tracking & ESP\n• Auto Farming (All Seas)\n• Combat Enhancements\n• Quest Automation\n• Teleportation Tools\n• Visual Effects\n• Shop Utilities\n• Anti-AFK & Auto Rejoin"
-    welcomeText.Parent = testFrame
-    
-    print("Welcome text created and parented")
+    welcomeText.Parent = ContentScroller
     
     createSection("📊 Quick Stats")
     
@@ -1434,7 +1403,7 @@ local function showHomepage()
     changelogText.TextXAlignment = Enum.TextXAlignment.Left
     changelogText.TextYAlignment = Enum.TextYAlignment.Top
     changelogText.TextWrapped = true
-    changelogText.Text = "v1.0 - Initial Release\n• Deep dark metallic theme\n• Complete ESP system with player tracking\n• Auto farming for all enemy types\n• Quest automation system\n• Advanced teleportation tools\n• Shop utilities with auto-buy features\n• Anti-AFK and server management\n• Comprehensive visual effects\n• Streamlined UI with neon accents\n• AI Player System - Bot plays the game for you!"
+    changelogText.Text = "v1.1 - UI Fixes & Improvements\n• Fixed sidebar button functionality and content display\n• Resolved TweenService errors and circular reference issues\n• Cleaned up duplicate sidebar buttons\n• Improved content loading and UI responsiveness\n• Enhanced debugging and error handling\n\nv1.0 - Initial Release\n• Deep dark metallic theme\n• Complete ESP system with player tracking\n• Auto farming for all enemy types\n• Quest automation system\n• Advanced teleportation tools\n• Shop utilities with auto-buy features\n• Anti-AFK and server management\n• Comprehensive visual effects\n• Streamlined UI with neon accents\n• AI Player System - Bot plays the game for you!"
     changelogText.Parent = ContentScroller
 end
 
@@ -1956,17 +1925,6 @@ local function showMisc()
     end)
 end
 
--- Create sidebar buttons
-local HomepageButton = createButton("Home", "🏠", showHomepage)
-local PlayersButton = createButton("Players", "👤", showPlayers)
-local AIButton = createButton("AI Player", "🤖", showAI)
-local FarmingButton = createButton("Farming", "⚔️", showFarming)
-local QuestsButton = createButton("Quests", "🍒", showQuests)
-local TeleportButton = createButton("Teleport", "🧭", showTeleport)
-local VisualsButton = createButton("Visuals", "🌈", showVisuals)
-local ShopButton = createButton("Shop", "🛒", showShop)
-local MiscButton = createButton("Misc", "⚙️", showMisc)
-
 -- Window controls
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
@@ -2043,7 +2001,6 @@ LocalPlayer.CharacterAdded:Connect(function(character)
 end)
 
 -- Create sidebar buttons FIRST (without callbacks to avoid circular reference)
-print("About to create buttons...")
 local HomepageButton = createButton("Home", "🏠", nil)
 local PlayersButton = createButton("Players", "👤", nil)
 local AIButton = createButton("AI Player", "🤖", nil)
@@ -2053,8 +2010,6 @@ local TeleportButton = createButton("Teleport", "🧭", nil)
 local VisualsButton = createButton("Visuals", "🌈", nil)
 local ShopButton = createButton("Shop", "🛒", nil)
 local MiscButton = createButton("Misc", "⚙️", nil)
-
-print("All buttons created, adding callbacks...")
 
 -- Now add the callbacks
 HomepageButton.MouseButton1Click:Connect(showHomepage)
@@ -2067,12 +2022,9 @@ VisualsButton.MouseButton1Click:Connect(showVisuals)
 ShopButton.MouseButton1Click:Connect(showShop)
 MiscButton.MouseButton1Click:Connect(showMisc)
 
-print("All buttons created")
-
 -- Show default content
 task.wait(0.1) -- Small delay to ensure UI is fully loaded
-print("About to call showHomepage, HomepageButton exists:", HomepageButton ~= nil)
 showHomepage()
 
 -- Initialize UI
-notify("Obsidian-Codex v1.0 loaded successfully!", "success")
+notify("Obsidian-Codex v1.1 loaded successfully!", "success")
