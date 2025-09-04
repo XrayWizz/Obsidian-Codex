@@ -1,5 +1,5 @@
--- Oxygen-ISR - Advanced Roblox Enhancement Suite
--- Hybrid Version: Modern Metallic UI + Comprehensive Game Features
+-- Obsidian-Codex - Advanced Roblox Enhancement Suite
+-- Deep Dark Metallic UI + Comprehensive Game Features
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -37,7 +37,7 @@ local Config = {
 
 -- Create Main UI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "OxygenISR"
+ScreenGui.Name = "ObsidianCodex"
 ScreenGui.Parent = game.CoreGui
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -93,7 +93,7 @@ TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 14
 TitleText.TextColor3 = Colors.Text
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
-TitleText.Text = "Oxygen-ISR v3.1"
+TitleText.Text = "Obsidian-Codex v1.0"
 TitleText.Parent = TitleBar
 
 -- Window controls
@@ -101,7 +101,7 @@ local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseButton"
 CloseButton.Size = UDim2.new(0, 28, 0, 28)
 CloseButton.Position = UDim2.new(1, -32, 0, 2)
-CloseButton.BackgroundColor3 = Colors.Error
+CloseButton.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
 CloseButton.BorderSizePixel = 0
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.TextSize = 12
@@ -670,7 +670,7 @@ local function showHomepage()
     clearContent()
     setActiveButton(HomepageButton)
     
-    createSection("🏠 Welcome to Oxygen-ISR v3.1")
+    createSection("🏠 Welcome to Obsidian-Codex v1.0")
     
     local welcomeText = Instance.new("TextLabel")
     welcomeText.Size = UDim2.new(1, -8, 0, 80)
@@ -1074,6 +1074,7 @@ local MiscButton = createButton("Misc", "⚙️", showMisc)
 -- Window controls
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
+    script:Destroy()
 end)
 
 local minimized = false
@@ -1132,4 +1133,4 @@ end)
 showHomepage()
 
 -- Initialize UI
-notify("Oxygen-ISR v3.1 Hybrid Edition loaded successfully!", "success")
+notify("Obsidian-Codex v1.0 loaded successfully!", "success")
