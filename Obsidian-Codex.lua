@@ -246,6 +246,34 @@ local tracerConnections = {}
 local chamConnections = {}
 local antiAFKConnection = nil
 
+-- AI Player System Variables
+local aiEnabled = false
+local aiMode = "Farming" -- Farming, Questing, Exploring, Combat
+local aiTarget = nil
+local aiPathfinding = nil
+local aiConnection = nil
+local aiState = "Idle" -- Idle, Moving, Fighting, Collecting, Questing
+local aiTargets = {}
+local aiBlacklist = {}
+local aiStats = {
+    enemiesKilled = 0,
+    questsCompleted = 0,
+    itemsCollected = 0,
+    distanceTraveled = 0
+}
+
+-- Human-like AI Behavior Variables
+local aiPersonality = {
+    reactionTime = math.random(200, 800), -- ms delay before actions
+    movementStyle = "Normal", -- Normal, Cautious, Aggressive
+    decisionDelay = math.random(1, 3), -- seconds between decisions
+    lastActionTime = 0,
+    lastMoveTime = 0,
+    randomPauseChance = 0.1, -- 10% chance to pause randomly
+    lookAroundChance = 0.05, -- 5% chance to look around
+    combatStyle = "Balanced" -- Balanced, Aggressive, Defensive
+}
+
 -- Player enhancement variables
 local originalWalkSpeed = 16
 local originalJumpPower = 50
@@ -914,6 +942,409 @@ local function serverHop()
     end
 end
 
+-- AI Player System Functions
+local function findNearestEnemy()
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
+    
+    local humanoidRootPart = character.HumanoidRootPart
+    local nearestEnemy = nil
+    local nearestDistance = math.huge
+    
+    -- Search for enemies in workspace
+    for _, obj in pairs(Workspace:GetChildren()) do
+        if obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") and obj.Humanoid.Health > 0 then
+            if obj.Name:find("Bandit") or obj.Name:find("Marine") or obj.Name:find("Pirate") or obj.Name:find("Enemy") then
+                local distance = (humanoidRootPart.Position - obj.HumanoidRootPart.Position).Magnitude
+                if distance < nearestDistance and distance < 200 then
+                    nearestEnemy = obj
+                    nearestDistance = distance
+                end
+            end
+        end
+    end
+    
+    return nearestEnemy
+end
+
+local function findNearestItem()
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
+    
+    local humanoidRootPart = character.HumanoidRootPart
+    local nearestItem = nil
+    local nearestDistance = math.huge
+    
+    -- Search for collectible items
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("Tool") and obj:FindFirstChild("Handle") then
+            if obj.Name:find("Material") or obj.Name:find("Coin") or obj.Name:find("Gem") then
+                local distance = (humanoidRootPart.Position - obj.Handle.Position).Magnitude
+                if distance < nearestDistance and distance < 100 then
+                    nearestItem = obj
+                    nearestDistance = distance
+                end
+            end
+        end
+    end
+    
+    return nearestItem
+end
+
+local function aiMoveTo(position)
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("Humanoid") then return false end
+    
+    local humanoid = character.Humanoid
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    
+    if humanoidRootPart then
+        local distance = (humanoidRootPart.Position - position).Magnitude
+        if distance > 5 then
+            humanoid:MoveTo(position)
+            aiState = "Moving"
+            return true
+        end
+    end
+    
+    return false
+end
+
+local function aiAttack(target)
+    if not target or not target:FindFirstChild("Humanoid") or target.Humanoid.Health <= 0 then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    -- Move close to target
+    local targetPosition = target.HumanoidRootPart.Position
+    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
+    
+    if distance > 10 then
+        aiMoveTo(targetPosition)
+        return false
+    end
+    
+    -- Attack the target
+    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+        ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+        aiState = "Fighting"
+        return true
+    end
+    
+    return false
+end
+
+local function aiCollectItem(item)
+    if not item or not item:FindFirstChild("Handle") then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local distance = (character.HumanoidRootPart.Position - item.Handle.Position).Magnitude
+    
+    if distance > 5 then
+        aiMoveTo(item.Handle.Position)
+        return false
+    end
+    
+    -- Collect the item
+    firetouchinterest(character.HumanoidRootPart, item.Handle, 0)
+    wait(0.1)
+    firetouchinterest(character.HumanoidRootPart, item.Handle, 1)
+    
+    aiStats.itemsCollected = aiStats.itemsCollected + 1
+    aiState = "Collecting"
+    return true
+end
+
+local function aiThink()
+    if not aiEnabled or not LocalPlayer.Character then return end
+    
+    local character = LocalPlayer.Character
+    if not character:FindFirstChild("Humanoid") or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    if aiMode == "Farming" then
+        -- AI Farming Logic
+        local nearestEnemy = findNearestEnemy()
+        if nearestEnemy then
+            if aiAttack(nearestEnemy) then
+                aiStats.enemiesKilled = aiStats.enemiesKilled + 1
+            end
+        else
+            -- Look for items to collect
+            local nearestItem = findNearestItem()
+            if nearestItem then
+                aiCollectItem(nearestItem)
+            else
+                -- Explore randomly
+                local randomPosition = character.HumanoidRootPart.Position + Vector3.new(
+                    math.random(-50, 50),
+                    0,
+                    math.random(-50, 50)
+                )
+                aiMoveTo(randomPosition)
+                aiState = "Exploring"
+            end
+        end
+        
+    elseif aiMode == "Questing" then
+        -- AI Quest Logic
+        if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+            -- Start a quest if none active
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", "Bandit Quest")
+            aiState = "Questing"
+        end
+        
+    elseif aiMode == "Exploring" then
+        -- AI Exploration Logic
+        local randomPosition = character.HumanoidRootPart.Position + Vector3.new(
+            math.random(-100, 100),
+            0,
+            math.random(-100, 100)
+        )
+        aiMoveTo(randomPosition)
+        aiState = "Exploring"
+    end
+end
+
+local function startAI()
+    aiEnabled = true
+    notify("AI Player: ON - " .. aiMode .. " Mode (Human-like)", "success")
+    
+    aiConnection = RunService.Heartbeat:Connect(function()
+        humanThink()
+    end)
+end
+
+local function stopAI()
+    aiEnabled = false
+    aiState = "Idle"
+    notify("AI Player: OFF", "info")
+    
+    if aiConnection then
+        aiConnection:Disconnect()
+        aiConnection = nil
+    end
+end
+
+local function setAIMode(mode)
+    aiMode = mode
+    notify("AI Mode changed to: " .. mode, "info")
+    
+    if aiEnabled then
+        notify("AI Player: " .. mode .. " Mode Active", "success")
+    end
+end
+
+-- Human-like AI Behavior Functions
+local function humanDelay(min, max)
+    local delay = math.random(min or 100, max or 500) / 1000
+    wait(delay)
+end
+
+local function shouldPause()
+    return math.random() < aiPersonality.randomPauseChance
+end
+
+local function shouldLookAround()
+    return math.random() < aiPersonality.lookAroundChance
+end
+
+local function humanMoveTo(position)
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("Humanoid") then return false end
+    
+    local humanoid = character.Humanoid
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    
+    if humanoidRootPart then
+        local distance = (humanoidRootPart.Position - position).Magnitude
+        if distance > 5 then
+            -- Add human-like movement variations
+            local offset = Vector3.new(
+                math.random(-2, 2),
+                0,
+                math.random(-2, 2)
+            )
+            local targetPosition = position + offset
+            
+            -- Random pause before moving
+            if shouldPause() then
+                humanDelay(500, 1500)
+            end
+            
+            humanoid:MoveTo(targetPosition)
+            aiState = "Moving"
+            
+            -- Random look around while moving
+            if shouldLookAround() then
+                spawn(function()
+                    humanDelay(1000, 2000)
+                    -- Simulate looking around by slight position adjustment
+                    local lookOffset = Vector3.new(
+                        math.random(-5, 5),
+                        0,
+                        math.random(-5, 5)
+                    )
+                    humanoid:MoveTo(humanoidRootPart.Position + lookOffset)
+                    wait(0.5)
+                    humanoid:MoveTo(targetPosition)
+                end)
+            end
+            
+            return true
+        end
+    end
+    
+    return false
+end
+
+local function humanAttack(target)
+    if not target or not target:FindFirstChild("Humanoid") or target.Humanoid.Health <= 0 then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    -- Human-like reaction time
+    humanDelay(aiPersonality.reactionTime, aiPersonality.reactionTime + 200)
+    
+    -- Move close to target with human-like pathfinding
+    local targetPosition = target.HumanoidRootPart.Position
+    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
+    
+    if distance > 15 then
+        humanMoveTo(targetPosition)
+        return false
+    end
+    
+    -- Human-like combat behavior
+    if aiPersonality.combatStyle == "Aggressive" then
+        -- Attack immediately
+        for i = 1, math.random(3, 6) do
+            if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+                ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+                humanDelay(100, 300)
+            end
+        end
+    elseif aiPersonality.combatStyle == "Defensive" then
+        -- More cautious approach
+        if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+            humanDelay(500, 1000)
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+        end
+    else -- Balanced
+        -- Normal human-like combat
+        for i = 1, math.random(2, 4) do
+            if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+                ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+                humanDelay(200, 500)
+            end
+        end
+    end
+    
+    aiState = "Fighting"
+    return true
+end
+
+local function humanCollectItem(item)
+    if not item or not item:FindFirstChild("Handle") then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local distance = (character.HumanoidRootPart.Position - item.Handle.Position).Magnitude
+    
+    if distance > 8 then
+        humanMoveTo(item.Handle.Position)
+        return false
+    end
+    
+    -- Human-like item collection with slight hesitation
+    humanDelay(200, 600)
+    
+    -- Collect the item
+    firetouchinterest(character.HumanoidRootPart, item.Handle, 0)
+    wait(0.1)
+    firetouchinterest(character.HumanoidRootPart, item.Handle, 1)
+    
+    aiStats.itemsCollected = aiStats.itemsCollected + 1
+    aiState = "Collecting"
+    
+    -- Random pause after collecting
+    if shouldPause() then
+        humanDelay(1000, 2000)
+    end
+    
+    return true
+end
+
+local function humanThink()
+    if not aiEnabled or not LocalPlayer.Character then return end
+    
+    local character = LocalPlayer.Character
+    if not character:FindFirstChild("Humanoid") or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    -- Human-like decision timing
+    local currentTime = tick()
+    if currentTime - aiPersonality.lastActionTime < aiPersonality.decisionDelay then
+        return
+    end
+    
+    aiPersonality.lastActionTime = currentTime
+    
+    -- Random human-like behaviors
+    if shouldPause() then
+        aiState = "Idle"
+        humanDelay(2000, 5000)
+        return
+    end
+    
+    if aiMode == "Farming" then
+        -- Human-like farming behavior
+        local nearestEnemy = findNearestEnemy()
+        if nearestEnemy then
+            if humanAttack(nearestEnemy) then
+                aiStats.enemiesKilled = aiStats.enemiesKilled + 1
+            end
+        else
+            -- Look for items to collect
+            local nearestItem = findNearestItem()
+            if nearestItem then
+                humanCollectItem(nearestItem)
+            else
+                -- Human-like exploration with random wandering
+                local randomPosition = character.HumanoidRootPart.Position + Vector3.new(
+                    math.random(-80, 80),
+                    0,
+                    math.random(-80, 80)
+                )
+                humanMoveTo(randomPosition)
+                aiState = "Exploring"
+            end
+        end
+        
+    elseif aiMode == "Questing" then
+        -- Human-like quest behavior
+        if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+            humanDelay(1000, 3000) -- Think before starting quest
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", "Bandit Quest")
+            aiState = "Questing"
+        end
+        
+    elseif aiMode == "Exploring" then
+        -- Human-like exploration with more natural movement
+        local randomPosition = character.HumanoidRootPart.Position + Vector3.new(
+            math.random(-120, 120),
+            0,
+            math.random(-120, 120)
+        )
+        humanMoveTo(randomPosition)
+        aiState = "Exploring"
+    end
+end
+
 -- Tab Content Functions
 local function showHomepage()
     clearContent()
@@ -968,7 +1399,7 @@ local function showHomepage()
     changelogText.TextXAlignment = Enum.TextXAlignment.Left
     changelogText.TextYAlignment = Enum.TextYAlignment.Top
     changelogText.TextWrapped = true
-    changelogText.Text = "v1.0 - Initial Release\n• Deep dark metallic theme\n• Complete ESP system with player tracking\n• Auto farming for all enemy types\n• Quest automation system\n• Advanced teleportation tools\n• Shop utilities with auto-buy features\n• Anti-AFK and server management\n• Comprehensive visual effects\n• Streamlined UI with neon accents"
+    changelogText.Text = "v1.0 - Initial Release\n• Deep dark metallic theme\n• Complete ESP system with player tracking\n• Auto farming for all enemy types\n• Quest automation system\n• Advanced teleportation tools\n• Shop utilities with auto-buy features\n• Anti-AFK and server management\n• Comprehensive visual effects\n• Streamlined UI with neon accents\n• AI Player System - Bot plays the game for you!"
     changelogText.Parent = ContentScroller
 end
 
@@ -1038,6 +1469,97 @@ local function showPlayers()
     createToggle("Advanced Tracking", "👁️", function(enabled)
         trackingEnabled = enabled
         notify("Player Tracking: " .. (enabled and "ON" or "OFF"), enabled and "success" or "info")
+    end)
+end
+
+local function showAI()
+    clearContent()
+    setActiveButton(AIButton)
+    
+    createSection("🤖 AI Player System")
+    
+    createToggle("AI Player", "🤖", function(enabled)
+        if enabled then
+            startAI()
+        else
+            stopAI()
+        end
+    end)
+    
+    createSection("🎯 AI Modes")
+    
+    createActionButton("Farming Mode", "🌾", function()
+        setAIMode("Farming")
+    end)
+    
+    createActionButton("Questing Mode", "📋", function()
+        setAIMode("Questing")
+    end)
+    
+    createActionButton("Exploring Mode", "🗺️", function()
+        setAIMode("Exploring")
+    end)
+    
+    createActionButton("Combat Mode", "⚔️", function()
+        setAIMode("Combat")
+    end)
+    
+    createSection("📊 AI Statistics")
+    
+    local statsText = Instance.new("TextLabel")
+    statsText.Size = UDim2.new(1, -8, 0, 80)
+    statsText.BackgroundTransparency = 1
+    statsText.Font = Enum.Font.Gotham
+    statsText.TextSize = 11
+    statsText.TextColor3 = Colors.TextDim
+    statsText.TextXAlignment = Enum.TextXAlignment.Left
+    statsText.TextYAlignment = Enum.TextYAlignment.Top
+    statsText.TextWrapped = true
+    statsText.Text = "Enemies Killed: " .. aiStats.enemiesKilled .. "\nQuests Completed: " .. aiStats.questsCompleted .. "\nItems Collected: " .. aiStats.itemsCollected .. "\nDistance Traveled: " .. aiStats.distanceTraveled
+    statsText.Parent = ContentScroller
+    
+    createSection("🎮 AI Controls")
+    
+    createActionButton("Reset AI Stats", "🔄", function()
+        aiStats = {
+            enemiesKilled = 0,
+            questsCompleted = 0,
+            itemsCollected = 0,
+            distanceTraveled = 0
+        }
+        notify("AI Statistics Reset", "info")
+    end)
+    
+    createActionButton("AI Status", "📈", function()
+        notify("AI Status: " .. (aiEnabled and "ACTIVE" or "INACTIVE") .. " | Mode: " .. aiMode .. " | State: " .. aiState, "info")
+    end)
+    
+    createSection("🎭 AI Personality")
+    
+    createActionButton("Aggressive Combat", "⚔️", function()
+        aiPersonality.combatStyle = "Aggressive"
+        aiPersonality.reactionTime = math.random(100, 300)
+        notify("AI Combat Style: Aggressive", "success")
+    end)
+    
+    createActionButton("Defensive Combat", "🛡️", function()
+        aiPersonality.combatStyle = "Defensive"
+        aiPersonality.reactionTime = math.random(400, 800)
+        notify("AI Combat Style: Defensive", "success")
+    end)
+    
+    createActionButton("Balanced Combat", "⚖️", function()
+        aiPersonality.combatStyle = "Balanced"
+        aiPersonality.reactionTime = math.random(200, 600)
+        notify("AI Combat Style: Balanced", "success")
+    end)
+    
+    createActionButton("Randomize Personality", "🎲", function()
+        aiPersonality.reactionTime = math.random(200, 800)
+        aiPersonality.decisionDelay = math.random(1, 3)
+        aiPersonality.randomPauseChance = math.random(0.05, 0.15)
+        aiPersonality.lookAroundChance = math.random(0.03, 0.08)
+        notify("AI Personality Randomized!", "success")
     end)
 end
 
@@ -1402,6 +1924,7 @@ end
 -- Create sidebar buttons
 local HomepageButton = createButton("Home", "🏠", showHomepage)
 local PlayersButton = createButton("Players", "👤", showPlayers)
+local AIButton = createButton("AI Player", "🤖", showAI)
 local FarmingButton = createButton("Farming", "⚔️", showFarming)
 local QuestsButton = createButton("Quests", "🍒", showQuests)
 local TeleportButton = createButton("Teleport", "🧭", showTeleport)
