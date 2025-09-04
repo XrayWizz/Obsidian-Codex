@@ -28,7 +28,7 @@ local Colors = {
 
 -- Configuration
 local Config = {
-    WindowSize = UDim2.new(0, 520, 0, 380),
+    WindowSize = UDim2.new(0, 520, 0, 320),
     SidebarWidth = 110,
     AnimationSpeed = 0.15,
     BorderRadius = 8,
@@ -46,7 +46,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 local MainWindow = Instance.new("Frame")
 MainWindow.Name = "MainWindow"
 MainWindow.Size = Config.WindowSize
-MainWindow.Position = UDim2.new(0.5, -260, 0.5, -190)
+MainWindow.Position = UDim2.new(0.5, -260, 0.5, -160)
 MainWindow.BackgroundColor3 = Colors.Primary
 MainWindow.BorderSizePixel = 0
 MainWindow.Parent = ScreenGui
@@ -74,7 +74,7 @@ WindowCorner.Parent = MainWindow
 -- Title Bar
 local TitleBar = Instance.new("Frame")
 TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 32)
+TitleBar.Size = UDim2.new(1, 0, 0, 24)
 TitleBar.BackgroundColor3 = Colors.Secondary
 TitleBar.BorderSizePixel = 0
 TitleBar.Parent = MainWindow
@@ -87,10 +87,10 @@ TitleCorner.Parent = TitleBar
 local TitleText = Instance.new("TextLabel")
 TitleText.Name = "Title"
 TitleText.Size = UDim2.new(1, -70, 1, 0)
-TitleText.Position = UDim2.new(0, 12, 0, 0)
+TitleText.Position = UDim2.new(0, 8, 0, 0)
 TitleText.BackgroundTransparency = 1
 TitleText.Font = Enum.Font.GothamBold
-TitleText.TextSize = 14
+TitleText.TextSize = 12
 TitleText.TextColor3 = Colors.Text
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
 TitleText.Text = "Obsidian-Codex v1.0"
@@ -99,12 +99,12 @@ TitleText.Parent = TitleBar
 -- Window controls
 local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseButton"
-CloseButton.Size = UDim2.new(0, 28, 0, 28)
-CloseButton.Position = UDim2.new(1, -32, 0, 2)
-CloseButton.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+CloseButton.Size = UDim2.new(0, 22, 0, 20)
+CloseButton.Position = UDim2.new(1, -26, 0, 2)
+CloseButton.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
 CloseButton.BorderSizePixel = 0
 CloseButton.Font = Enum.Font.GothamBold
-CloseButton.TextSize = 12
+CloseButton.TextSize = 10
 CloseButton.TextColor3 = Colors.Text
 CloseButton.Text = "×"
 CloseButton.Parent = TitleBar
@@ -116,12 +116,12 @@ CloseCorner.Parent = CloseButton
 -- Minimize button
 local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, 28, 0, 28)
-MinimizeButton.Position = UDim2.new(1, -64, 0, 2)
-MinimizeButton.BackgroundColor3 = Colors.Warning
+MinimizeButton.Size = UDim2.new(0, 22, 0, 20)
+MinimizeButton.Position = UDim2.new(1, -50, 0, 2)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
 MinimizeButton.BorderSizePixel = 0
 MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.TextSize = 12
+MinimizeButton.TextSize = 10
 MinimizeButton.TextColor3 = Colors.Text
 MinimizeButton.Text = "−"
 MinimizeButton.Parent = TitleBar
@@ -133,8 +133,8 @@ MinimizeCorner.Parent = MinimizeButton
 -- Sidebar
 local Sidebar = Instance.new("Frame")
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, Config.SidebarWidth, 1, -32)
-Sidebar.Position = UDim2.new(0, 4, 0, 32)
+Sidebar.Size = UDim2.new(0, Config.SidebarWidth, 1, -28)
+Sidebar.Position = UDim2.new(0, 4, 0, 28)
 Sidebar.BackgroundColor3 = Colors.Secondary
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainWindow
@@ -171,8 +171,8 @@ SidebarLayout.Parent = SidebarScroller
 -- Main content area
 local MainContent = Instance.new("Frame")
 MainContent.Name = "MainContent"
-MainContent.Size = UDim2.new(1, -Config.SidebarWidth - 8, 1, -36)
-MainContent.Position = UDim2.new(0, Config.SidebarWidth + 4, 0, 32)
+MainContent.Size = UDim2.new(1, -Config.SidebarWidth - 8, 1, -32)
+MainContent.Position = UDim2.new(0, Config.SidebarWidth + 4, 0, 28)
 MainContent.BackgroundColor3 = Colors.Primary
 MainContent.BorderSizePixel = 0
 MainContent.Parent = MainWindow
@@ -1087,7 +1087,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
     else
         MainContent.Visible = false
         Sidebar.Visible = false
-        MainWindow.Size = UDim2.new(0, 520, 0, 32)
+        MainWindow.Size = UDim2.new(0, 520, 0, 24)
         minimized = true
     end
 end)
