@@ -1113,7 +1113,7 @@ local function startAI()
     notify("AI Player: ON - " .. aiMode .. " Mode (Human-like)", "success")
     
     aiConnection = RunService.Heartbeat:Connect(function()
-        humanThink()
+        aiThink()
     end)
 end
 
