@@ -438,20 +438,23 @@ local function createActionButton(name, icon, callback)
 end
 
 local function createSection(title)
+    print("Creating section:", title)
     local sectionFrame = Instance.new("Frame")
     sectionFrame.Size = UDim2.new(1, -8, 0, 24)
     sectionFrame.BackgroundTransparency = 1
     sectionFrame.Parent = ContentScroller
+    print("Section parented, children count:", #ContentScroller:GetChildren())
     
     local sectionLabel = Instance.new("TextLabel")
     sectionLabel.Size = UDim2.new(1, 0, 1, 0)
     sectionLabel.BackgroundTransparency = 1
     sectionLabel.Font = Enum.Font.GothamBold
-    sectionLabel.TextSize = 12
-    sectionLabel.TextColor3 = Colors.Accent
+    sectionLabel.TextSize = 14
+    sectionLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Bright white text
     sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
     sectionLabel.Text = title
     sectionLabel.Parent = sectionFrame
+    print("Section label created and parented")
     
     return sectionFrame
 end
@@ -1349,22 +1352,40 @@ end
 
 -- Tab Content Functions
 local function showHomepage()
+    print("showHomepage called")
     clearContent()
+    print("Content cleared, children count:", #ContentScroller:GetChildren())
     setActiveButton(HomepageButton)
+    print("Active button set")
     
     createSection("🏠 Welcome to Obsidian-Codex v1.0")
+    print("Section created, children count:", #ContentScroller:GetChildren())
+    
+    -- Test: Add a visible background first
+    local testFrame = Instance.new("Frame")
+    testFrame.Size = UDim2.new(1, -8, 0, 100)
+    testFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark gray background
+    testFrame.BorderSizePixel = 0
+    testFrame.Parent = ContentScroller
+    
+    local testCorner = Instance.new("UICorner")
+    testCorner.CornerRadius = UDim.new(0, 4)
+    testCorner.Parent = testFrame
     
     local welcomeText = Instance.new("TextLabel")
-    welcomeText.Size = UDim2.new(1, -8, 0, 80)
+    welcomeText.Size = UDim2.new(1, -16, 1, -16)
+    welcomeText.Position = UDim2.new(0, 8, 0, 8)
     welcomeText.BackgroundTransparency = 1
     welcomeText.Font = Enum.Font.Gotham
-    welcomeText.TextSize = 11
-    welcomeText.TextColor3 = Colors.TextDim
+    welcomeText.TextSize = 12
+    welcomeText.TextColor3 = Color3.fromRGB(255, 255, 255) -- Bright white text
     welcomeText.TextXAlignment = Enum.TextXAlignment.Left
     welcomeText.TextYAlignment = Enum.TextYAlignment.Top
     welcomeText.TextWrapped = true
     welcomeText.Text = "Advanced Roblox enhancement suite with comprehensive features:\n\n• Advanced Player Tracking & ESP\n• Auto Farming (All Seas)\n• Combat Enhancements\n• Quest Automation\n• Teleportation Tools\n• Visual Effects\n• Shop Utilities\n• Anti-AFK & Auto Rejoin"
-    welcomeText.Parent = ContentScroller
+    welcomeText.Parent = testFrame
+    
+    print("Welcome text created and parented")
     
     createSection("📊 Quick Stats")
     
