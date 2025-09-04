@@ -284,6 +284,26 @@ local noclipConnection = nil
 local selectedPlayer = nil
 
 -- Utility Functions
+local function getCurrentSea()
+    -- Check for Third Sea
+    if Workspace:FindFirstChild("Third Sea") then
+        return "Third Sea"
+    -- Check for Second Sea
+    elseif Workspace:FindFirstChild("Second Sea") then
+        return "Second Sea"
+    -- Check for First Sea
+    elseif Workspace:FindFirstChild("First Sea") then
+        return "First Sea"
+    -- Check for specific islands that indicate sea level
+    elseif Workspace:FindFirstChild("New World") then
+        return "Third Sea"
+    elseif Workspace:FindFirstChild("Grand Line") then
+        return "Second Sea"
+    else
+        return "First Sea" -- Default fallback
+    end
+end
+
 local function createButton(text, icon, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, 0, 0, 28)
@@ -1560,28 +1580,198 @@ local function showHomepage()
     welcomeText.Text = "Advanced Roblox enhancement suite with comprehensive features:\n\n• Advanced Player Tracking & ESP\n• Auto Farming (All Seas)\n• Combat Enhancements\n• Quest Automation\n• Teleportation Tools\n• Visual Effects\n• Shop Utilities\n• Anti-AFK & Auto Rejoin"
     welcomeText.Parent = ContentScroller
     
-    createSection("📊 Quick Stats")
+    -- Quick Stats Collapsible Section
+    local quickStatsFrame = Instance.new("Frame")
+    quickStatsFrame.Size = UDim2.new(1, -8, 0, 32)
+    quickStatsFrame.BackgroundColor3 = Colors.Secondary
+    quickStatsFrame.BorderSizePixel = 0
+    quickStatsFrame.Parent = ContentScroller
     
-    createActionButton("Check Player Level", "📈", function()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            local level = LocalPlayer.Character.Humanoid.Health
-            notify("Player Level: " .. tostring(level), "info")
+    local quickStatsCorner = Instance.new("UICorner")
+    quickStatsCorner.CornerRadius = UDim.new(0, 4)
+    quickStatsCorner.Parent = quickStatsFrame
+    
+    local quickStatsBorder = Instance.new("UIStroke")
+    quickStatsBorder.Thickness = 1
+    quickStatsBorder.Color = Colors.Border
+    quickStatsBorder.Transparency = 0.8
+    quickStatsBorder.Parent = quickStatsFrame
+    
+    local quickStatsButton = Instance.new("TextButton")
+    quickStatsButton.Size = UDim2.new(1, 0, 1, 0)
+    quickStatsButton.BackgroundTransparency = 1
+    quickStatsButton.Font = Enum.Font.GothamSemibold
+    quickStatsButton.TextSize = 12
+    quickStatsButton.TextColor3 = Colors.Text
+    quickStatsButton.TextXAlignment = Enum.TextXAlignment.Left
+    quickStatsButton.Text = "📊 Quick Stats"
+    quickStatsButton.Parent = quickStatsFrame
+    
+    local dropdownIcon = Instance.new("TextLabel")
+    dropdownIcon.Size = UDim2.new(0, 20, 0, 20)
+    dropdownIcon.Position = UDim2.new(1, -25, 0, 6)
+    dropdownIcon.BackgroundTransparency = 1
+    dropdownIcon.Font = Enum.Font.GothamBold
+    dropdownIcon.TextSize = 14
+    dropdownIcon.TextColor3 = Colors.Text
+    dropdownIcon.TextXAlignment = Enum.TextXAlignment.Center
+    dropdownIcon.Text = "▼"
+    dropdownIcon.Parent = quickStatsFrame
+    
+    local quickStatsDropdown = Instance.new("Frame")
+    quickStatsDropdown.Size = UDim2.new(1, -16, 0, 0)
+    quickStatsDropdown.Position = UDim2.new(0, 8, 0, 32)
+    quickStatsDropdown.BackgroundTransparency = 1
+    quickStatsDropdown.Visible = false
+    quickStatsDropdown.Parent = quickStatsFrame
+    
+    local quickStatsLayout = Instance.new("UIListLayout")
+    quickStatsLayout.FillDirection = Enum.FillDirection.Vertical
+    quickStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    quickStatsLayout.Padding = UDim.new(0, 4)
+    quickStatsLayout.Parent = quickStatsDropdown
+    
+    local isQuickStatsExpanded = false
+    
+    quickStatsButton.MouseButton1Click:Connect(function()
+        isQuickStatsExpanded = not isQuickStatsExpanded
+        quickStatsDropdown.Visible = isQuickStatsExpanded
+        dropdownIcon.Text = isQuickStatsExpanded and "▲" or "▼"
+        
+        if isQuickStatsExpanded then
+            quickStatsDropdown.Size = UDim2.new(1, -16, 0, 0)
+            task.wait(0.1)
+            local targetHeight = quickStatsLayout.AbsoluteContentSize.Y + 8
+            quickStatsDropdown:TweenSize(
+                UDim2.new(1, -16, 0, targetHeight),
+                "Out", "Quad", 0.2, true
+            )
+            quickStatsFrame:TweenSize(
+                UDim2.new(1, -8, 0, 32 + targetHeight + 8),
+                "Out", "Quad", 0.2, true
+            )
+        else
+            quickStatsDropdown:TweenSize(
+                UDim2.new(1, -16, 0, 0),
+                "Out", "Quad", 0.2, true,
+                function()
+                    quickStatsDropdown.Visible = false
+                end
+            )
+            quickStatsFrame:TweenSize(
+                UDim2.new(1, -8, 0, 32),
+                "Out", "Quad", 0.2, true
+            )
         end
     end)
     
-    createActionButton("Check Current Sea", "🌊", function()
-        local sea = "First Sea" -- Default
-        if Workspace:FindFirstChild("Second Sea") then
-            sea = "Second Sea"
-        elseif Workspace:FindFirstChild("Third Sea") then
-            sea = "Third Sea"
-        end
-        notify("Current Sea: " .. sea, "info")
+    -- Player Activity & Stats Button
+    local playerStatsButton = Instance.new("TextButton")
+    playerStatsButton.Size = UDim2.new(1, 0, 0, 28)
+    playerStatsButton.BackgroundColor3 = Colors.Secondary
+    playerStatsButton.BorderSizePixel = 0
+    playerStatsButton.AutoButtonColor = false
+    playerStatsButton.Font = Enum.Font.GothamSemibold
+    playerStatsButton.TextSize = 12
+    playerStatsButton.TextColor3 = Colors.Text
+    playerStatsButton.Text = "📈 Check Player Activity & Stats"
+    playerStatsButton.Parent = quickStatsDropdown
+    
+    local playerStatsCorner = Instance.new("UICorner")
+    playerStatsCorner.CornerRadius = UDim.new(0, 4)
+    playerStatsCorner.Parent = playerStatsButton
+    
+    playerStatsButton.MouseButton1Click:Connect(function()
+        setActiveButton(PlayersButton)
+        showPlayers()
+        notify("Opened Player Tab", "success")
     end)
     
-    createActionButton("Check Server Players", "👥", function()
-        local playerCount = #Players:GetPlayers()
-        notify("Server Players: " .. tostring(playerCount), "info")
+    -- Current Sea Button (with live detection)
+    local currentSeaButton = Instance.new("TextButton")
+    currentSeaButton.Size = UDim2.new(1, 0, 0, 28)
+    currentSeaButton.BackgroundColor3 = Colors.Secondary
+    currentSeaButton.BorderSizePixel = 0
+    currentSeaButton.AutoButtonColor = false
+    currentSeaButton.Font = Enum.Font.GothamSemibold
+    currentSeaButton.TextSize = 12
+    currentSeaButton.TextColor3 = Colors.Text
+    currentSeaButton.Text = "🌊 Check Current Sea"
+    currentSeaButton.Parent = quickStatsDropdown
+    
+    local currentSeaCorner = Instance.new("UICorner")
+    currentSeaCorner.CornerRadius = UDim.new(0, 4)
+    currentSeaCorner.Parent = currentSeaButton
+    
+    currentSeaButton.MouseButton1Click:Connect(function()
+        local currentSea = getCurrentSea()
+        notify("Current Sea: " .. currentSea, "info")
+    end)
+    
+    -- Autofarm Settings Button
+    local autofarmButton = Instance.new("TextButton")
+    autofarmButton.Size = UDim2.new(1, 0, 0, 28)
+    autofarmButton.BackgroundColor3 = Colors.Secondary
+    autofarmButton.BorderSizePixel = 0
+    autofarmButton.AutoButtonColor = false
+    autofarmButton.Font = Enum.Font.GothamSemibold
+    autofarmButton.TextSize = 12
+    autofarmButton.TextColor3 = Colors.Text
+    autofarmButton.Text = "⚔️ Autofarm Settings"
+    autofarmButton.Parent = quickStatsDropdown
+    
+    local autofarmCorner = Instance.new("UICorner")
+    autofarmCorner.CornerRadius = UDim.new(0, 4)
+    autofarmCorner.Parent = autofarmButton
+    
+    autofarmButton.MouseButton1Click:Connect(function()
+        setActiveButton(FarmingButton)
+        showFarming()
+        notify("Opened Farming Tab", "success")
+    end)
+    
+    -- Teleportation Button
+    local teleportButton = Instance.new("TextButton")
+    teleportButton.Size = UDim2.new(1, 0, 0, 28)
+    teleportButton.BackgroundColor3 = Colors.Secondary
+    teleportButton.BorderSizePixel = 0
+    teleportButton.AutoButtonColor = false
+    teleportButton.Font = Enum.Font.GothamSemibold
+    teleportButton.TextSize = 12
+    teleportButton.TextColor3 = Colors.Text
+    teleportButton.Text = "🧭 Teleportation"
+    teleportButton.Parent = quickStatsDropdown
+    
+    local teleportCorner = Instance.new("UICorner")
+    teleportCorner.CornerRadius = UDim.new(0, 4)
+    teleportCorner.Parent = teleportButton
+    
+    teleportButton.MouseButton1Click:Connect(function()
+        setActiveButton(TeleportButton)
+        showTeleport()
+        notify("Opened Teleport Tab", "success")
+    end)
+    
+    -- Help & Feedback Button
+    local helpButton = Instance.new("TextButton")
+    helpButton.Size = UDim2.new(1, 0, 0, 28)
+    helpButton.BackgroundColor3 = Colors.Secondary
+    helpButton.BorderSizePixel = 0
+    helpButton.AutoButtonColor = false
+    helpButton.Font = Enum.Font.GothamSemibold
+    helpButton.TextSize = 12
+    helpButton.TextColor3 = Colors.Text
+    helpButton.Text = "❓ Help & Feedback"
+    helpButton.Parent = quickStatsDropdown
+    
+    local helpCorner = Instance.new("UICorner")
+    helpCorner.CornerRadius = UDim.new(0, 4)
+    helpCorner.Parent = helpButton
+    
+    helpButton.MouseButton1Click:Connect(function()
+        setActiveButton(HelpButton)
+        showHelp()
+        notify("Opened Help & Feedback Tab", "success")
     end)
     
     createSection("📝 Changelog")
@@ -2270,6 +2460,52 @@ LocalPlayer.CharacterAdded:Connect(function(character)
     end
 end)
 
+local function showHelp()
+    clearContent()
+    setActiveButton(HelpButton)
+    
+    createSection("❓ Help & Feedback")
+    
+    local helpText = Instance.new("TextLabel")
+    helpText.Size = UDim2.new(1, -8, 0, 100)
+    helpText.BackgroundTransparency = 1
+    helpText.Font = Enum.Font.Gotham
+    helpText.TextSize = 11
+    helpText.TextColor3 = Colors.TextDim
+    helpText.TextXAlignment = Enum.TextXAlignment.Left
+    helpText.TextYAlignment = Enum.TextYAlignment.Top
+    helpText.TextWrapped = true
+    helpText.Text = "Welcome to Obsidian-Codex! Here's how to navigate:\n\n• Use the sidebar to switch between different feature categories\n• Toggle switches control individual features\n• Dropdown menus appear when toggles are enabled\n• Click action buttons to perform specific tasks\n• All features include visual feedback and notifications"
+    helpText.Parent = ContentScroller
+    
+    createSection("💬 Community & Support")
+    
+    createActionButton("Join Discord Server", "💬", function()
+        notify("Discord server link copied to clipboard!", "success")
+        -- For now, just show a placeholder message
+        notify("Discord server: Coming Soon! (Under Development)", "info")
+    end)
+    
+    createActionButton("Copy Discord Link", "📋", function()
+        notify("Discord server: Coming Soon! (Under Development)", "warning")
+        notify("Feature will be available in future updates", "info")
+    end)
+    
+    createSection("📝 Script Information")
+    
+    local infoText = Instance.new("TextLabel")
+    infoText.Size = UDim2.new(1, -8, 0, 80)
+    infoText.BackgroundTransparency = 1
+    infoText.Font = Enum.Font.Gotham
+    infoText.TextSize = 10
+    infoText.TextColor3 = Colors.TextDim
+    infoText.TextXAlignment = Enum.TextXAlignment.Left
+    infoText.TextYAlignment = Enum.TextYAlignment.Top
+    infoText.TextWrapped = true
+    infoText.Text = "Obsidian-Codex v1.1\nAdvanced Roblox Enhancement Suite\n\nFeatures: Player Enhancements, AI System, Auto Farming, ESP, Teleportation, Shop Utilities, and more!\n\n⚠️ Some features are still under development and will be available in future updates."
+    infoText.Parent = ContentScroller
+end
+
 -- Create sidebar buttons FIRST (without callbacks to avoid circular reference)
 local HomepageButton = createButton("Home", "🏠", nil)
 local PlayersButton = createButton("Players", "👤", nil)
@@ -2280,6 +2516,7 @@ local TeleportButton = createButton("Teleport", "🧭", nil)
 local VisualsButton = createButton("Visuals", "🌈", nil)
 local ShopButton = createButton("Shop", "🛒", nil)
 local MiscButton = createButton("Misc", "⚙️", nil)
+local HelpButton = createButton("Help", "❓", nil)
 
 -- Now add the callbacks
 HomepageButton.MouseButton1Click:Connect(showHomepage)
@@ -2291,6 +2528,7 @@ TeleportButton.MouseButton1Click:Connect(showTeleport)
 VisualsButton.MouseButton1Click:Connect(showVisuals)
 ShopButton.MouseButton1Click:Connect(showShop)
 MiscButton.MouseButton1Click:Connect(showMisc)
+HelpButton.MouseButton1Click:Connect(showHelp)
 
 -- Show default content
 task.wait(0.1) -- Small delay to ensure UI is fully loaded
