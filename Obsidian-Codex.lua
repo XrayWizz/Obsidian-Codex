@@ -198,9 +198,11 @@ ContentScroller.ScrollBarThickness = 3
 ContentScroller.ScrollBarImageColor3 = Colors.Accent
 ContentScroller.CanvasSize = UDim2.new(0, 0, 0, 0)
 ContentScroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ContentScroller.ScrollingDirection = Enum.ScrollingDirection.Y
 ContentScroller.Parent = MainContent
 
 local ContentLayout = Instance.new("UIListLayout")
+ContentLayout.Name = "ContentLayout"
 ContentLayout.FillDirection = Enum.FillDirection.Vertical
 ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ContentLayout.Padding = UDim.new(0, 4)
@@ -457,7 +459,7 @@ end
 -- Clear content function
 local function clearContent()
     for _, child in ipairs(ContentScroller:GetChildren()) do
-        if child:IsA("GuiObject") then
+        if child:IsA("GuiObject") and child.Name ~= "ContentLayout" then
             child:Destroy()
         end
     end
@@ -2008,6 +2010,7 @@ LocalPlayer.CharacterAdded:Connect(function(character)
 end)
 
 -- Show default content
+task.wait(0.1) -- Small delay to ensure UI is fully loaded
 showHomepage()
 
 -- Initialize UI
