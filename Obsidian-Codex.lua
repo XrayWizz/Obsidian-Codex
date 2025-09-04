@@ -332,6 +332,7 @@ local function createButton(text, icon, callback)
         button.MouseButton1Click:Connect(callback)
     end
     
+    print("createButton returning button:", button ~= nil, "for text:", text)
     return button
 end
 
@@ -2031,7 +2032,10 @@ LocalPlayer.CharacterAdded:Connect(function(character)
 end)
 
 -- Create sidebar buttons FIRST
+print("Creating HomepageButton...")
 local HomepageButton = createButton("Home", "🏠", showHomepage)
+print("HomepageButton created:", HomepageButton ~= nil)
+
 local PlayersButton = createButton("Players", "👤", showPlayers)
 local AIButton = createButton("AI Player", "🤖", showAI)
 local FarmingButton = createButton("Farming", "⚔️", showFarming)
@@ -2041,8 +2045,11 @@ local VisualsButton = createButton("Visuals", "🌈", showVisuals)
 local ShopButton = createButton("Shop", "🛒", showShop)
 local MiscButton = createButton("Misc", "⚙️", showMisc)
 
+print("All buttons created")
+
 -- Show default content
 task.wait(0.1) -- Small delay to ensure UI is fully loaded
+print("About to call showHomepage, HomepageButton exists:", HomepageButton ~= nil)
 showHomepage()
 
 -- Initialize UI
