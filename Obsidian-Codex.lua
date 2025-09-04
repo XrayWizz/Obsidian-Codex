@@ -393,6 +393,100 @@ local function createToggle(name, icon, callback)
     return toggleFrame, toggleButton
 end
 
+local function createToggleWithDropdown(name, icon, callback, dropdownContent)
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Size = UDim2.new(1, -8, 0, 32)
+    toggleFrame.BackgroundColor3 = Colors.Secondary
+    toggleFrame.BorderSizePixel = 0
+    toggleFrame.Parent = ContentScroller
+    
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 4)
+    toggleCorner.Parent = toggleFrame
+    
+    local toggleBorder = Instance.new("UIStroke")
+    toggleBorder.Thickness = 1
+    toggleBorder.Color = Colors.Border
+    toggleBorder.Transparency = 0.8
+    toggleBorder.Parent = toggleFrame
+    
+    local toggleLabel = Instance.new("TextLabel")
+    toggleLabel.Size = UDim2.new(1, -50, 1, 0)
+    toggleLabel.Position = UDim2.new(0, 8, 0, 0)
+    toggleLabel.BackgroundTransparency = 1
+    toggleLabel.Font = Enum.Font.GothamSemibold
+    toggleLabel.TextSize = 12
+    toggleLabel.TextColor3 = Colors.Text
+    toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    toggleLabel.Text = (icon and icon .. " " or "") .. name
+    toggleLabel.Parent = toggleFrame
+    
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Size = UDim2.new(0, 40, 0, 20)
+    toggleButton.Position = UDim2.new(1, -48, 0, 6)
+    toggleButton.BackgroundColor3 = Colors.Error
+    toggleButton.BorderSizePixel = 0
+    toggleButton.Font = Enum.Font.GothamBold
+    toggleButton.TextSize = 10
+    toggleButton.TextColor3 = Colors.Text
+    toggleButton.Text = "OFF"
+    toggleButton.Parent = toggleFrame
+    
+    local toggleBtnCorner = Instance.new("UICorner")
+    toggleBtnCorner.CornerRadius = UDim.new(0, 3)
+    toggleBtnCorner.Parent = toggleButton
+    
+    local dropdownFrame = Instance.new("Frame")
+    dropdownFrame.Size = UDim2.new(1, -16, 0, 0)
+    dropdownFrame.Position = UDim2.new(0, 8, 0, 32)
+    dropdownFrame.BackgroundTransparency = 1
+    dropdownFrame.Visible = false
+    dropdownFrame.Parent = toggleFrame
+    
+    local dropdownLayout = Instance.new("UIListLayout")
+    dropdownLayout.FillDirection = Enum.FillDirection.Vertical
+    dropdownLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    dropdownLayout.Padding = UDim.new(0, 4)
+    dropdownLayout.Parent = dropdownFrame
+    
+    local isEnabled = false
+    
+    toggleButton.MouseButton1Click:Connect(function()
+        isEnabled = not isEnabled
+        toggleButton.BackgroundColor3 = isEnabled and Colors.Success or Colors.Error
+        toggleButton.Text = isEnabled and "ON" or "OFF"
+        
+        -- Show/hide dropdown with animation
+        if isEnabled then
+            dropdownFrame.Visible = true
+            dropdownFrame.Size = UDim2.new(1, -16, 0, 0)
+            dropdownFrame:TweenSize(
+                UDim2.new(1, -16, 0, dropdownLayout.AbsoluteContentSize.Y),
+                "Out", "Quad", 0.2, true
+            )
+        else
+            dropdownFrame:TweenSize(
+                UDim2.new(1, -16, 0, 0),
+                "Out", "Quad", 0.2, true,
+                function()
+                    dropdownFrame.Visible = false
+                end
+            )
+        end
+        
+        if callback then
+            callback(isEnabled)
+        end
+    end)
+    
+    -- Add dropdown content if provided
+    if dropdownContent then
+        dropdownContent(dropdownFrame)
+    end
+    
+    return toggleFrame, toggleButton, dropdownFrame
+end
+
 local function createActionButton(name, icon, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, -8, 0, 28)
@@ -454,6 +548,85 @@ local function createSection(title)
     sectionLabel.Parent = sectionFrame
     
     return sectionFrame
+end
+
+local function createCollapsibleSection(title, icon, initialState)
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(1, -8, 0, 32)
+    mainFrame.BackgroundColor3 = Colors.Secondary
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Parent = ContentScroller
+    
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 4)
+    mainCorner.Parent = mainFrame
+    
+    local mainBorder = Instance.new("UIStroke")
+    mainBorder.Thickness = 1
+    mainBorder.Color = Colors.Border
+    mainBorder.Transparency = 0.8
+    mainBorder.Parent = mainFrame
+    
+    local headerButton = Instance.new("TextButton")
+    headerButton.Size = UDim2.new(1, 0, 1, 0)
+    headerButton.BackgroundTransparency = 1
+    headerButton.Font = Enum.Font.GothamSemibold
+    headerButton.TextSize = 12
+    headerButton.TextColor3 = Colors.Text
+    headerButton.TextXAlignment = Enum.TextXAlignment.Left
+    headerButton.Text = (icon and icon .. " " or "") .. title
+    headerButton.Parent = mainFrame
+    
+    local dropdownIcon = Instance.new("TextLabel")
+    dropdownIcon.Size = UDim2.new(0, 20, 0, 20)
+    dropdownIcon.Position = UDim2.new(1, -25, 0, 6)
+    dropdownIcon.BackgroundTransparency = 1
+    dropdownIcon.Font = Enum.Font.GothamBold
+    dropdownIcon.TextSize = 14
+    dropdownIcon.TextColor3 = Colors.Text
+    dropdownIcon.TextXAlignment = Enum.TextXAlignment.Center
+    dropdownIcon.Text = "▼"
+    dropdownIcon.Parent = mainFrame
+    
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(1, -16, 0, 0)
+    contentFrame.Position = UDim2.new(0, 8, 0, 32)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.Visible = initialState or false
+    contentFrame.Parent = mainFrame
+    
+    local contentLayout = Instance.new("UIListLayout")
+    contentLayout.FillDirection = Enum.FillDirection.Vertical
+    contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    contentLayout.Padding = UDim.new(0, 4)
+    contentLayout.Parent = contentFrame
+    
+    local isExpanded = initialState or false
+    
+    headerButton.MouseButton1Click:Connect(function()
+        isExpanded = not isExpanded
+        contentFrame.Visible = isExpanded
+        dropdownIcon.Text = isExpanded and "▲" or "▼"
+        
+        -- Animate the dropdown
+        if isExpanded then
+            contentFrame.Size = UDim2.new(1, -16, 0, 0)
+            contentFrame:TweenSize(
+                UDim2.new(1, -16, 0, contentLayout.AbsoluteContentSize.Y),
+                "Out", "Quad", 0.2, true
+            )
+        else
+            contentFrame:TweenSize(
+                UDim2.new(1, -16, 0, 0),
+                "Out", "Quad", 0.2, true,
+                function()
+                    contentFrame.Visible = false
+                end
+            )
+        end
+    end)
+    
+    return mainFrame, contentFrame
 end
 
 -- Clear content function
@@ -1413,25 +1586,103 @@ local function showPlayers()
     
     createSection("👤 Player Enhancements")
     
-    createToggle("Player Speed", "💨", function(enabled)
+    createToggleWithDropdown("Player Speed", "💨", function(enabled)
         speedEnabled = enabled
         updateSpeed()
-        notify("Player Speed: " .. (enabled and "ON" or "OFF"), enabled and "success" or "info")
-    end)
-    
-    createActionButton("Speed x2", "⚡", function()
-        setSpeed(2)
-        notify("Speed set to 2x", "success")
-    end)
-    
-    createActionButton("Speed x5", "🚀", function()
-        setSpeed(5)
-        notify("Speed set to 5x", "success")
-    end)
-    
-    createActionButton("Speed x10", "💨", function()
-        setSpeed(10)
-        notify("Speed set to 10x", "success")
+        local speedText = enabled and ("ON (x" .. currentSpeed .. ")") or "OFF"
+        notify("Player Speed: " .. speedText, enabled and "success" or "info")
+    end, function(dropdownFrame)
+        -- Speed x2 button
+        local speed2Button = Instance.new("TextButton")
+        speed2Button.Size = UDim2.new(1, 0, 0, 28)
+        speed2Button.BackgroundColor3 = Colors.Secondary
+        speed2Button.BorderSizePixel = 0
+        speed2Button.AutoButtonColor = false
+        speed2Button.Font = Enum.Font.GothamSemibold
+        speed2Button.TextSize = 12
+        speed2Button.TextColor3 = Colors.Text
+        speed2Button.Text = "⚡ Speed x2"
+        speed2Button.Parent = dropdownFrame
+        
+        local speed2Corner = Instance.new("UICorner")
+        speed2Corner.CornerRadius = UDim.new(0, 4)
+        speed2Corner.Parent = speed2Button
+        
+        speed2Button.MouseButton1Click:Connect(function()
+            setSpeed(2)
+            speedEnabled = true
+            updateSpeed()
+            notify("Speed set to 2x and enabled", "success")
+        end)
+        
+        -- Speed x5 button
+        local speed5Button = Instance.new("TextButton")
+        speed5Button.Size = UDim2.new(1, 0, 0, 28)
+        speed5Button.BackgroundColor3 = Colors.Secondary
+        speed5Button.BorderSizePixel = 0
+        speed5Button.AutoButtonColor = false
+        speed5Button.Font = Enum.Font.GothamSemibold
+        speed5Button.TextSize = 12
+        speed5Button.TextColor3 = Colors.Text
+        speed5Button.Text = "🚀 Speed x5"
+        speed5Button.Parent = dropdownFrame
+        
+        local speed5Corner = Instance.new("UICorner")
+        speed5Corner.CornerRadius = UDim.new(0, 4)
+        speed5Corner.Parent = speed5Button
+        
+        speed5Button.MouseButton1Click:Connect(function()
+            setSpeed(5)
+            speedEnabled = true
+            updateSpeed()
+            notify("Speed set to 5x and enabled", "success")
+        end)
+        
+        -- Speed x10 button
+        local speed10Button = Instance.new("TextButton")
+        speed10Button.Size = UDim2.new(1, 0, 0, 28)
+        speed10Button.BackgroundColor3 = Colors.Secondary
+        speed10Button.BorderSizePixel = 0
+        speed10Button.AutoButtonColor = false
+        speed10Button.Font = Enum.Font.GothamSemibold
+        speed10Button.TextSize = 12
+        speed10Button.TextColor3 = Colors.Text
+        speed10Button.Text = "💨 Speed x10"
+        speed10Button.Parent = dropdownFrame
+        
+        local speed10Corner = Instance.new("UICorner")
+        speed10Corner.CornerRadius = UDim.new(0, 4)
+        speed10Corner.Parent = speed10Button
+        
+        speed10Button.MouseButton1Click:Connect(function()
+            setSpeed(10)
+            speedEnabled = true
+            updateSpeed()
+            notify("Speed set to 10x and enabled", "success")
+        end)
+        
+        -- Reset Speed button
+        local resetButton = Instance.new("TextButton")
+        resetButton.Size = UDim2.new(1, 0, 0, 28)
+        resetButton.BackgroundColor3 = Colors.Secondary
+        resetButton.BorderSizePixel = 0
+        resetButton.AutoButtonColor = false
+        resetButton.Font = Enum.Font.GothamSemibold
+        resetButton.TextSize = 12
+        resetButton.TextColor3 = Colors.Text
+        resetButton.Text = "🔄 Reset Speed"
+        resetButton.Parent = dropdownFrame
+        
+        local resetCorner = Instance.new("UICorner")
+        resetCorner.CornerRadius = UDim.new(0, 4)
+        resetCorner.Parent = resetButton
+        
+        resetButton.MouseButton1Click:Connect(function()
+            setSpeed(1)
+            speedEnabled = false
+            updateSpeed()
+            notify("Speed reset to normal", "info")
+        end)
     end)
     
     createToggle("Higher Jump", "🦘", function(enabled)
