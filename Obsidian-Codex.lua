@@ -3082,13 +3082,14 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Maximize with liquid animation
         animateLiquidMaximize()
         
-        -- Animate main window size with bouncy effect, keep current position
+        -- Animate main window size with bouncy effect and restore centered position
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.Out
         ), {
-            Size = Config.WindowSize
+            Size = Config.WindowSize,
+            Position = UDim2.new(0.5, -260, 0.5, -160)
         })
         
         -- Show content with delay for liquid effect
@@ -3106,14 +3107,14 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Minimize with liquid animation
         animateLiquidMinimize()
         
-        -- Animate main window size with bouncy effect, keep current position
-        local currentPos = MainWindow.Position
+        -- Animate main window size with bouncy effect and center it on titlebar
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.In
         ), {
-            Size = UDim2.new(0, Config.MinimizedWidth, 0, 24)
+            Size = UDim2.new(0, Config.MinimizedWidth, 0, 24),
+            Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
         })
         
         -- Hide content immediately
@@ -3140,7 +3141,7 @@ local startPos = nil
 
 local function updateWindowPosition(delta)
     if minimized then
-        -- When minimized, keep the window centered horizontally but allow vertical movement
+        -- When minimized, allow full movement but keep it as a floating titlebar
         local newX = startPos.X.Offset + delta.X
         local newY = startPos.Y.Offset + delta.Y
         
