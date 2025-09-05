@@ -35,7 +35,7 @@ local Config = {
     GlowIntensity = 0.3,
     LiquidAnimationSpeed = 0.8,
     BubbleEffectDuration = 1.2,
-    MinimizedWidth = 120 -- Width when minimized (just title + controls)
+    MinimizedWidth = 180 -- Width when minimized (just title + controls)
 }
 
 -- Create Main UI
@@ -2973,20 +2973,24 @@ local function startWaveEffect()
     end
     
     local waveTimer = 0
+    local bubbleTimer = 0
     waveConnection = RunService.Heartbeat:Connect(function(deltaTime)
         if minimized then
             waveTimer = waveTimer + deltaTime
-            if waveTimer >= 0.5 then -- Create wave every 0.5 seconds
+            bubbleTimer = bubbleTimer + deltaTime
+            
+            -- Create wave every 0.5 seconds
+            if waveTimer >= 0.5 then
                 waveTimer = 0
                 
-                    local wave = Instance.new("Frame")
-    wave.Name = "LiquidWave"
-    wave.Size = UDim2.new(0, 40, 0, 3)
-    wave.Position = UDim2.new(0, -40, 0.5, -1.5)
-    wave.BackgroundColor3 = Colors.Accent
-    wave.BackgroundTransparency = 0.6
-    wave.BorderSizePixel = 0
-    wave.Parent = LiquidBackground
+                local wave = Instance.new("Frame")
+                wave.Name = "LiquidWave"
+                wave.Size = UDim2.new(0, 40, 0, 3)
+                wave.Position = UDim2.new(0.5, -20, 0.5, -1.5)
+                wave.BackgroundColor3 = Colors.Accent
+                wave.BackgroundTransparency = 0.6
+                wave.BorderSizePixel = 0
+                wave.Parent = LiquidBackground
                 
                 local waveCorner = Instance.new("UICorner")
                 waveCorner.CornerRadius = UDim.new(0, 1)
@@ -2997,13 +3001,65 @@ local function startWaveEffect()
                     Enum.EasingStyle.Linear, 
                     Enum.EasingDirection.InOut
                 ), {
-                    Position = UDim2.new(1, 20, 0.5, -1.5),
+                    Position = UDim2.new(0.5, 20, 0.5, -1.5),
                     BackgroundTransparency = 1
                 })
                 
                 waveTween:Play()
                 waveTween.Completed:Connect(function()
                     wave:Destroy()
+                end)
+            end
+            
+            -- Create centered bubbles every 0.8 seconds
+            if bubbleTimer >= 0.8 then
+                bubbleTimer = 0
+                
+                -- Create a small bubble in the center of the titlebar
+                local bubble = Instance.new("Frame")
+                bubble.Name = "CenterBubble"
+                bubble.Size = UDim2.new(0, 8, 0, 8)
+                bubble.Position = UDim2.new(0.5, -4, 0.5, -4)
+                bubble.BackgroundColor3 = Colors.Glow
+                bubble.BackgroundTransparency = 0.3
+                bubble.BorderSizePixel = 0
+                bubble.Parent = LiquidBackground
+                
+                local bubbleCorner = Instance.new("UICorner")
+                bubbleCorner.CornerRadius = UDim.new(0.5, 0)
+                bubbleCorner.Parent = bubble
+                
+                local bubbleGlow = Instance.new("UIStroke")
+                bubbleGlow.Thickness = 1
+                bubbleGlow.Color = Colors.Accent
+                bubbleGlow.Transparency = 0.5
+                bubbleGlow.Parent = bubble
+                
+                -- Animate bubble with pulsing effect
+                local pulseTween = TweenService:Create(bubble, TweenInfo.new(
+                    0.6, 
+                    Enum.EasingStyle.Sine, 
+                    Enum.EasingDirection.InOut
+                ), {
+                    Size = UDim2.new(0, 12, 0, 12),
+                    Position = UDim2.new(0.5, -6, 0.5, -6),
+                    BackgroundTransparency = 1
+                })
+                
+                local glowTween = TweenService:Create(bubbleGlow, TweenInfo.new(
+                    0.6, 
+                    Enum.EasingStyle.Sine, 
+                    Enum.EasingDirection.InOut
+                ), {
+                    Transparency = 1,
+                    Thickness = 0
+                })
+                
+                pulseTween:Play()
+                glowTween:Play()
+                
+                pulseTween.Completed:Connect(function()
+                    bubble:Destroy()
                 end)
             end
         end
@@ -3051,14 +3107,14 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Minimize with liquid animation
         animateLiquidMinimize()
         
-        -- Animate main window size with bouncy effect and center it
+        -- Animate main window size with bouncy effect and center it on titlebar
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.In
         ), {
             Size = UDim2.new(0, Config.MinimizedWidth, 0, 24),
-            Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0.5, -12)
+            Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
         })
         
         -- Hide content immediately
