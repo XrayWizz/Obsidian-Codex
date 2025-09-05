@@ -3135,7 +3135,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
                 Enum.EasingStyle.Quart, 
                 Enum.EasingDirection.Out
             ), {
-                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -40) -- Move up from Y=20 to Y=-40 (much higher)
+                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -80) -- Move up from Y=20 to Y=-80 (even higher)
             })
             
             -- Create particles under the titlebar during upward movement
@@ -3143,44 +3143,48 @@ MinimizeButton.MouseButton1Click:Connect(function()
             local underParticleConnection = RunService.Heartbeat:Connect(function(deltaTime)
                 underParticleTimer = underParticleTimer + deltaTime
                 
-                -- Create particles every 0.15 seconds during upward movement (more frequent)
-                if underParticleTimer >= 0.15 then
+                -- Create particles every 0.1 seconds during upward movement (very frequent)
+                if underParticleTimer >= 0.1 then
                     underParticleTimer = 0
                     
-                    -- Create a particle under the titlebar
+                    -- Get current titlebar position for absolute positioning
+                    local currentPos = MainWindow.Position
+                    local titlebarBottomY = currentPos.Y.Offset + 24 -- 24 is the height of minimized titlebar
+                    
+                    -- Create a particle under the titlebar with absolute positioning
                     local underParticle = Instance.new("Frame")
                     underParticle.Name = "UnderParticle"
-                    underParticle.Size = UDim2.new(0, 8, 0, 8) -- Bigger particles
-                    underParticle.Position = UDim2.new(0.5, -4, 1, 2) -- Position directly under the titlebar
+                    underParticle.Size = UDim2.new(0, 12, 0, 12) -- Even bigger particles
+                    underParticle.Position = UDim2.new(0, currentPos.X.Offset + Config.MinimizedWidth/2 - 6, 0, titlebarBottomY + 5) -- Position directly under titlebar
                     underParticle.BackgroundColor3 = Colors.Accent
-                    underParticle.BackgroundTransparency = 0.2 -- More visible
+                    underParticle.BackgroundTransparency = 0.1 -- Very visible
                     underParticle.BorderSizePixel = 0
-                    underParticle.ZIndex = 10 -- Higher z-index to ensure visibility
-                    underParticle.Parent = MainWindow
+                    underParticle.ZIndex = 15 -- Very high z-index
+                    underParticle.Parent = ScreenGui -- Parent to ScreenGui for absolute positioning
                     
                     local underCorner = Instance.new("UICorner")
                     underCorner.CornerRadius = UDim.new(0.5, 0)
                     underCorner.Parent = underParticle
                     
                     local underGlow = Instance.new("UIStroke")
-                    underGlow.Thickness = 2 -- Thicker glow
+                    underGlow.Thickness = 3 -- Very thick glow
                     underGlow.Color = Colors.Glow
-                    underGlow.Transparency = 0.1 -- More visible glow
+                    underGlow.Transparency = 0.0 -- No transparency for maximum visibility
                     underGlow.Parent = underParticle
                     
                     -- Animate particle falling down and fading
                     local fallTween = TweenService:Create(underParticle, TweenInfo.new(
-                        1.5, 
+                        2.0, 
                         Enum.EasingStyle.Quart, 
                         Enum.EasingDirection.Out
                     ), {
-                        Position = UDim2.new(0.5, -4, 1, 40), -- Fall further down
+                        Position = UDim2.new(0, currentPos.X.Offset + Config.MinimizedWidth/2 - 6, 0, titlebarBottomY + 60), -- Fall much further down
                         BackgroundTransparency = 1,
-                        Size = UDim2.new(0, 3, 0, 3) -- Shrink more
+                        Size = UDim2.new(0, 4, 0, 4) -- Shrink to very small
                     })
                     
                     local glowTween = TweenService:Create(underGlow, TweenInfo.new(
-                        1.5, 
+                        2.0, 
                         Enum.EasingStyle.Quart, 
                         Enum.EasingDirection.Out
                     ), {
