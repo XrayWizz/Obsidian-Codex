@@ -2901,6 +2901,15 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Position = UDim2.new(0.5, -260, 0.5, -160)
         })
         
+        -- Animate corner radius to maintain rounded appearance
+        local cornerTween = TweenService:Create(MainWindowCorner, TweenInfo.new(
+            0.6, 
+            Enum.EasingStyle.Back, 
+            Enum.EasingDirection.Out
+        ), {
+            CornerRadius = UDim.new(0, Config.BorderRadius)
+        })
+        
         -- Show content with delay for liquid effect
         spawn(function()
             wait(0.2)
@@ -2909,6 +2918,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
         end)
         
         windowTween:Play()
+        cornerTween:Play()
         minimized = false
         
         notify("Window Maximized", "success")
@@ -2926,11 +2936,21 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
         })
         
+        -- Animate corner radius to maintain rounded appearance during minimize
+        local cornerTween = TweenService:Create(MainWindowCorner, TweenInfo.new(
+            0.6, 
+            Enum.EasingStyle.Back, 
+            Enum.EasingDirection.In
+        ), {
+            CornerRadius = UDim.new(0, 8) -- Smaller radius for minimized state
+        })
+        
         -- Hide content immediately
         MainContent.Visible = false
         Sidebar.Visible = false
         
         windowTween:Play()
+        cornerTween:Play()
         minimized = true
         
         -- Start wave effect and secondary upward movement after animation completes
