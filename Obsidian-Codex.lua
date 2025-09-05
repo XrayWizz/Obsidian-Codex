@@ -3094,6 +3094,20 @@ local function showFruits()
     clearContent()
     setActiveButton(FruitsButton)
     
+    createSection("ℹ️ Information")
+    
+    local infoText = Instance.new("TextLabel")
+    infoText.Size = UDim2.new(1, -8, 0, 60)
+    infoText.BackgroundTransparency = 1
+    infoText.Font = Enum.Font.Gotham
+    infoText.TextSize = 10
+    infoText.TextColor3 = Colors.TextDim
+    infoText.TextXAlignment = Enum.TextXAlignment.Left
+    infoText.TextYAlignment = Enum.TextYAlignment.Top
+    infoText.TextWrapped = true
+    infoText.Text = "⚠️ Exact probabilities are estimates based on community testing.\n\nNormal Gacha: Standard fruit gacha with common to mythical fruits.\nSummer Gacha: Special event gacha with diamond skin fruits (Update 27.2)."
+    infoText.Parent = ContentScroller
+    
     createSection("🍎 Fruit Probability List")
     
     -- Fruit probability data with detailed fruit names
@@ -3521,7 +3535,7 @@ local function showFruits()
         
         -- Update canvas size and frame height
         fruitScroller.CanvasSize = UDim2.new(0, 0, 0, fruitLayout.AbsoluteContentSize.Y)
-        fruitDisplayFrame.Size = UDim2.new(1, -8, 0, math.min(fruitLayout.AbsoluteContentSize.Y + 16, 400))
+        fruitDisplayFrame.Size = UDim2.new(1, -8, 0, math.min(fruitLayout.AbsoluteContentSize.Y + 16, 500))
     end
     
     -- Toggle switch functionality
@@ -3598,20 +3612,6 @@ local function showFruits()
     
     -- Initialize with normal gacha
     updateFruitDisplay(1)
-    
-    createSection("ℹ️ Information")
-    
-    local infoText = Instance.new("TextLabel")
-    infoText.Size = UDim2.new(1, -8, 0, 60)
-    infoText.BackgroundTransparency = 1
-    infoText.Font = Enum.Font.Gotham
-    infoText.TextSize = 10
-    infoText.TextColor3 = Colors.TextDim
-    infoText.TextXAlignment = Enum.TextXAlignment.Left
-    infoText.TextYAlignment = Enum.TextYAlignment.Top
-    infoText.TextWrapped = true
-    infoText.Text = "⚠️ Exact probabilities are estimates based on community testing.\n\nNormal Gacha: Standard fruit gacha with common to mythical fruits.\nSummer Gacha: Special event gacha with diamond skin fruits (Update 27.2)."
-    infoText.Parent = ContentScroller
 end
 
 local function showHelp()
