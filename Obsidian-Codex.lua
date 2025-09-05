@@ -3374,135 +3374,98 @@ local function showFruits()
             Diamond = Color3.fromRGB(0, 255, 255)
         }
         
-        -- Create collapsible sections for each rarity
+        -- Helper function to create a simple fruit item
+        local function createFruitItem(fruit, parent)
+            local item = Instance.new("TextLabel")
+            item.Size = UDim2.new(1, -8, 0, 20)
+            item.BackgroundTransparency = 1
+            item.Font = Enum.Font.Gotham
+            item.TextSize = 10
+            item.TextColor3 = Colors.Text
+            item.TextXAlignment = Enum.TextXAlignment.Left
+            item.Text = "  " .. fruit.name .. " " .. string.rep("·", 20) .. " " .. fruit.probability
+            item.Parent = parent
+            return item
+        end
+        
+        -- Helper function to create a rarity section
+        local function createRaritySection(rarity, fruits, parent)
+            local section = Instance.new("Frame")
+            section.Size = UDim2.new(1, 0, 0, 32)
+            section.BackgroundColor3 = Colors.Primary
+            section.BorderSizePixel = 0
+            section.Parent = parent
+            
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 4)
+            corner.Parent = section
+            
+            local border = Instance.new("UIStroke")
+            border.Thickness = 1
+            border.Color = Colors.Border
+            border.Transparency = 0.8
+            border.Parent = section
+            
+            -- Header button
+            local header = Instance.new("TextButton")
+            header.Size = UDim2.new(1, 0, 1, 0)
+            header.BackgroundTransparency = 1
+            header.Font = Enum.Font.GothamSemibold
+            header.TextSize = 12
+            header.TextColor3 = rarityColors[rarity]
+            header.TextXAlignment = Enum.TextXAlignment.Left
+            header.Text = rarity .. " (" .. #fruits .. " fruits) ▼"
+            header.Parent = section
+            
+            -- Content container (initially hidden)
+            local content = Instance.new("Frame")
+            content.Size = UDim2.new(1, -8, 0, 0)
+            content.BackgroundTransparency = 1
+            content.Visible = false
+            content.Parent = section
+            
+            local contentLayout = Instance.new("UIListLayout")
+            contentLayout.FillDirection = Enum.FillDirection.Vertical
+            contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            contentLayout.Padding = UDim.new(0, 1)
+            contentLayout.Parent = content
+            
+            -- Add fruit items
+            for _, fruit in ipairs(fruits) do
+                createFruitItem(fruit, content)
+            end
+            
+            -- Toggle functionality
+            local isExpanded = false
+            header.MouseButton1Click:Connect(function()
+                isExpanded = not isExpanded
+                header.Text = rarity .. " (" .. #fruits .. " fruits) " .. (isExpanded and "▲" or "▼")
+                
+                if isExpanded then
+                    content.Visible = true
+                    local targetHeight = contentLayout.AbsoluteContentSize.Y
+                    content.Size = UDim2.new(1, -8, 0, targetHeight)
+                    section:TweenSize(
+                        UDim2.new(1, 0, 0, 32 + targetHeight + 4),
+                        "Out", "Quad", 0.2, true
+                    )
+                else
+                    content.Visible = false
+                    content.Size = UDim2.new(1, -8, 0, 0)
+                    section:TweenSize(
+                        UDim2.new(1, 0, 0, 32),
+                        "Out", "Quad", 0.2, true
+                    )
+                end
+            end)
+            
+            return section
+        end
+        
+        -- Create rarity sections
         for _, rarity in ipairs(rarityOrder) do
             if fruitsByRarity[rarity] then
-                -- Create single expandable frame for this rarity section
-                local raritySection = Instance.new("Frame")
-                raritySection.Size = UDim2.new(1, 0, 0, 32)
-                raritySection.BackgroundColor3 = Colors.Primary
-                raritySection.BorderSizePixel = 0
-                raritySection.Parent = fruitScroller
-                
-                local raritySectionCorner = Instance.new("UICorner")
-                raritySectionCorner.CornerRadius = UDim.new(0, 4)
-                raritySectionCorner.Parent = raritySection
-                
-                local raritySectionBorder = Instance.new("UIStroke")
-                raritySectionBorder.Thickness = 1
-                raritySectionBorder.Color = Colors.Border
-                raritySectionBorder.Transparency = 0.8
-                raritySectionBorder.Parent = raritySection
-                
-                -- Create layout for the entire section
-                local sectionLayout = Instance.new("UIListLayout")
-                sectionLayout.FillDirection = Enum.FillDirection.Vertical
-                sectionLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                sectionLayout.Padding = UDim.new(0, 0)
-                sectionLayout.Parent = raritySection
-                
-                -- Rarity header button (entire bar is clickable)
-                local rarityHeader = Instance.new("TextButton")
-                rarityHeader.Size = UDim2.new(1, 0, 0, 32)
-                rarityHeader.BackgroundTransparency = 1
-                rarityHeader.Font = Enum.Font.GothamSemibold
-                rarityHeader.TextSize = 12
-                rarityHeader.TextColor3 = rarityColors[rarity]
-                rarityHeader.TextXAlignment = Enum.TextXAlignment.Left
-                rarityHeader.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits)"
-                rarityHeader.Parent = raritySection
-                
-                -- Dropdown icon
-                local dropdownIcon = Instance.new("TextLabel")
-                dropdownIcon.Size = UDim2.new(0, 20, 0, 20)
-                dropdownIcon.Position = UDim2.new(1, -25, 0, 6)
-                dropdownIcon.BackgroundTransparency = 1
-                dropdownIcon.Font = Enum.Font.GothamBold
-                dropdownIcon.TextSize = 14
-                dropdownIcon.TextColor3 = Colors.Text
-                dropdownIcon.TextXAlignment = Enum.TextXAlignment.Center
-                dropdownIcon.Text = "▼"
-                dropdownIcon.Parent = rarityHeader
-                
-                -- Content frame for fruits in this rarity
-                local contentFrame = Instance.new("Frame")
-                contentFrame.Size = UDim2.new(1, -8, 0, 0)
-                contentFrame.BackgroundTransparency = 1
-                contentFrame.Visible = false
-                contentFrame.Parent = raritySection
-                
-                local contentLayout = Instance.new("UIListLayout")
-                contentLayout.FillDirection = Enum.FillDirection.Vertical
-                contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                contentLayout.Padding = UDim.new(0, 2)
-                contentLayout.Parent = contentFrame
-                
-                -- Create fruit items for this rarity
-                for _, fruit in ipairs(fruitsByRarity[rarity]) do
-                    local fruitItem = Instance.new("Frame")
-                    fruitItem.Size = UDim2.new(1, 0, 0, 24)
-                    fruitItem.BackgroundColor3 = Colors.Secondary
-                    fruitItem.BorderSizePixel = 0
-                    fruitItem.Parent = contentFrame
-                    
-                    local fruitItemCorner = Instance.new("UICorner")
-                    fruitItemCorner.CornerRadius = UDim.new(0, 3)
-                    fruitItemCorner.Parent = fruitItem
-                    
-                    local fruitItemBorder = Instance.new("UIStroke")
-                    fruitItemBorder.Thickness = 1
-                    fruitItemBorder.Color = Colors.Border
-                    fruitItemBorder.Transparency = 0.9
-                    fruitItemBorder.Parent = fruitItem
-                    
-                    -- Fruit name
-                    local fruitName = Instance.new("TextLabel")
-                    fruitName.Size = UDim2.new(0.6, -8, 1, 0)
-                    fruitName.Position = UDim2.new(0, 6, 0, 0)
-                    fruitName.BackgroundTransparency = 1
-                    fruitName.Font = Enum.Font.Gotham
-                    fruitName.TextSize = 10
-                    fruitName.TextColor3 = Colors.Text
-                    fruitName.TextXAlignment = Enum.TextXAlignment.Left
-                    fruitName.Text = fruit.name
-                    fruitName.Parent = fruitItem
-                    
-                    -- Probability
-                    local fruitProbability = Instance.new("TextLabel")
-                    fruitProbability.Size = UDim2.new(0.4, -6, 1, 0)
-                    fruitProbability.Position = UDim2.new(0.6, 0, 0, 0)
-                    fruitProbability.BackgroundTransparency = 1
-                    fruitProbability.Font = Enum.Font.GothamBold
-                    fruitProbability.TextSize = 10
-                    fruitProbability.TextColor3 = Colors.Accent
-                    fruitProbability.TextXAlignment = Enum.TextXAlignment.Right
-                    fruitProbability.Text = fruit.probability
-                    fruitProbability.Parent = fruitItem
-                end
-                
-                -- Toggle functionality
-                local isExpanded = false
-                rarityHeader.MouseButton1Click:Connect(function()
-                    isExpanded = not isExpanded
-                    dropdownIcon.Text = isExpanded and "▲" or "▼"
-                    
-                    -- Toggle content visibility and resize the main section
-                    if isExpanded then
-                        contentFrame.Visible = true
-                        contentFrame.Size = UDim2.new(1, -8, 0, contentLayout.AbsoluteContentSize.Y)
-                        raritySection:TweenSize(
-                            UDim2.new(1, 0, 0, 32 + contentLayout.AbsoluteContentSize.Y + 4),
-                            "Out", "Quad", 0.2, true
-                        )
-                    else
-                        contentFrame.Visible = false
-                        contentFrame.Size = UDim2.new(1, -8, 0, 0)
-                        raritySection:TweenSize(
-                            UDim2.new(1, 0, 0, 32),
-                            "Out", "Quad", 0.2, true
-                        )
-                    end
-                end)
+                createRaritySection(rarity, fruitsByRarity[rarity], fruitScroller)
             end
         end
         
