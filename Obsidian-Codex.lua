@@ -2979,14 +2979,14 @@ local function startWaveEffect()
             if waveTimer >= 0.5 then -- Create wave every 0.5 seconds
                 waveTimer = 0
                 
-                local wave = Instance.new("Frame")
-                wave.Name = "LiquidWave"
-                wave.Size = UDim2.new(0, 20, 0, 2)
-                wave.Position = UDim2.new(0, -20, 0.5, -1)
-                wave.BackgroundColor3 = Colors.Accent
-                wave.BackgroundTransparency = 0.6
-                wave.BorderSizePixel = 0
-                wave.Parent = LiquidBackground
+                    local wave = Instance.new("Frame")
+    wave.Name = "LiquidWave"
+    wave.Size = UDim2.new(0, 40, 0, 3)
+    wave.Position = UDim2.new(0, -40, 0.5, -1.5)
+    wave.BackgroundColor3 = Colors.Accent
+    wave.BackgroundTransparency = 0.6
+    wave.BorderSizePixel = 0
+    wave.Parent = LiquidBackground
                 
                 local waveCorner = Instance.new("UICorner")
                 waveCorner.CornerRadius = UDim.new(0, 1)
@@ -2997,7 +2997,7 @@ local function startWaveEffect()
                     Enum.EasingStyle.Linear, 
                     Enum.EasingDirection.InOut
                 ), {
-                    Position = UDim2.new(1, 0, 0.5, -1),
+                    Position = UDim2.new(1, 20, 0.5, -1.5),
                     BackgroundTransparency = 1
                 })
                 
@@ -3026,13 +3026,14 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Maximize with liquid animation
         animateLiquidMaximize()
         
-        -- Animate main window size with bouncy effect
+        -- Animate main window size with bouncy effect and restore centered position
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.Out
         ), {
-            Size = Config.WindowSize
+            Size = Config.WindowSize,
+            Position = UDim2.new(0.5, -260, 0.5, -160)
         })
         
         -- Show content with delay for liquid effect
@@ -3050,13 +3051,14 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Minimize with liquid animation
         animateLiquidMinimize()
         
-        -- Animate main window size with bouncy effect
+        -- Animate main window size with bouncy effect and center it
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.In
         ), {
-            Size = UDim2.new(0, Config.MinimizedWidth, 0, 24)
+            Size = UDim2.new(0, Config.MinimizedWidth, 0, 24),
+            Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0.5, -12)
         })
         
         -- Hide content immediately
