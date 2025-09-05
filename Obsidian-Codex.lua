@@ -27,7 +27,7 @@ local Colors = {
 }
 
 -- Configuration
-local Config = { 
+local Config = {
     WindowSize = UDim2.new(0, 520, 0, 320),
     SidebarWidth = 110,
     AnimationSpeed = 0.15,
@@ -2774,119 +2774,131 @@ CloseButton.MouseButton1Click:Connect(function()
     script:Destroy()
 end)
 
--- Wave effect for minimized state
-local waveConnection = nil
-local function startWaveEffect()
-    if waveConnection then
-        waveConnection:Disconnect()
+-- Smoke effect for minimized state
+local smokeConnection = nil
+local function startSmokeEffect()
+    if smokeConnection then
+        smokeConnection:Disconnect()
     end
     
-    local waveTimer = 0
-    local bubbleTimer = 0
-    waveConnection = RunService.Heartbeat:Connect(function(deltaTime)
+    local smokeTimer = 0
+    smokeConnection = RunService.Heartbeat:Connect(function(deltaTime)
         if minimized then
-            waveTimer = waveTimer + deltaTime
-            bubbleTimer = bubbleTimer + deltaTime
+            smokeTimer = smokeTimer + deltaTime
             
-            -- Create wave every 0.5 seconds
-            if waveTimer >= 0.5 then
-                waveTimer = 0
+            -- Create smoke wisps every 0.3 seconds
+            if smokeTimer >= 0.3 then
+                smokeTimer = 0
                 
-                local wave = Instance.new("Frame")
-                wave.Name = "LiquidWave"
-                wave.Size = UDim2.new(0, 40, 0, 3)
-                wave.Position = UDim2.new(0.5, -20, 0.5, -1.5)
-                wave.BackgroundColor3 = Colors.Accent
-                wave.BackgroundTransparency = 0.6
-                wave.BorderSizePixel = 0
-                wave.Parent = LiquidBackground
+                -- Get current titlebar dimensions for dynamic sizing
+                local titlebarSize = MainWindow.AbsoluteSize
+                local titlebarPos = MainWindow.AbsolutePosition
                 
-                local waveCorner = Instance.new("UICorner")
-                waveCorner.CornerRadius = UDim.new(0, 1)
-                waveCorner.Parent = wave
+                -- Create smoke wisp with dynamic width based on titlebar size
+                local smokeWisp = Instance.new("Frame")
+                smokeWisp.Name = "SmokeWisp"
+                smokeWisp.Size = UDim2.new(0, math.random(20, math.min(40, titlebarSize.X * 0.3)), 0, math.random(15, 25))
+                smokeWisp.Position = UDim2.new(
+                    math.random(20, 80) / 100, -- Random X position across titlebar
+                    -smokeWisp.Size.X.Offset / 2, -- Center the wisp
+                    math.random(30, 70) / 100, -- Random Y position
+                    -smokeWisp.Size.Y.Offset / 2 -- Center vertically
+                )
+                smokeWisp.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+                smokeWisp.BackgroundTransparency = 0.4
+                smokeWisp.BorderSizePixel = 0
+                smokeWisp.Parent = LiquidBackground
                 
-                local waveTween = TweenService:Create(wave, TweenInfo.new(
-                    1.5, 
-                    Enum.EasingStyle.Linear, 
-                    Enum.EasingDirection.InOut
+                -- Create wispy smoke shape with gradient effect
+                local smokeCorner = Instance.new("UICorner")
+                smokeCorner.CornerRadius = UDim.new(0, math.random(8, 15))
+                smokeCorner.Parent = smokeWisp
+                
+                -- Add subtle glow effect
+                local smokeGlow = Instance.new("UIStroke")
+                smokeGlow.Thickness = 1
+                smokeGlow.Color = Color3.fromRGB(150, 150, 150)
+                smokeGlow.Transparency = 0.6
+                smokeGlow.Parent = smokeWisp
+                
+                -- Create multiple smaller wisps for more realistic smoke
+                for i = 1, math.random(2, 4) do
+                    spawn(function()
+                        wait(i * 0.1)
+                        
+                        local miniWisp = Instance.new("Frame")
+                        miniWisp.Name = "MiniSmokeWisp"
+                        miniWisp.Size = UDim2.new(0, math.random(8, 15), 0, math.random(6, 12))
+                        miniWisp.Position = UDim2.new(
+                            math.random(0, 100) / 100,
+                            -miniWisp.Size.X.Offset / 2,
+                            math.random(0, 100) / 100,
+                            -miniWisp.Size.Y.Offset / 2
+                        )
+                        miniWisp.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
+                        miniWisp.BackgroundTransparency = 0.5
+                        miniWisp.BorderSizePixel = 0
+                        miniWisp.Parent = smokeWisp
+                        
+                        local miniCorner = Instance.new("UICorner")
+                        miniCorner.CornerRadius = UDim.new(0, math.random(4, 8))
+                        miniCorner.Parent = miniWisp
+                    end)
+                end
+                
+                -- Animate smoke wisp floating upward and fading
+                local floatTween = TweenService:Create(smokeWisp, TweenInfo.new(
+                    math.random(2, 4), -- Random duration for natural movement
+                    Enum.EasingStyle.Quad, 
+                    Enum.EasingDirection.Out
                 ), {
-                    Position = UDim2.new(0.5, 20, 0.5, -1.5),
-                    BackgroundTransparency = 1
+                    Position = UDim2.new(
+                        smokeWisp.Position.X.Scale + math.random(-20, 20) / 100, -- Slight horizontal drift
+                        smokeWisp.Position.X.Offset,
+                        smokeWisp.Position.Y.Scale - math.random(30, 60) / 100, -- Float upward
+                        smokeWisp.Position.Y.Offset - math.random(10, 20)
+                    ),
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(
+                        smokeWisp.Size.X.Scale * math.random(15, 25) / 10, -- Expand slightly
+                        smokeWisp.Size.X.Offset * math.random(12, 18) / 10,
+                        smokeWisp.Size.Y.Scale * math.random(8, 12) / 10, -- Shrink vertically
+                        smokeWisp.Size.Y.Offset * math.random(6, 10) / 10
+                    )
                 })
                 
-                waveTween:Play()
-                waveTween.Completed:Connect(function()
-                    wave:Destroy()
-                end)
-            end
-            
-            -- Create centered bubbles every 0.8 seconds
-            if bubbleTimer >= 0.8 then
-                bubbleTimer = 0
-                
-                -- Create a small bubble in the center of the titlebar
-                local bubble = Instance.new("Frame")
-                bubble.Name = "CenterBubble"
-                bubble.Size = UDim2.new(0, 8, 0, 8)
-                bubble.Position = UDim2.new(0.5, -4, 0.5, -4)
-                bubble.BackgroundColor3 = Colors.Glow
-                bubble.BackgroundTransparency = 0.3
-                bubble.BorderSizePixel = 0
-                bubble.Parent = LiquidBackground
-                
-                local bubbleCorner = Instance.new("UICorner")
-                bubbleCorner.CornerRadius = UDim.new(0.5, 0)
-                bubbleCorner.Parent = bubble
-                
-                local bubbleGlow = Instance.new("UIStroke")
-                bubbleGlow.Thickness = 1
-                bubbleGlow.Color = Colors.Accent
-                bubbleGlow.Transparency = 0.5
-                bubbleGlow.Parent = bubble
-                
-                -- Animate bubble with pulsing effect
-                local pulseTween = TweenService:Create(bubble, TweenInfo.new(
-                    0.6, 
-                    Enum.EasingStyle.Sine, 
-                    Enum.EasingDirection.InOut
-                ), {
-                    Size = UDim2.new(0, 12, 0, 12),
-                    Position = UDim2.new(0.5, -6, 0.5, -6),
-                    BackgroundTransparency = 1
-                })
-                
-                local glowTween = TweenService:Create(bubbleGlow, TweenInfo.new(
-                    0.6, 
-                    Enum.EasingStyle.Sine, 
-                    Enum.EasingDirection.InOut
+                local glowTween = TweenService:Create(smokeGlow, TweenInfo.new(
+                    math.random(2, 4),
+                    Enum.EasingStyle.Quad, 
+                    Enum.EasingDirection.Out
                 ), {
                     Transparency = 1,
                     Thickness = 0
                 })
                 
-                pulseTween:Play()
+                floatTween:Play()
                 glowTween:Play()
                 
-                pulseTween.Completed:Connect(function()
-                    bubble:Destroy()
+                floatTween.Completed:Connect(function()
+                    smokeWisp:Destroy()
                 end)
             end
         end
     end)
 end
 
-local function stopWaveEffect()
-    if waveConnection then
-        waveConnection:Disconnect()
-        waveConnection = nil
+local function stopSmokeEffect()
+    if smokeConnection then
+        smokeConnection:Disconnect()
+        smokeConnection = nil
     end
 end
 
 local minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     if minimized then
-        -- Stop wave effect
-        stopWaveEffect()
+        -- Stop smoke effect
+        stopSmokeEffect()
         
         -- Maximize with liquid animation
         animateLiquidMaximize()
@@ -2953,10 +2965,10 @@ MinimizeButton.MouseButton1Click:Connect(function()
         cornerTween:Play()
         minimized = true
         
-        -- Start wave effect and secondary upward movement after animation completes
+        -- Start smoke effect and secondary upward movement after animation completes
         spawn(function()
             wait(0.7)
-            startWaveEffect()
+            startSmokeEffect()
             
             -- Secondary animation: move titlebar much higher and add visible under-titlebar particles
             local upwardTween = TweenService:Create(MainWindow, TweenInfo.new(
