@@ -567,6 +567,8 @@ local function createButton(text, icon, callback)
     button.TextSize = 12
     button.TextColor3 = Colors.TextDim
     button.TextXAlignment = Enum.TextXAlignment.Left
+    button.TextStrokeTransparency = 1
+    button.TextStrokeColor3 = Color3.new(0, 0, 0)
     button.Text = "  " .. (icon and icon .. " " or "") .. text
     button.Parent = SidebarScroller
     
@@ -3171,6 +3173,31 @@ local function showFruits()
     toggleButton.Text = "Normal"
     toggleButton.Parent = toggleContainer
     
+    -- Add text labels for both sides
+    local normalLabel = Instance.new("TextLabel")
+    normalLabel.Size = UDim2.new(0, 100, 1, 0)
+    normalLabel.Position = UDim2.new(0, 0, 0, 0)
+    normalLabel.BackgroundTransparency = 1
+    normalLabel.Font = Enum.Font.GothamBold
+    normalLabel.TextSize = 10
+    normalLabel.TextColor3 = Colors.Text
+    normalLabel.TextXAlignment = Enum.TextXAlignment.Center
+    normalLabel.TextYAlignment = Enum.TextYAlignment.Center
+    normalLabel.Text = "Normal"
+    normalLabel.Parent = toggleContainer
+    
+    local summerLabel = Instance.new("TextLabel")
+    summerLabel.Size = UDim2.new(0, 100, 1, 0)
+    summerLabel.Position = UDim2.new(0, 100, 0, 0)
+    summerLabel.BackgroundTransparency = 1
+    summerLabel.Font = Enum.Font.GothamBold
+    summerLabel.TextSize = 10
+    summerLabel.TextColor3 = Colors.TextDim
+    summerLabel.TextXAlignment = Enum.TextXAlignment.Center
+    summerLabel.TextYAlignment = Enum.TextYAlignment.Center
+    summerLabel.Text = "Summer"
+    summerLabel.Parent = toggleContainer
+    
     local toggleButtonCorner = Instance.new("UICorner")
     toggleButtonCorner.CornerRadius = UDim.new(0, 6)
     toggleButtonCorner.Parent = toggleButton
@@ -3192,7 +3219,7 @@ local function showFruits()
     
     -- Fruit display frame
     local fruitDisplayFrame = Instance.new("Frame")
-    fruitDisplayFrame.Size = UDim2.new(1, -8, 0, 200)
+    fruitDisplayFrame.Size = UDim2.new(1, -8, 0, 0)
     fruitDisplayFrame.BackgroundColor3 = Colors.Secondary
     fruitDisplayFrame.BorderSizePixel = 0
     fruitDisplayFrame.Parent = ContentScroller
@@ -3253,7 +3280,7 @@ local function showFruits()
             
             -- Fruit name
             local fruitName = Instance.new("TextLabel")
-            fruitName.Size = UDim2.new(0.5, -8, 1, 0)
+            fruitName.Size = UDim2.new(0.45, -8, 1, 0)
             fruitName.Position = UDim2.new(0, 8, 0, 0)
             fruitName.BackgroundTransparency = 1
             fruitName.Font = Enum.Font.GothamSemibold
@@ -3266,7 +3293,7 @@ local function showFruits()
             -- Probability
             local fruitProbability = Instance.new("TextLabel")
             fruitProbability.Size = UDim2.new(0.2, 0, 1, 0)
-            fruitProbability.Position = UDim2.new(0.5, 0, 0, 0)
+            fruitProbability.Position = UDim2.new(0.45, 0, 0, 0)
             fruitProbability.BackgroundTransparency = 1
             fruitProbability.Font = Enum.Font.GothamBold
             fruitProbability.TextSize = 11
@@ -3290,8 +3317,8 @@ local function showFruits()
             end
             
             local fruitRarity = Instance.new("TextLabel")
-            fruitRarity.Size = UDim2.new(0.3, -8, 1, 0)
-            fruitRarity.Position = UDim2.new(0.7, 8, 0, 0)
+            fruitRarity.Size = UDim2.new(0.35, -8, 1, 0)
+            fruitRarity.Position = UDim2.new(0.65, 8, 0, 0)
             fruitRarity.BackgroundTransparency = 1
             fruitRarity.Font = Enum.Font.Gotham
             fruitRarity.TextSize = 10
@@ -3301,8 +3328,9 @@ local function showFruits()
             fruitRarity.Parent = fruitItem
         end
         
-        -- Update canvas size
+        -- Update canvas size and frame height
         fruitScroller.CanvasSize = UDim2.new(0, 0, 0, fruitLayout.AbsoluteContentSize.Y)
+        fruitDisplayFrame.Size = UDim2.new(1, -8, 0, math.min(fruitLayout.AbsoluteContentSize.Y + 16, 300))
     end
     
     -- Toggle switch functionality
@@ -3314,7 +3342,6 @@ local function showFruits()
         isAnimating = true
         
         local targetPosition = toSummer and UDim2.new(0, 100, 0, 0) or UDim2.new(0, 0, 0, 0)
-        local targetText = toSummer and "Summer" or "Normal"
         
         -- Animate button position
         local buttonTween = TweenService:Create(toggleButton, TweenInfo.new(
@@ -3325,10 +3352,29 @@ local function showFruits()
             Position = targetPosition
         })
         
-        -- Animate button position only (labels removed to eliminate shadow text)
-        buttonTween:Play()
+        -- Update text colors
+        local normalColor = toSummer and Colors.TextDim or Colors.Text
+        local summerColor = toSummer and Colors.Text or Colors.TextDim
         
-        toggleButton.Text = targetText
+        local normalTween = TweenService:Create(normalLabel, TweenInfo.new(
+            0.3, 
+            Enum.EasingStyle.Quart, 
+            Enum.EasingDirection.Out
+        ), {
+            TextColor3 = normalColor
+        })
+        
+        local summerTween = TweenService:Create(summerLabel, TweenInfo.new(
+            0.3, 
+            Enum.EasingStyle.Quart, 
+            Enum.EasingDirection.Out
+        ), {
+            TextColor3 = summerColor
+        })
+        
+        buttonTween:Play()
+        normalTween:Play()
+        summerTween:Play()
         
         buttonTween.Completed:Connect(function()
             isAnimating = false
