@@ -2913,15 +2913,6 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Position = UDim2.new(0.5, -260, 0.5, -160)
         })
         
-        -- Animate corner radius to maintain rounded appearance
-        local cornerTween = TweenService:Create(MainWindowCorner, TweenInfo.new(
-            0.6, 
-            Enum.EasingStyle.Back, 
-            Enum.EasingDirection.Out
-        ), {
-            CornerRadius = UDim.new(0, Config.BorderRadius)
-        })
-        
         -- Show content with delay for liquid effect
         spawn(function()
             wait(0.2)
@@ -2930,7 +2921,6 @@ MinimizeButton.MouseButton1Click:Connect(function()
         end)
         
         windowTween:Play()
-        cornerTween:Play()
         minimized = false
         
         notify("Window Maximized", "success")
@@ -2948,21 +2938,11 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
         })
         
-        -- Animate corner radius to maintain rounded appearance during minimize
-        local cornerTween = TweenService:Create(MainWindowCorner, TweenInfo.new(
-            0.6, 
-            Enum.EasingStyle.Back, 
-            Enum.EasingDirection.In
-        ), {
-            CornerRadius = UDim.new(0, 8) -- Smaller radius for minimized state
-        })
-        
         -- Hide content immediately
         MainContent.Visible = false
         Sidebar.Visible = false
         
         windowTween:Play()
-        cornerTween:Play()
         minimized = true
         
         -- Start smoke effect and secondary upward movement after animation completes
@@ -3116,32 +3096,105 @@ local function showFruits()
     
     createSection("🍎 Fruit Probability List")
     
-    -- Fruit probability data from your separate script
+    -- Fruit probability data with detailed fruit names
     local fruitData = {
         {
-            name = "Normal Gacha Probabilities",
+            name = "Normal Gacha Fruits",
             fruits = {
-                {name = "Common Fruits", probability = "~69%", rarity = "Common"},
-                {name = "Uncommon Fruits", probability = "~14%", rarity = "Uncommon"},
-                {name = "Rare Fruits", probability = "~13%", rarity = "Rare"},
-                {name = "Legendary Fruits", probability = "~3%", rarity = "Legendary"},
-                {name = "Mythical Fruits", probability = "~1%", rarity = "Mythical"}
+                -- Common Fruits
+                {name = "Rocket", probability = "~69%", rarity = "Common"},
+                {name = "Spin", probability = "~69%", rarity = "Common"},
+                {name = "Blade", probability = "~69%", rarity = "Common"},
+                {name = "Spring", probability = "~69%", rarity = "Common"},
+                {name = "Bomb", probability = "~69%", rarity = "Common"},
+                {name = "Smoke", probability = "~69%", rarity = "Common"},
+                {name = "Spike", probability = "~69%", rarity = "Common"},
+                -- Uncommon Fruits
+                {name = "Flame", probability = "~14%", rarity = "Uncommon"},
+                {name = "Ice", probability = "~14%", rarity = "Uncommon"},
+                {name = "Sand", probability = "~14%", rarity = "Uncommon"},
+                {name = "Dark", probability = "~14%", rarity = "Uncommon"},
+                {name = "Eagle", probability = "~14%", rarity = "Uncommon"},
+                {name = "Diamond", probability = "~14%", rarity = "Uncommon"},
+                -- Rare Fruits
+                {name = "Light", probability = "~13%", rarity = "Rare"},
+                {name = "Rubber", probability = "~13%", rarity = "Rare"},
+                {name = "Ghost", probability = "~13%", rarity = "Rare"},
+                {name = "Magma", probability = "~13%", rarity = "Rare"},
+                -- Legendary Fruits
+                {name = "Quake", probability = "~3%", rarity = "Legendary"},
+                {name = "Buddha", probability = "~3%", rarity = "Legendary"},
+                {name = "Love", probability = "~3%", rarity = "Legendary"},
+                {name = "Creation", probability = "~3%", rarity = "Legendary"},
+                {name = "Spider", probability = "~3%", rarity = "Legendary"},
+                {name = "Sound", probability = "~3%", rarity = "Legendary"},
+                {name = "Phoenix", probability = "~3%", rarity = "Legendary"},
+                {name = "Portal", probability = "~3%", rarity = "Legendary"},
+                {name = "Lightning", probability = "~3%", rarity = "Legendary"},
+                {name = "Pain", probability = "~3%", rarity = "Legendary"},
+                -- Mythical Fruits
+                {name = "Gravity", probability = "~1%", rarity = "Mythical"},
+                {name = "Mammoth", probability = "~1%", rarity = "Mythical"},
+                {name = "T-Rex", probability = "~1%", rarity = "Mythical"},
+                {name = "Dough", probability = "~1%", rarity = "Mythical"},
+                {name = "Shadow", probability = "~1%", rarity = "Mythical"},
+                {name = "Venom", probability = "~1%", rarity = "Mythical"},
+                {name = "Control", probability = "~1%", rarity = "Mythical"},
+                {name = "Gas", probability = "~1%", rarity = "Mythical"},
+                {name = "Spirit", probability = "~1%", rarity = "Mythical"},
+                {name = "Leopard", probability = "~1%", rarity = "Mythical"},
+                {name = "Kitsune", probability = "~1%", rarity = "Mythical"},
+                {name = "Dragon", probability = "~1%", rarity = "Mythical"}
             }
         },
         {
             name = "Summer Gacha (Update 27.2)",
             fruits = {
                 -- Regular gacha fruits (same as normal gacha)
-                {name = "Common Fruits", probability = "~69%", rarity = "Common"},
-                {name = "Uncommon Fruits", probability = "~14%", rarity = "Uncommon"},
-                {name = "Rare Fruits", probability = "~13%", rarity = "Rare"},
-                {name = "Legendary Fruits", probability = "~3%", rarity = "Legendary"},
-                {name = "Mythical Fruits", probability = "~1%", rarity = "Mythical"},
+                {name = "Rocket", probability = "~69%", rarity = "Common"},
+                {name = "Spin", probability = "~69%", rarity = "Common"},
+                {name = "Blade", probability = "~69%", rarity = "Common"},
+                {name = "Spring", probability = "~69%", rarity = "Common"},
+                {name = "Bomb", probability = "~69%", rarity = "Common"},
+                {name = "Smoke", probability = "~69%", rarity = "Common"},
+                {name = "Spike", probability = "~69%", rarity = "Common"},
+                {name = "Flame", probability = "~14%", rarity = "Uncommon"},
+                {name = "Ice", probability = "~14%", rarity = "Uncommon"},
+                {name = "Sand", probability = "~14%", rarity = "Uncommon"},
+                {name = "Dark", probability = "~14%", rarity = "Uncommon"},
+                {name = "Eagle", probability = "~14%", rarity = "Uncommon"},
+                {name = "Diamond", probability = "~14%", rarity = "Uncommon"},
+                {name = "Light", probability = "~13%", rarity = "Rare"},
+                {name = "Rubber", probability = "~13%", rarity = "Rare"},
+                {name = "Ghost", probability = "~13%", rarity = "Rare"},
+                {name = "Magma", probability = "~13%", rarity = "Rare"},
+                {name = "Quake", probability = "~3%", rarity = "Legendary"},
+                {name = "Buddha", probability = "~3%", rarity = "Legendary"},
+                {name = "Love", probability = "~3%", rarity = "Legendary"},
+                {name = "Creation", probability = "~3%", rarity = "Legendary"},
+                {name = "Spider", probability = "~3%", rarity = "Legendary"},
+                {name = "Sound", probability = "~3%", rarity = "Legendary"},
+                {name = "Phoenix", probability = "~3%", rarity = "Legendary"},
+                {name = "Portal", probability = "~3%", rarity = "Legendary"},
+                {name = "Lightning", probability = "~3%", rarity = "Legendary"},
+                {name = "Pain", probability = "~3%", rarity = "Legendary"},
+                {name = "Gravity", probability = "~1%", rarity = "Mythical"},
+                {name = "Mammoth", probability = "~1%", rarity = "Mythical"},
+                {name = "T-Rex", probability = "~1%", rarity = "Mythical"},
+                {name = "Dough", probability = "~1%", rarity = "Mythical"},
+                {name = "Shadow", probability = "~1%", rarity = "Mythical"},
+                {name = "Venom", probability = "~1%", rarity = "Mythical"},
+                {name = "Control", probability = "~1%", rarity = "Mythical"},
+                {name = "Gas", probability = "~1%", rarity = "Mythical"},
+                {name = "Spirit", probability = "~1%", rarity = "Mythical"},
+                {name = "Leopard", probability = "~1%", rarity = "Mythical"},
+                {name = "Kitsune", probability = "~1%", rarity = "Mythical"},
+                {name = "Dragon", probability = "~1%", rarity = "Mythical"},
                 -- Diamond skin fruits (special summer event)
-                {name = "Emerald Diamond Skin", probability = "~1%", rarity = "Mythical"},
-                {name = "Rose Quartz Diamond Skin", probability = "~1%", rarity = "Mythical"},
-                {name = "Topaz Diamond Skin", probability = "~1%", rarity = "Mythical"},
-                {name = "Ruby Diamond Skin", probability = "~1%", rarity = "Mythical"}
+                {name = "Emerald Diamond Skin", probability = "~1%", rarity = "Diamond"},
+                {name = "Rose Quartz Diamond Skin", probability = "~1%", rarity = "Diamond"},
+                {name = "Topaz Diamond Skin", probability = "~1%", rarity = "Diamond"},
+                {name = "Oni Red (Blood) Diamond Skin", probability = "~1%", rarity = "Diamond"}
             }
         }
     }
@@ -3177,7 +3230,7 @@ local function showFruits()
     -- Toggle switch container
     local toggleContainer = Instance.new("Frame")
     toggleContainer.Size = UDim2.new(0, 200, 0, 24)
-    toggleContainer.Position = UDim2.new(0.5, -100, 0, 20)
+    toggleContainer.Position = UDim2.new(0.5, -100, 0, 28)
     toggleContainer.BackgroundColor3 = Colors.Primary
     toggleContainer.BorderSizePixel = 0
     toggleContainer.Parent = gachaToggleFrame
@@ -3349,6 +3402,8 @@ local function showFruits()
                 rarityColor = Color3.fromRGB(255, 100, 0)
             elseif fruit.rarity == "Mythical" then
                 rarityColor = Color3.fromRGB(255, 0, 255)
+            elseif fruit.rarity == "Diamond" then
+                rarityColor = Color3.fromRGB(0, 255, 255) -- Cyan for Diamond skins
             end
             
             local fruitRarity = Instance.new("TextLabel")
