@@ -104,7 +104,7 @@ TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 12
 TitleText.TextColor3 = Colors.Text
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
-TitleText.Text = "Obsidian-Codex v1.1"
+TitleText.Text = "Obsidian-Codex v1.2"
 TitleText.Parent = TitleBar
 
 -- Window controls
@@ -3135,7 +3135,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
                 Enum.EasingStyle.Quart, 
                 Enum.EasingDirection.Out
             ), {
-                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -20) -- Move up from Y=20 to Y=-20 (visible on screen)
+                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 5) -- Move up from Y=20 to Y=5 (better visibility)
             })
             
             -- Create particles under the titlebar during upward movement
