@@ -3269,6 +3269,226 @@ LocalPlayer.CharacterAdded:Connect(function(character)
     end
 end)
 
+local function showFruits()
+    clearContent()
+    setActiveButton(FruitsButton)
+    
+    createSection("🍎 Fruit Probability List")
+    
+    -- Fruit probability data from your separate script
+    local fruitData = {
+        {
+            name = "Normal Gacha Probabilities",
+            fruits = {
+                {name = "Common Fruits", probability = "~69%", rarity = "Common"},
+                {name = "Uncommon Fruits", probability = "~14%", rarity = "Uncommon"},
+                {name = "Rare Fruits", probability = "~13%", rarity = "Rare"},
+                {name = "Legendary Fruits", probability = "~3%", rarity = "Legendary"},
+                {name = "Mythical Fruits", probability = "~1%", rarity = "Mythical"}
+            }
+        },
+        {
+            name = "Summer Gacha (Update 27.2)",
+            fruits = {
+                {name = "Emerald Diamond Skin", probability = "~1%", rarity = "Mythical"},
+                {name = "Rose Quartz Diamond Skin", probability = "~1%", rarity = "Mythical"},
+                {name = "Topaz Diamond Skin", probability = "~1%", rarity = "Mythical"},
+                {name = "Ruby Diamond Skin", probability = "~1%", rarity = "Mythical"},
+                {name = "Oni Red (Blood) Diamond Skin", probability = "~1%", rarity = "Mythical"}
+            }
+        }
+    }
+    
+    -- Create dropdown for gacha selection
+    local gachaSelectorFrame = Instance.new("Frame")
+    gachaSelectorFrame.Size = UDim2.new(1, -8, 0, 32)
+    gachaSelectorFrame.BackgroundColor3 = Colors.Secondary
+    gachaSelectorFrame.BorderSizePixel = 0
+    gachaSelectorFrame.Parent = ContentScroller
+    
+    local gachaSelectorCorner = Instance.new("UICorner")
+    gachaSelectorCorner.CornerRadius = UDim.new(0, 4)
+    gachaSelectorCorner.Parent = gachaSelectorFrame
+    
+    local gachaSelectorBorder = Instance.new("UIStroke")
+    gachaSelectorBorder.Thickness = 1
+    gachaSelectorBorder.Color = Colors.Border
+    gachaSelectorBorder.Transparency = 0.8
+    gachaSelectorBorder.Parent = gachaSelectorFrame
+    
+    local gachaSelectorLabel = Instance.new("TextLabel")
+    gachaSelectorLabel.Size = UDim2.new(0.4, 0, 1, 0)
+    gachaSelectorLabel.BackgroundTransparency = 1
+    gachaSelectorLabel.Font = Enum.Font.GothamSemibold
+    gachaSelectorLabel.TextSize = 12
+    gachaSelectorLabel.TextColor3 = Colors.Text
+    gachaSelectorLabel.TextXAlignment = Enum.TextXAlignment.Left
+    gachaSelectorLabel.Text = "Select Gacha:"
+    gachaSelectorLabel.Parent = gachaSelectorFrame
+    
+    local gachaDropdown = Instance.new("TextButton")
+    gachaDropdown.Size = UDim2.new(0.6, -8, 1, 0)
+    gachaDropdown.Position = UDim2.new(0.4, 8, 0, 0)
+    gachaDropdown.BackgroundColor3 = Colors.Primary
+    gachaDropdown.BorderSizePixel = 0
+    gachaDropdown.AutoButtonColor = false
+    gachaDropdown.Font = Enum.Font.Gotham
+    gachaDropdown.TextSize = 11
+    gachaDropdown.TextColor3 = Colors.Text
+    gachaDropdown.Text = "Normal Gacha"
+    gachaDropdown.Parent = gachaSelectorFrame
+    
+    local gachaDropdownCorner = Instance.new("UICorner")
+    gachaDropdownCorner.CornerRadius = UDim.new(0, 4)
+    gachaDropdownCorner.Parent = gachaDropdown
+    
+    local gachaDropdownBorder = Instance.new("UIStroke")
+    gachaDropdownBorder.Thickness = 1
+    gachaDropdownBorder.Color = Colors.Border
+    gachaDropdownBorder.Transparency = 0.8
+    gachaDropdownBorder.Parent = gachaDropdown
+    
+    -- Fruit display frame
+    local fruitDisplayFrame = Instance.new("Frame")
+    fruitDisplayFrame.Size = UDim2.new(1, -8, 0, 200)
+    fruitDisplayFrame.BackgroundColor3 = Colors.Secondary
+    fruitDisplayFrame.BorderSizePixel = 0
+    fruitDisplayFrame.Parent = ContentScroller
+    
+    local fruitDisplayCorner = Instance.new("UICorner")
+    fruitDisplayCorner.CornerRadius = UDim.new(0, 4)
+    fruitDisplayCorner.Parent = fruitDisplayFrame
+    
+    local fruitDisplayBorder = Instance.new("UIStroke")
+    fruitDisplayBorder.Thickness = 1
+    fruitDisplayBorder.Color = Colors.Border
+    fruitDisplayBorder.Transparency = 0.8
+    fruitDisplayBorder.Parent = fruitDisplayFrame
+    
+    local fruitScroller = Instance.new("ScrollingFrame")
+    fruitScroller.Size = UDim2.new(1, -16, 1, -16)
+    fruitScroller.Position = UDim2.new(0, 8, 0, 8)
+    fruitScroller.BackgroundTransparency = 1
+    fruitScroller.BorderSizePixel = 0
+    fruitScroller.ScrollBarThickness = 4
+    fruitScroller.ScrollBarImageColor3 = Colors.Accent
+    fruitScroller.Parent = fruitDisplayFrame
+    
+    local fruitLayout = Instance.new("UIListLayout")
+    fruitLayout.FillDirection = Enum.FillDirection.Vertical
+    fruitLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    fruitLayout.Padding = UDim.new(0, 4)
+    fruitLayout.Parent = fruitScroller
+    
+    local function updateFruitDisplay(selectedGacha)
+        -- Clear existing fruit items
+        for _, child in ipairs(fruitScroller:GetChildren()) do
+            if child:IsA("GuiObject") and child.Name ~= "UIListLayout" then
+                child:Destroy()
+            end
+        end
+        
+        local selectedData = fruitData[selectedGacha]
+        if not selectedData then return end
+        
+        -- Create fruit items
+        for i, fruit in ipairs(selectedData.fruits) do
+            local fruitItem = Instance.new("Frame")
+            fruitItem.Size = UDim2.new(1, 0, 0, 28)
+            fruitItem.BackgroundColor3 = Colors.Primary
+            fruitItem.BorderSizePixel = 0
+            fruitItem.Parent = fruitScroller
+            
+            local fruitItemCorner = Instance.new("UICorner")
+            fruitItemCorner.CornerRadius = UDim.new(0, 4)
+            fruitItemCorner.Parent = fruitItem
+            
+            local fruitItemBorder = Instance.new("UIStroke")
+            fruitItemBorder.Thickness = 1
+            fruitItemBorder.Color = Colors.Border
+            fruitItemBorder.Transparency = 0.8
+            fruitItemBorder.Parent = fruitItem
+            
+            -- Fruit name
+            local fruitName = Instance.new("TextLabel")
+            fruitName.Size = UDim2.new(0.6, -8, 1, 0)
+            fruitName.Position = UDim2.new(0, 8, 0, 0)
+            fruitName.BackgroundTransparency = 1
+            fruitName.Font = Enum.Font.GothamSemibold
+            fruitName.TextSize = 11
+            fruitName.TextColor3 = Colors.Text
+            fruitName.TextXAlignment = Enum.TextXAlignment.Left
+            fruitName.Text = fruit.name
+            fruitName.Parent = fruitItem
+            
+            -- Probability
+            local fruitProbability = Instance.new("TextLabel")
+            fruitProbability.Size = UDim2.new(0.25, 0, 1, 0)
+            fruitProbability.Position = UDim2.new(0.6, 0, 0, 0)
+            fruitProbability.BackgroundTransparency = 1
+            fruitProbability.Font = Enum.Font.GothamBold
+            fruitProbability.TextSize = 11
+            fruitProbability.TextColor3 = Colors.Accent
+            fruitProbability.TextXAlignment = Enum.TextXAlignment.Center
+            fruitProbability.Text = fruit.probability
+            fruitProbability.Parent = fruitItem
+            
+            -- Rarity indicator
+            local rarityColor = Colors.TextDim
+            if fruit.rarity == "Common" then
+                rarityColor = Color3.fromRGB(150, 150, 150)
+            elseif fruit.rarity == "Uncommon" then
+                rarityColor = Color3.fromRGB(0, 255, 0)
+            elseif fruit.rarity == "Rare" then
+                rarityColor = Color3.fromRGB(0, 100, 255)
+            elseif fruit.rarity == "Legendary" then
+                rarityColor = Color3.fromRGB(255, 100, 0)
+            elseif fruit.rarity == "Mythical" then
+                rarityColor = Color3.fromRGB(255, 0, 255)
+            end
+            
+            local fruitRarity = Instance.new("TextLabel")
+            fruitRarity.Size = UDim2.new(0.15, -8, 1, 0)
+            fruitRarity.Position = UDim2.new(0.85, 8, 0, 0)
+            fruitRarity.BackgroundTransparency = 1
+            fruitRarity.Font = Enum.Font.Gotham
+            fruitRarity.TextSize = 10
+            fruitRarity.TextColor3 = rarityColor
+            fruitRarity.TextXAlignment = Enum.TextXAlignment.Right
+            fruitRarity.Text = fruit.rarity
+            fruitRarity.Parent = fruitItem
+        end
+        
+        -- Update canvas size
+        fruitScroller.CanvasSize = UDim2.new(0, 0, 0, fruitLayout.AbsoluteContentSize.Y)
+    end
+    
+    -- Gacha dropdown functionality
+    local currentGacha = 1
+    gachaDropdown.MouseButton1Click:Connect(function()
+        currentGacha = currentGacha == 1 and 2 or 1
+        gachaDropdown.Text = fruitData[currentGacha].name
+        updateFruitDisplay(currentGacha)
+    end)
+    
+    -- Initialize with normal gacha
+    updateFruitDisplay(1)
+    
+    createSection("ℹ️ Information")
+    
+    local infoText = Instance.new("TextLabel")
+    infoText.Size = UDim2.new(1, -8, 0, 60)
+    infoText.BackgroundTransparency = 1
+    infoText.Font = Enum.Font.Gotham
+    infoText.TextSize = 10
+    infoText.TextColor3 = Colors.TextDim
+    infoText.TextXAlignment = Enum.TextXAlignment.Left
+    infoText.TextYAlignment = Enum.TextYAlignment.Top
+    infoText.TextWrapped = true
+    infoText.Text = "⚠️ Exact probabilities are estimates based on community testing.\n\nNormal Gacha: Standard fruit gacha with common to mythical fruits.\nSummer Gacha: Special event gacha with diamond skin fruits (Update 27.2)."
+    infoText.Parent = ContentScroller
+end
+
 local function showHelp()
     clearContent()
     setActiveButton(HelpButton)
@@ -3324,6 +3544,7 @@ local QuestsButton = createButton("Quests", "🍒", nil)
 local TeleportButton = createButton("Teleport", "🧭", nil)
 local VisualsButton = createButton("Visuals", "🌈", nil)
 local ShopButton = createButton("Shop", "🛒", nil)
+local FruitsButton = createButton("Fruits", "🍎", nil)
 local MiscButton = createButton("Misc", "⚙️", nil)
 local HelpButton = createButton("Help", "❓", nil)
 
@@ -3336,6 +3557,7 @@ QuestsButton.MouseButton1Click:Connect(showQuests)
 TeleportButton.MouseButton1Click:Connect(showTeleport)
 VisualsButton.MouseButton1Click:Connect(showVisuals)
 ShopButton.MouseButton1Click:Connect(showShop)
+FruitsButton.MouseButton1Click:Connect(showFruits)
 MiscButton.MouseButton1Click:Connect(showMisc)
 HelpButton.MouseButton1Click:Connect(showHelp)
 
