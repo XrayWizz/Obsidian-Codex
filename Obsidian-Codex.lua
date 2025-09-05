@@ -3135,7 +3135,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
                 Enum.EasingStyle.Quart, 
                 Enum.EasingDirection.Out
             ), {
-                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -80) -- Move up from Y=20 to Y=-80 (even higher)
+                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -20) -- Move up from Y=20 to Y=-20 (visible on screen)
             })
             
             -- Create particles under the titlebar during upward movement
@@ -3143,8 +3143,8 @@ MinimizeButton.MouseButton1Click:Connect(function()
             local underParticleConnection = RunService.Heartbeat:Connect(function(deltaTime)
                 underParticleTimer = underParticleTimer + deltaTime
                 
-                -- Create particles every 0.1 seconds during upward movement (very frequent)
-                if underParticleTimer >= 0.1 then
+                -- Create particles every 0.15 seconds during upward movement
+                if underParticleTimer >= 0.15 then
                     underParticleTimer = 0
                     
                     -- Get current titlebar position for absolute positioning
@@ -3154,10 +3154,10 @@ MinimizeButton.MouseButton1Click:Connect(function()
                     -- Create a particle under the titlebar with absolute positioning
                     local underParticle = Instance.new("Frame")
                     underParticle.Name = "UnderParticle"
-                    underParticle.Size = UDim2.new(0, 12, 0, 12) -- Even bigger particles
-                    underParticle.Position = UDim2.new(0, currentPos.X.Offset + Config.MinimizedWidth/2 - 6, 0, titlebarBottomY + 5) -- Position directly under titlebar
+                    underParticle.Size = UDim2.new(0, 10, 0, 10) -- Slightly smaller particles
+                    underParticle.Position = UDim2.new(0, currentPos.X.Offset + Config.MinimizedWidth/2 - 5, 0, titlebarBottomY + 3) -- Position directly under titlebar
                     underParticle.BackgroundColor3 = Colors.Accent
-                    underParticle.BackgroundTransparency = 0.1 -- Very visible
+                    underParticle.BackgroundTransparency = 0.2 -- Slightly more transparent
                     underParticle.BorderSizePixel = 0
                     underParticle.ZIndex = 15 -- Very high z-index
                     underParticle.Parent = ScreenGui -- Parent to ScreenGui for absolute positioning
@@ -3167,24 +3167,24 @@ MinimizeButton.MouseButton1Click:Connect(function()
                     underCorner.Parent = underParticle
                     
                     local underGlow = Instance.new("UIStroke")
-                    underGlow.Thickness = 3 -- Very thick glow
+                    underGlow.Thickness = 2 -- Thinner glow
                     underGlow.Color = Colors.Glow
-                    underGlow.Transparency = 0.0 -- No transparency for maximum visibility
+                    underGlow.Transparency = 0.2 -- Slightly transparent
                     underGlow.Parent = underParticle
                     
                     -- Animate particle falling down and fading
                     local fallTween = TweenService:Create(underParticle, TweenInfo.new(
-                        2.0, 
+                        1.5, 
                         Enum.EasingStyle.Quart, 
                         Enum.EasingDirection.Out
                     ), {
-                        Position = UDim2.new(0, currentPos.X.Offset + Config.MinimizedWidth/2 - 6, 0, titlebarBottomY + 60), -- Fall much further down
+                        Position = UDim2.new(0, currentPos.X.Offset + Config.MinimizedWidth/2 - 5, 0, titlebarBottomY + 40), -- Fall down
                         BackgroundTransparency = 1,
-                        Size = UDim2.new(0, 4, 0, 4) -- Shrink to very small
+                        Size = UDim2.new(0, 3, 0, 3) -- Shrink to very small
                     })
                     
                     local glowTween = TweenService:Create(underGlow, TweenInfo.new(
-                        2.0, 
+                        1.5, 
                         Enum.EasingStyle.Quart, 
                         Enum.EasingDirection.Out
                     ), {
