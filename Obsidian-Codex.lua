@@ -27,7 +27,7 @@ local Colors = {
 }
 
 -- Configuration
-local Config = {
+local Config = { 
     WindowSize = UDim2.new(0, 520, 0, 320),
     SidebarWidth = 110,
     AnimationSpeed = 0.15,
@@ -3129,16 +3129,81 @@ MinimizeButton.MouseButton1Click:Connect(function()
             wait(0.7)
             startWaveEffect()
             
-            -- Secondary animation: move titlebar up slightly
+            -- Secondary animation: move titlebar up more and add under-titlebar particles
             local upwardTween = TweenService:Create(MainWindow, TweenInfo.new(
-                0.4, 
+                0.6, 
                 Enum.EasingStyle.Quart, 
                 Enum.EasingDirection.Out
             ), {
-                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 5) -- Move up from Y=20 to Y=5
+                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -10) -- Move up from Y=20 to Y=-10
             })
             
+            -- Create particles under the titlebar during upward movement
+            local underParticleTimer = 0
+            local underParticleConnection = RunService.Heartbeat:Connect(function(deltaTime)
+                underParticleTimer = underParticleTimer + deltaTime
+                
+                -- Create particles every 0.3 seconds during upward movement
+                if underParticleTimer >= 0.3 then
+                    underParticleTimer = 0
+                    
+                    -- Create a particle under the titlebar
+                    local underParticle = Instance.new("Frame")
+                    underParticle.Name = "UnderParticle"
+                    underParticle.Size = UDim2.new(0, 6, 0, 6)
+                    underParticle.Position = UDim2.new(0.5, -3, 1, 5) -- Position under the titlebar
+                    underParticle.BackgroundColor3 = Colors.Accent
+                    underParticle.BackgroundTransparency = 0.4
+                    underParticle.BorderSizePixel = 0
+                    underParticle.Parent = MainWindow
+                    
+                    local underCorner = Instance.new("UICorner")
+                    underCorner.CornerRadius = UDim.new(0.5, 0)
+                    underCorner.Parent = underParticle
+                    
+                    local underGlow = Instance.new("UIStroke")
+                    underGlow.Thickness = 1
+                    underGlow.Color = Colors.Glow
+                    underGlow.Transparency = 0.3
+                    underGlow.Parent = underParticle
+                    
+                    -- Animate particle falling down and fading
+                    local fallTween = TweenService:Create(underParticle, TweenInfo.new(
+                        1.2, 
+                        Enum.EasingStyle.Quart, 
+                        Enum.EasingDirection.Out
+                    ), {
+                        Position = UDim2.new(0.5, -3, 1, 25),
+                        BackgroundTransparency = 1,
+                        Size = UDim2.new(0, 2, 0, 2)
+                    })
+                    
+                    local glowTween = TweenService:Create(underGlow, TweenInfo.new(
+                        1.2, 
+                        Enum.EasingStyle.Quart, 
+                        Enum.EasingDirection.Out
+                    ), {
+                        Transparency = 1,
+                        Thickness = 0
+                    })
+                    
+                    fallTween:Play()
+                    glowTween:Play()
+                    
+                    fallTween.Completed:Connect(function()
+                        underParticle:Destroy()
+                    end)
+                end
+            end)
+            
             upwardTween:Play()
+            
+            -- Stop under-titlebar particles after upward movement completes
+            upwardTween.Completed:Connect(function()
+                if underParticleConnection then
+                    underParticleConnection:Disconnect()
+                end
+            end)
         end)
         
         notify("Window Minimized", "info")
