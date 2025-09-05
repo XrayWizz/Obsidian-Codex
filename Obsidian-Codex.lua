@@ -3082,6 +3082,9 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Maximize with liquid animation
         animateLiquidMaximize()
         
+        -- Set animation flag
+        isAnimating = true
+        
         -- Animate main window size with bouncy effect and restore centered position
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
@@ -3091,6 +3094,11 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Size = Config.WindowSize,
             Position = UDim2.new(0.5, -260, 0.5, -160)
         })
+        
+        -- Reset animation flag when done
+        windowTween.Completed:Connect(function()
+            isAnimating = false
+        end)
         
         -- Show content with delay for liquid effect
         spawn(function()
@@ -3107,6 +3115,9 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Minimize with liquid animation
         animateLiquidMinimize()
         
+        -- Set animation flag
+        isAnimating = true
+        
         -- Animate main window size with bouncy effect and center it on titlebar
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
@@ -3116,6 +3127,16 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Size = UDim2.new(0, Config.MinimizedWidth, 0, 24),
             Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
         })
+        
+        -- Ensure the position is set immediately to prevent any interference
+        local targetPosition = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
+        MainWindow.Position = targetPosition
+        print("Minimizing to position:", targetPosition, "MinimizedWidth:", Config.MinimizedWidth)
+        
+        -- Reset animation flag when done
+        windowTween.Completed:Connect(function()
+            isAnimating = false
+        end)
         
         -- Hide content immediately
         MainContent.Visible = false
@@ -3138,6 +3159,7 @@ end)
 local dragging = false
 local dragStart = nil
 local startPos = nil
+local isAnimating = false
 
 local function updateWindowPosition(delta)
     if minimized then
@@ -3165,14 +3187,48 @@ end
 
 TitleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainWindow.Position
+        -- Check if we're clicking on the minimize/close buttons
+        local mousePos = input.Position
+        local titleBarPos = TitleBar.AbsolutePosition
+        local titleBarSize = TitleBar.AbsoluteSize
         
-        -- Visual feedback when dragging starts
-        TweenService:Create(TitleBar, TweenInfo.new(0.1), {
-            BackgroundColor3 = Color3.fromRGB(Colors.Secondary.R * 255 + 20, Colors.Secondary.G * 255 + 20, Colors.Secondary.B * 255 + 20)
-        }):Play()
+        -- Check if click is on the minimize button area
+        local minimizeButtonArea = {
+            x = titleBarPos.X + titleBarSize.X - 50, -- Right side area
+            y = titleBarPos.Y,
+            width = 50,
+            height = titleBarSize.Y
+        }
+        
+        local isOnMinimizeButton = mousePos.X >= minimizeButtonArea.x and 
+                                  mousePos.X <= minimizeButtonArea.x + minimizeButtonArea.width and
+                                  mousePos.Y >= minimizeButtonArea.y and 
+                                  mousePos.Y <= minimizeButtonArea.y + minimizeButtonArea.height
+        
+        -- Check if click is on the close button area
+        local closeButtonArea = {
+            x = titleBarPos.X + titleBarSize.X - 26, -- Right side area
+            y = titleBarPos.Y,
+            width = 26,
+            height = titleBarSize.Y
+        }
+        
+        local isOnCloseButton = mousePos.X >= closeButtonArea.x and 
+                               mousePos.X <= closeButtonArea.x + closeButtonArea.width and
+                               mousePos.Y >= closeButtonArea.y and 
+                               mousePos.Y <= closeButtonArea.y + closeButtonArea.height
+        
+        -- Only start dragging if not clicking on buttons and not animating
+        if not isOnMinimizeButton and not isOnCloseButton and not isAnimating then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainWindow.Position
+            
+            -- Visual feedback when dragging starts
+            TweenService:Create(TitleBar, TweenInfo.new(0.1), {
+                BackgroundColor3 = Color3.fromRGB(Colors.Secondary.R * 255 + 20, Colors.Secondary.G * 255 + 20, Colors.Secondary.B * 255 + 20)
+            }):Play()
+        end
     end
 end)
 
