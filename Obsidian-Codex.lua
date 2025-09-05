@@ -3129,13 +3129,13 @@ MinimizeButton.MouseButton1Click:Connect(function()
             wait(0.7)
             startWaveEffect()
             
-            -- Secondary animation: move titlebar up more and add under-titlebar particles
+            -- Secondary animation: move titlebar much higher and add visible under-titlebar particles
             local upwardTween = TweenService:Create(MainWindow, TweenInfo.new(
-                0.6, 
+                0.8, 
                 Enum.EasingStyle.Quart, 
                 Enum.EasingDirection.Out
             ), {
-                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -10) -- Move up from Y=20 to Y=-10
+                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, -40) -- Move up from Y=20 to Y=-40 (much higher)
             })
             
             -- Create particles under the titlebar during upward movement
@@ -3143,18 +3143,19 @@ MinimizeButton.MouseButton1Click:Connect(function()
             local underParticleConnection = RunService.Heartbeat:Connect(function(deltaTime)
                 underParticleTimer = underParticleTimer + deltaTime
                 
-                -- Create particles every 0.3 seconds during upward movement
-                if underParticleTimer >= 0.3 then
+                -- Create particles every 0.15 seconds during upward movement (more frequent)
+                if underParticleTimer >= 0.15 then
                     underParticleTimer = 0
                     
                     -- Create a particle under the titlebar
                     local underParticle = Instance.new("Frame")
                     underParticle.Name = "UnderParticle"
-                    underParticle.Size = UDim2.new(0, 6, 0, 6)
-                    underParticle.Position = UDim2.new(0.5, -3, 1, 5) -- Position under the titlebar
+                    underParticle.Size = UDim2.new(0, 8, 0, 8) -- Bigger particles
+                    underParticle.Position = UDim2.new(0.5, -4, 1, 2) -- Position directly under the titlebar
                     underParticle.BackgroundColor3 = Colors.Accent
-                    underParticle.BackgroundTransparency = 0.4
+                    underParticle.BackgroundTransparency = 0.2 -- More visible
                     underParticle.BorderSizePixel = 0
+                    underParticle.ZIndex = 10 -- Higher z-index to ensure visibility
                     underParticle.Parent = MainWindow
                     
                     local underCorner = Instance.new("UICorner")
@@ -3162,24 +3163,24 @@ MinimizeButton.MouseButton1Click:Connect(function()
                     underCorner.Parent = underParticle
                     
                     local underGlow = Instance.new("UIStroke")
-                    underGlow.Thickness = 1
+                    underGlow.Thickness = 2 -- Thicker glow
                     underGlow.Color = Colors.Glow
-                    underGlow.Transparency = 0.3
+                    underGlow.Transparency = 0.1 -- More visible glow
                     underGlow.Parent = underParticle
                     
                     -- Animate particle falling down and fading
                     local fallTween = TweenService:Create(underParticle, TweenInfo.new(
-                        1.2, 
+                        1.5, 
                         Enum.EasingStyle.Quart, 
                         Enum.EasingDirection.Out
                     ), {
-                        Position = UDim2.new(0.5, -3, 1, 25),
+                        Position = UDim2.new(0.5, -4, 1, 40), -- Fall further down
                         BackgroundTransparency = 1,
-                        Size = UDim2.new(0, 2, 0, 2)
+                        Size = UDim2.new(0, 3, 0, 3) -- Shrink more
                     })
                     
                     local glowTween = TweenService:Create(underGlow, TweenInfo.new(
-                        1.2, 
+                        1.5, 
                         Enum.EasingStyle.Quart, 
                         Enum.EasingDirection.Out
                     ), {
