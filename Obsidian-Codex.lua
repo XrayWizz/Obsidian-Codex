@@ -3144,7 +3144,7 @@ local function showFruits()
     
     -- Toggle switch container
     local toggleContainer = Instance.new("Frame")
-    toggleContainer.Size = UDim2.new(0, 200, 0, 16)
+    toggleContainer.Size = UDim2.new(0, 200, 0, 24)
     toggleContainer.Position = UDim2.new(0.5, -100, 0, 20)
     toggleContainer.BackgroundColor3 = Colors.Primary
     toggleContainer.BorderSizePixel = 0
@@ -3170,7 +3170,8 @@ local function showFruits()
     toggleButton.Font = Enum.Font.GothamBold
     toggleButton.TextSize = 10
     toggleButton.TextColor3 = Colors.Primary
-    toggleButton.Text = "Normal"
+    toggleButton.Text = ""
+    toggleButton.TextStrokeTransparency = 1
     toggleButton.Parent = toggleContainer
     
     -- Add text labels for both sides
@@ -3183,6 +3184,7 @@ local function showFruits()
     normalLabel.TextColor3 = Colors.Text
     normalLabel.TextXAlignment = Enum.TextXAlignment.Center
     normalLabel.TextYAlignment = Enum.TextYAlignment.Center
+    normalLabel.TextStrokeTransparency = 1
     normalLabel.Text = "Normal"
     normalLabel.Parent = toggleContainer
     
@@ -3195,6 +3197,7 @@ local function showFruits()
     summerLabel.TextColor3 = Colors.TextDim
     summerLabel.TextXAlignment = Enum.TextXAlignment.Center
     summerLabel.TextYAlignment = Enum.TextYAlignment.Center
+    summerLabel.TextStrokeTransparency = 1
     summerLabel.Text = "Summer"
     summerLabel.Parent = toggleContainer
     
