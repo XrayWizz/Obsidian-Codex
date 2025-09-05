@@ -1833,199 +1833,6 @@ local function showHomepage()
     welcomeText.Text = "Advanced Roblox enhancement suite with comprehensive features:\n\n• Advanced Player Tracking & ESP\n• Auto Farming (All Seas)\n• Combat Enhancements\n• Quest Automation\n• Teleportation Tools\n• Visual Effects\n• Shop Utilities\n• Anti-AFK & Auto Rejoin"
     welcomeText.Parent = ContentScroller
     
-    -- Quick Stats Collapsible Section
-    local quickStatsFrame = Instance.new("Frame")
-    quickStatsFrame.Size = UDim2.new(1, -8, 0, 32)
-    quickStatsFrame.BackgroundColor3 = Colors.Secondary
-    quickStatsFrame.BorderSizePixel = 0
-    quickStatsFrame.Parent = ContentScroller
-    
-    local quickStatsCorner = Instance.new("UICorner")
-    quickStatsCorner.CornerRadius = UDim.new(0, 4)
-    quickStatsCorner.Parent = quickStatsFrame
-    
-    local quickStatsBorder = Instance.new("UIStroke")
-    quickStatsBorder.Thickness = 1
-    quickStatsBorder.Color = Colors.Border
-    quickStatsBorder.Transparency = 0.8
-    quickStatsBorder.Parent = quickStatsFrame
-    
-    local quickStatsButton = Instance.new("TextButton")
-    quickStatsButton.Size = UDim2.new(1, 0, 1, 0)
-    quickStatsButton.BackgroundTransparency = 1
-    quickStatsButton.Font = Enum.Font.GothamSemibold
-    quickStatsButton.TextSize = 12
-    quickStatsButton.TextColor3 = Colors.Text
-    quickStatsButton.TextXAlignment = Enum.TextXAlignment.Left
-    quickStatsButton.Text = "📊 Quick Stats"
-    quickStatsButton.Parent = quickStatsFrame
-    
-    local dropdownIcon = Instance.new("TextLabel")
-    dropdownIcon.Size = UDim2.new(0, 20, 0, 20)
-    dropdownIcon.Position = UDim2.new(1, -25, 0, 6)
-    dropdownIcon.BackgroundTransparency = 1
-    dropdownIcon.Font = Enum.Font.GothamBold
-    dropdownIcon.TextSize = 14
-    dropdownIcon.TextColor3 = Colors.Text
-    dropdownIcon.TextXAlignment = Enum.TextXAlignment.Center
-    dropdownIcon.Text = "▼"
-    dropdownIcon.Parent = quickStatsFrame
-    
-    local quickStatsDropdown = Instance.new("Frame")
-    quickStatsDropdown.Size = UDim2.new(1, -16, 0, 0)
-    quickStatsDropdown.Position = UDim2.new(0, 8, 0, 32)
-    quickStatsDropdown.BackgroundTransparency = 1
-    quickStatsDropdown.Visible = false
-    quickStatsDropdown.Parent = quickStatsFrame
-    
-    local quickStatsLayout = Instance.new("UIListLayout")
-    quickStatsLayout.FillDirection = Enum.FillDirection.Vertical
-    quickStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    quickStatsLayout.Padding = UDim.new(0, 4)
-    quickStatsLayout.Parent = quickStatsDropdown
-    
-    local isQuickStatsExpanded = false
-    
-    quickStatsButton.MouseButton1Click:Connect(function()
-        isQuickStatsExpanded = not isQuickStatsExpanded
-        quickStatsDropdown.Visible = isQuickStatsExpanded
-        dropdownIcon.Text = isQuickStatsExpanded and "▲" or "▼"
-        
-        if isQuickStatsExpanded then
-            quickStatsDropdown.Size = UDim2.new(1, -16, 0, 0)
-            task.wait(0.1)
-            local targetHeight = quickStatsLayout.AbsoluteContentSize.Y + 8
-            quickStatsDropdown:TweenSize(
-                UDim2.new(1, -16, 0, targetHeight),
-                "Out", "Quad", 0.2, true
-            )
-            quickStatsFrame:TweenSize(
-                UDim2.new(1, -8, 0, 32 + targetHeight + 8),
-                "Out", "Quad", 0.2, true
-            )
-        else
-            quickStatsDropdown:TweenSize(
-                UDim2.new(1, -16, 0, 0),
-                "Out", "Quad", 0.2, true,
-                function()
-                    quickStatsDropdown.Visible = false
-                end
-            )
-            quickStatsFrame:TweenSize(
-                UDim2.new(1, -8, 0, 32),
-                "Out", "Quad", 0.2, true
-            )
-        end
-    end)
-    
-    -- Player Activity & Stats Button
-    local playerStatsButton = Instance.new("TextButton")
-    playerStatsButton.Size = UDim2.new(1, 0, 0, 28)
-    playerStatsButton.BackgroundColor3 = Colors.Secondary
-    playerStatsButton.BorderSizePixel = 0
-    playerStatsButton.AutoButtonColor = false
-    playerStatsButton.Font = Enum.Font.GothamSemibold
-    playerStatsButton.TextSize = 12
-    playerStatsButton.TextColor3 = Colors.Text
-    playerStatsButton.Text = "📈 Check Player Activity & Stats"
-    playerStatsButton.Parent = quickStatsDropdown
-    
-    local playerStatsCorner = Instance.new("UICorner")
-    playerStatsCorner.CornerRadius = UDim.new(0, 4)
-    playerStatsCorner.Parent = playerStatsButton
-    
-    playerStatsButton.MouseButton1Click:Connect(function()
-        setActiveButton(PlayersButton)
-        showPlayers()
-        notify("Opened Player Tab", "success")
-    end)
-    
-    -- Current Sea Button (with live detection)
-    local currentSeaButton = Instance.new("TextButton")
-    currentSeaButton.Size = UDim2.new(1, 0, 0, 28)
-    currentSeaButton.BackgroundColor3 = Colors.Secondary
-    currentSeaButton.BorderSizePixel = 0
-    currentSeaButton.AutoButtonColor = false
-    currentSeaButton.Font = Enum.Font.GothamSemibold
-    currentSeaButton.TextSize = 12
-    currentSeaButton.TextColor3 = Colors.Text
-    currentSeaButton.Text = "🌊 Check Current Sea"
-    currentSeaButton.Parent = quickStatsDropdown
-    
-    local currentSeaCorner = Instance.new("UICorner")
-    currentSeaCorner.CornerRadius = UDim.new(0, 4)
-    currentSeaCorner.Parent = currentSeaButton
-    
-    currentSeaButton.MouseButton1Click:Connect(function()
-        local currentSea = getCurrentSea()
-        notify("Current Sea: " .. currentSea, "info")
-    end)
-    
-    -- Autofarm Settings Button
-    local autofarmButton = Instance.new("TextButton")
-    autofarmButton.Size = UDim2.new(1, 0, 0, 28)
-    autofarmButton.BackgroundColor3 = Colors.Secondary
-    autofarmButton.BorderSizePixel = 0
-    autofarmButton.AutoButtonColor = false
-    autofarmButton.Font = Enum.Font.GothamSemibold
-    autofarmButton.TextSize = 12
-    autofarmButton.TextColor3 = Colors.Text
-    autofarmButton.Text = "⚔️ Autofarm Settings"
-    autofarmButton.Parent = quickStatsDropdown
-    
-    local autofarmCorner = Instance.new("UICorner")
-    autofarmCorner.CornerRadius = UDim.new(0, 4)
-    autofarmCorner.Parent = autofarmButton
-    
-    autofarmButton.MouseButton1Click:Connect(function()
-        setActiveButton(FarmingButton)
-        showFarming()
-        notify("Opened Farming Tab", "success")
-    end)
-    
-    -- Teleportation Button
-    local teleportButton = Instance.new("TextButton")
-    teleportButton.Size = UDim2.new(1, 0, 0, 28)
-    teleportButton.BackgroundColor3 = Colors.Secondary
-    teleportButton.BorderSizePixel = 0
-    teleportButton.AutoButtonColor = false
-    teleportButton.Font = Enum.Font.GothamSemibold
-    teleportButton.TextSize = 12
-    teleportButton.TextColor3 = Colors.Text
-    teleportButton.Text = "🧭 Teleportation"
-    teleportButton.Parent = quickStatsDropdown
-    
-    local teleportCorner = Instance.new("UICorner")
-    teleportCorner.CornerRadius = UDim.new(0, 4)
-    teleportCorner.Parent = teleportButton
-    
-    teleportButton.MouseButton1Click:Connect(function()
-        setActiveButton(TeleportButton)
-        showTeleport()
-        notify("Opened Teleport Tab", "success")
-    end)
-    
-    -- Help & Feedback Button
-    local helpButton = Instance.new("TextButton")
-    helpButton.Size = UDim2.new(1, 0, 0, 28)
-    helpButton.BackgroundColor3 = Colors.Secondary
-    helpButton.BorderSizePixel = 0
-    helpButton.AutoButtonColor = false
-    helpButton.Font = Enum.Font.GothamSemibold
-    helpButton.TextSize = 12
-    helpButton.TextColor3 = Colors.Text
-    helpButton.Text = "❓ Help & Feedback"
-    helpButton.Parent = quickStatsDropdown
-    
-    local helpCorner = Instance.new("UICorner")
-    helpCorner.CornerRadius = UDim.new(0, 4)
-    helpCorner.Parent = helpButton
-    
-    helpButton.MouseButton1Click:Connect(function()
-        setActiveButton(HelpButton)
-        showHelp()
-        notify("Opened Help & Feedback Tab", "success")
-    end)
     
     createSection("📝 Changelog")
     
@@ -3446,7 +3253,7 @@ local function showFruits()
             
             -- Fruit name
             local fruitName = Instance.new("TextLabel")
-            fruitName.Size = UDim2.new(0.6, -8, 1, 0)
+            fruitName.Size = UDim2.new(0.5, -8, 1, 0)
             fruitName.Position = UDim2.new(0, 8, 0, 0)
             fruitName.BackgroundTransparency = 1
             fruitName.Font = Enum.Font.GothamSemibold
@@ -3458,8 +3265,8 @@ local function showFruits()
             
             -- Probability
             local fruitProbability = Instance.new("TextLabel")
-            fruitProbability.Size = UDim2.new(0.25, 0, 1, 0)
-            fruitProbability.Position = UDim2.new(0.6, 0, 0, 0)
+            fruitProbability.Size = UDim2.new(0.2, 0, 1, 0)
+            fruitProbability.Position = UDim2.new(0.5, 0, 0, 0)
             fruitProbability.BackgroundTransparency = 1
             fruitProbability.Font = Enum.Font.GothamBold
             fruitProbability.TextSize = 11
@@ -3483,8 +3290,8 @@ local function showFruits()
             end
             
             local fruitRarity = Instance.new("TextLabel")
-            fruitRarity.Size = UDim2.new(0.15, -8, 1, 0)
-            fruitRarity.Position = UDim2.new(0.85, 8, 0, 0)
+            fruitRarity.Size = UDim2.new(0.3, -8, 1, 0)
+            fruitRarity.Position = UDim2.new(0.7, 8, 0, 0)
             fruitRarity.BackgroundTransparency = 1
             fruitRarity.Font = Enum.Font.Gotham
             fruitRarity.TextSize = 10
