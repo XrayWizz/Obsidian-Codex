@@ -3085,14 +3085,20 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Set animation flag
         isAnimating = true
         
-        -- Animate main window size with bouncy effect and restore centered position
+        -- Set the target position immediately to prevent shifting
+        local targetPosition = UDim2.new(0.5, -260, 0.5, -160)
+        MainWindow.Position = targetPosition
+        
+        -- Small delay to ensure position is set before animation
+        task.wait(0.05)
+        
+        -- Only animate the size, not the position to avoid the shifting effect
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.Out
         ), {
-            Size = Config.WindowSize,
-            Position = UDim2.new(0.5, -260, 0.5, -160)
+            Size = Config.WindowSize
         })
         
         -- Reset animation flag when done
@@ -3118,19 +3124,22 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Set animation flag
         isAnimating = true
         
-        -- Animate main window size with bouncy effect and center it on titlebar
+        -- Set the target position immediately to prevent shifting
+        local targetPosition = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
+        MainWindow.Position = targetPosition
+        
+        -- Small delay to ensure position is set before animation
+        task.wait(0.05)
+        
+        -- Only animate the size, not the position to avoid the shifting effect
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
             0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.In
         ), {
-            Size = UDim2.new(0, Config.MinimizedWidth, 0, 24),
-            Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
+            Size = UDim2.new(0, Config.MinimizedWidth, 0, 24)
         })
         
-        -- Ensure the position is set immediately to prevent any interference
-        local targetPosition = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
-        MainWindow.Position = targetPosition
         print("Minimizing to position:", targetPosition, "MinimizedWidth:", Config.MinimizedWidth)
         
         -- Reset animation flag when done
