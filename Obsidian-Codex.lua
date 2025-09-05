@@ -568,7 +568,6 @@ local function createButton(text, icon, callback)
     button.TextColor3 = Colors.TextDim
     button.TextXAlignment = Enum.TextXAlignment.Left
     button.TextStrokeTransparency = 1
-    button.TextStrokeColor3 = Color3.new(0, 0, 0)
     button.Text = "  " .. (icon and icon .. " " or "") .. text
     button.Parent = SidebarScroller
     
@@ -3311,41 +3310,21 @@ local function showFruits()
     toggleSpacer.BackgroundTransparency = 1
     toggleSpacer.Parent = ContentScroller
     
-    -- Fruit display frame
-    local fruitDisplayFrame = Instance.new("Frame")
-    fruitDisplayFrame.Size = UDim2.new(1, -8, 0, 0)
-    fruitDisplayFrame.BackgroundColor3 = Colors.Secondary
-    fruitDisplayFrame.BorderSizePixel = 0
-    fruitDisplayFrame.Parent = ContentScroller
-    
-    local fruitDisplayCorner = Instance.new("UICorner")
-    fruitDisplayCorner.CornerRadius = UDim.new(0, 4)
-    fruitDisplayCorner.Parent = fruitDisplayFrame
-    
-    local fruitDisplayBorder = Instance.new("UIStroke")
-    fruitDisplayBorder.Thickness = 1
-    fruitDisplayBorder.Color = Colors.Border
-    fruitDisplayBorder.Transparency = 0.8
-    fruitDisplayBorder.Parent = fruitDisplayFrame
-    
-    local fruitScroller = Instance.new("ScrollingFrame")
-    fruitScroller.Size = UDim2.new(1, -16, 1, -16)
-    fruitScroller.Position = UDim2.new(0, 8, 0, 8)
-    fruitScroller.BackgroundTransparency = 1
-    fruitScroller.BorderSizePixel = 0
-    fruitScroller.ScrollBarThickness = 4
-    fruitScroller.ScrollBarImageColor3 = Colors.Accent
-    fruitScroller.Parent = fruitDisplayFrame
+    -- Simple fruit display container
+    local fruitContainer = Instance.new("Frame")
+    fruitContainer.Size = UDim2.new(1, -8, 0, 0)
+    fruitContainer.BackgroundTransparency = 1
+    fruitContainer.Parent = ContentScroller
     
     local fruitLayout = Instance.new("UIListLayout")
     fruitLayout.FillDirection = Enum.FillDirection.Vertical
     fruitLayout.SortOrder = Enum.SortOrder.LayoutOrder
     fruitLayout.Padding = UDim.new(0, 4)
-    fruitLayout.Parent = fruitScroller
+    fruitLayout.Parent = fruitContainer
     
     local function updateFruitDisplay(selectedGacha)
-        -- Clear existing fruit items
-        for _, child in ipairs(fruitScroller:GetChildren()) do
+        -- Clear existing content
+        for _, child in ipairs(fruitContainer:GetChildren()) do
             if child:IsA("GuiObject") and child.Name ~= "UIListLayout" then
                 child:Destroy()
             end
@@ -3374,104 +3353,77 @@ local function showFruits()
             Diamond = Color3.fromRGB(0, 255, 255)
         }
         
-        -- Helper function to create a simple fruit item
-        local function createFruitItem(fruit, parent)
-            local item = Instance.new("TextLabel")
-            item.Size = UDim2.new(1, -8, 0, 20)
-            item.BackgroundTransparency = 1
-            item.Font = Enum.Font.Gotham
-            item.TextSize = 10
-            item.TextColor3 = Colors.Text
-            item.TextXAlignment = Enum.TextXAlignment.Left
-            item.Text = "  " .. fruit.name .. " " .. string.rep("·", 20) .. " " .. fruit.probability
-            item.Parent = parent
-            return item
-        end
-        
-        -- Helper function to create a rarity section
-        local function createRaritySection(rarity, fruits, parent)
-            local section = Instance.new("Frame")
-            section.Size = UDim2.new(1, 0, 0, 32)
-            section.BackgroundColor3 = Colors.Primary
-            section.BorderSizePixel = 0
-            section.Parent = parent
-            
-            local corner = Instance.new("UICorner")
-            corner.CornerRadius = UDim.new(0, 4)
-            corner.Parent = section
-            
-            local border = Instance.new("UIStroke")
-            border.Thickness = 1
-            border.Color = Colors.Border
-            border.Transparency = 0.8
-            border.Parent = section
-            
-            -- Header button
-            local header = Instance.new("TextButton")
-            header.Size = UDim2.new(1, 0, 1, 0)
-            header.BackgroundTransparency = 1
-            header.Font = Enum.Font.GothamSemibold
-            header.TextSize = 12
-            header.TextColor3 = rarityColors[rarity]
-            header.TextXAlignment = Enum.TextXAlignment.Left
-            header.Text = rarity .. " (" .. #fruits .. " fruits) ▼"
-            header.Parent = section
-            
-            -- Content container (initially hidden)
-            local content = Instance.new("Frame")
-            content.Size = UDim2.new(1, -8, 0, 0)
-            content.BackgroundTransparency = 1
-            content.Visible = false
-            content.Parent = section
-            
-            local contentLayout = Instance.new("UIListLayout")
-            contentLayout.FillDirection = Enum.FillDirection.Vertical
-            contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            contentLayout.Padding = UDim.new(0, 1)
-            contentLayout.Parent = content
-            
-            -- Add fruit items
-            for _, fruit in ipairs(fruits) do
-                createFruitItem(fruit, content)
-            end
-            
-            -- Toggle functionality
-            local isExpanded = false
-            header.MouseButton1Click:Connect(function()
-                isExpanded = not isExpanded
-                header.Text = rarity .. " (" .. #fruits .. " fruits) " .. (isExpanded and "▲" or "▼")
-                
-                if isExpanded then
-                    content.Visible = true
-                    local targetHeight = contentLayout.AbsoluteContentSize.Y
-                    content.Size = UDim2.new(1, -8, 0, targetHeight)
-                    section:TweenSize(
-                        UDim2.new(1, 0, 0, 32 + targetHeight + 4),
-                        "Out", "Quad", 0.2, true
-                    )
-                else
-                    content.Visible = false
-                    content.Size = UDim2.new(1, -8, 0, 0)
-                    section:TweenSize(
-                        UDim2.new(1, 0, 0, 32),
-                        "Out", "Quad", 0.2, true
-                    )
-                end
-            end)
-            
-            return section
-        end
-        
-        -- Create rarity sections
+        -- Create simple collapsible sections
         for _, rarity in ipairs(rarityOrder) do
             if fruitsByRarity[rarity] then
-                createRaritySection(rarity, fruitsByRarity[rarity], fruitScroller)
+                -- Create section header
+                local header = Instance.new("TextButton")
+                header.Size = UDim2.new(1, 0, 0, 28)
+                header.BackgroundColor3 = Colors.Secondary
+                header.BorderSizePixel = 0
+                header.AutoButtonColor = false
+                header.Font = Enum.Font.GothamSemibold
+                header.TextSize = 12
+                header.TextColor3 = rarityColors[rarity]
+                header.TextXAlignment = Enum.TextXAlignment.Left
+                header.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits) ▼"
+                header.Parent = fruitContainer
+                
+                local headerCorner = Instance.new("UICorner")
+                headerCorner.CornerRadius = UDim.new(0, 4)
+                headerCorner.Parent = header
+                
+                local headerBorder = Instance.new("UIStroke")
+                headerBorder.Thickness = 1
+                headerBorder.Color = Colors.Border
+                headerBorder.Transparency = 0.8
+                headerBorder.Parent = header
+                
+                -- Create content frame (initially hidden)
+                local contentFrame = Instance.new("Frame")
+                contentFrame.Size = UDim2.new(1, -8, 0, 0)
+                contentFrame.BackgroundTransparency = 1
+                contentFrame.Visible = false
+                contentFrame.Parent = fruitContainer
+                
+                local contentLayout = Instance.new("UIListLayout")
+                contentLayout.FillDirection = Enum.FillDirection.Vertical
+                contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                contentLayout.Padding = UDim.new(0, 2)
+                contentLayout.Parent = contentFrame
+                
+                -- Add fruit items
+                for _, fruit in ipairs(fruitsByRarity[rarity]) do
+                    local fruitItem = Instance.new("TextLabel")
+                    fruitItem.Size = UDim2.new(1, 0, 0, 18)
+                    fruitItem.BackgroundTransparency = 1
+                    fruitItem.Font = Enum.Font.Gotham
+                    fruitItem.TextSize = 10
+                    fruitItem.TextColor3 = Colors.TextDim
+                    fruitItem.TextXAlignment = Enum.TextXAlignment.Left
+                    fruitItem.Text = "  " .. fruit.name .. " - " .. fruit.probability
+                    fruitItem.Parent = contentFrame
+                end
+                
+                -- Toggle functionality
+                local isExpanded = false
+                header.MouseButton1Click:Connect(function()
+                    isExpanded = not isExpanded
+                    header.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits) " .. (isExpanded and "▲" or "▼")
+                    
+                    if isExpanded then
+                        contentFrame.Visible = true
+                        contentFrame.Size = UDim2.new(1, -8, 0, contentLayout.AbsoluteContentSize.Y)
+                    else
+                        contentFrame.Visible = false
+                        contentFrame.Size = UDim2.new(1, -8, 0, 0)
+                    end
+                end)
             end
         end
         
-        -- Update canvas size and frame height
-        fruitScroller.CanvasSize = UDim2.new(0, 0, 0, fruitLayout.AbsoluteContentSize.Y)
-        fruitDisplayFrame.Size = UDim2.new(1, -8, 0, math.min(fruitLayout.AbsoluteContentSize.Y + 16, 400))
+        -- Update container size
+        fruitContainer.Size = UDim2.new(1, -8, 0, fruitLayout.AbsoluteContentSize.Y)
     end
     
     -- Toggle switch functionality
