@@ -35,7 +35,7 @@ local Config = {
     GlowIntensity = 0.3,
     LiquidAnimationSpeed = 0.8,
     BubbleEffectDuration = 1.2,
-    MinimizedWidth = 180 -- Width when minimized (just title + controls)
+    MinimizedWidth = 120 -- Width when minimized (just title + controls)
 }
 
 -- Create Main UI
@@ -301,7 +301,7 @@ local function createBubbleEffect(parent, position, size)
     bubble.Size = UDim2.new(0, size, 0, size)
     bubble.Position = UDim2.new(0, position.X, 0, position.Y)
     bubble.BackgroundColor3 = Colors.Accent
-    bubble.BackgroundTransparency = 0.2
+    bubble.BackgroundTransparency = 0.1
     bubble.BorderSizePixel = 0
     bubble.Parent = parent
     
@@ -310,18 +310,18 @@ local function createBubbleEffect(parent, position, size)
     bubbleCorner.Parent = bubble
     
     local bubbleGlow = Instance.new("UIStroke")
-    bubbleGlow.Thickness = 2
+    bubbleGlow.Thickness = 3
     bubbleGlow.Color = Colors.Glow
-    bubbleGlow.Transparency = 0.3
+    bubbleGlow.Transparency = 0.2
     bubbleGlow.Parent = bubble
     
     -- Add ripple effect
     local ripple = Instance.new("Frame")
     ripple.Name = "Ripple"
-    ripple.Size = UDim2.new(0, size * 0.3, 0, size * 0.3)
-    ripple.Position = UDim2.new(0.5, -size * 0.15, 0.5, -size * 0.15)
+    ripple.Size = UDim2.new(0, size * 0.4, 0, size * 0.4)
+    ripple.Position = UDim2.new(0.5, -size * 0.2, 0.5, -size * 0.2)
     ripple.BackgroundColor3 = Colors.Text
-    ripple.BackgroundTransparency = 0.8
+    ripple.BackgroundTransparency = 0.6
     ripple.BorderSizePixel = 0
     ripple.Parent = bubble
     
@@ -331,17 +331,17 @@ local function createBubbleEffect(parent, position, size)
     
     -- Animate bubble with more realistic physics
     local bubbleTween = TweenService:Create(bubble, TweenInfo.new(
-        Config.BubbleEffectDuration, 
+        0.8, 
         Enum.EasingStyle.Back, 
         Enum.EasingDirection.Out
     ), {
-        Size = UDim2.new(0, size * 2, 0, size * 2),
+        Size = UDim2.new(0, size * 2.5, 0, size * 2.5),
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, position.X - size * 0.5, 0, position.Y - size * 0.5)
+        Position = UDim2.new(0, position.X - size * 0.75, 0, position.Y - size * 0.75)
     })
     
     local glowTween = TweenService:Create(bubbleGlow, TweenInfo.new(
-        Config.BubbleEffectDuration, 
+        0.8, 
         Enum.EasingStyle.Quad, 
         Enum.EasingDirection.Out
     ), {
@@ -350,12 +350,12 @@ local function createBubbleEffect(parent, position, size)
     })
     
     local rippleTween = TweenService:Create(ripple, TweenInfo.new(
-        Config.BubbleEffectDuration * 0.6, 
+        0.5, 
         Enum.EasingStyle.Quad, 
         Enum.EasingDirection.Out
     ), {
-        Size = UDim2.new(0, size * 0.8, 0, size * 0.8),
-        Position = UDim2.new(0.5, -size * 0.4, 0.5, -size * 0.4),
+        Size = UDim2.new(0, size * 1.2, 0, size * 1.2),
+        Position = UDim2.new(0.5, -size * 0.6, 0.5, -size * 0.6),
         BackgroundTransparency = 1
     })
     
@@ -373,16 +373,22 @@ end
 local function createLiquidFlowEffect(parent, startPos, endPos, duration)
     local flow = Instance.new("Frame")
     flow.Name = "LiquidFlow"
-    flow.Size = UDim2.new(0, 20, 0, 4)
+    flow.Size = UDim2.new(0, 25, 0, 6)
     flow.Position = UDim2.new(0, startPos.X, 0, startPos.Y)
     flow.BackgroundColor3 = Colors.Accent
-    flow.BackgroundTransparency = 0.2
+    flow.BackgroundTransparency = 0.1
     flow.BorderSizePixel = 0
     flow.Parent = parent
     
     local flowCorner = Instance.new("UICorner")
-    flowCorner.CornerRadius = UDim.new(0, 2)
+    flowCorner.CornerRadius = UDim.new(0, 3)
     flowCorner.Parent = flow
+    
+    local flowGlow = Instance.new("UIStroke")
+    flowGlow.Thickness = 1
+    flowGlow.Color = Colors.Glow
+    flowGlow.Transparency = 0.3
+    flowGlow.Parent = flow
     
     local flowTween = TweenService:Create(flow, TweenInfo.new(
         duration, 
@@ -393,7 +399,16 @@ local function createLiquidFlowEffect(parent, startPos, endPos, duration)
         BackgroundTransparency = 1
     })
     
+    local glowTween = TweenService:Create(flowGlow, TweenInfo.new(
+        duration, 
+        Enum.EasingStyle.Quad, 
+        Enum.EasingDirection.InOut
+    ), {
+        Transparency = 1
+    })
+    
     flowTween:Play()
+    glowTween:Play()
     flowTween.Completed:Connect(function()
         flow:Destroy()
     end)
@@ -427,40 +442,40 @@ local function animateLiquidMinimize()
     
     -- Create liquid background effect
     local liquidTween = TweenService:Create(LiquidBackground, TweenInfo.new(
-        Config.LiquidAnimationSpeed * 0.5, 
+        0.3, 
         Enum.EasingStyle.Quad, 
         Enum.EasingDirection.Out
     ), {
         BackgroundColor3 = Colors.Accent,
-        BackgroundTransparency = 0.7
+        BackgroundTransparency = 0.5
     })
     liquidTween:Play()
     
     -- Create multiple flow effects
-    for i = 1, 4 do
+    for i = 1, 6 do
         spawn(function()
-            wait(i * 0.08)
+            wait(i * 0.05)
             local startPos = Vector2.new(
-                titleBarCenter.X + math.random(-60, 60),
-                titleBarCenter.Y + math.random(-8, 8)
+                titleBarCenter.X + math.random(-40, 40),
+                titleBarCenter.Y + math.random(-5, 5)
             )
             local endPos = Vector2.new(
-                startPos.X + math.random(-40, 40),
-                startPos.Y + math.random(-25, 25)
+                startPos.X + math.random(-30, 30),
+                startPos.Y + math.random(-15, 15)
             )
-            createLiquidFlowEffect(LiquidBackground, startPos, endPos, Config.LiquidAnimationSpeed)
+            createLiquidFlowEffect(LiquidBackground, startPos, endPos, 0.6)
         end)
     end
     
     -- Create bubble plop at the end
     spawn(function()
-        wait(Config.LiquidAnimationSpeed * 0.6)
+        wait(0.4)
         createBubblePlopEffect(LiquidBackground, titleBarCenter)
         
         -- Fade out liquid background
-        wait(0.3)
+        wait(0.2)
         local fadeTween = TweenService:Create(LiquidBackground, TweenInfo.new(
-            0.5, 
+            0.4, 
             Enum.EasingStyle.Quad, 
             Enum.EasingDirection.Out
         ), {
@@ -479,39 +494,39 @@ local function animateLiquidMaximize()
     
     -- Create liquid background effect
     local liquidTween = TweenService:Create(LiquidBackground, TweenInfo.new(
-        Config.LiquidAnimationSpeed * 0.3, 
+        0.2, 
         Enum.EasingStyle.Quad, 
         Enum.EasingDirection.Out
     ), {
         BackgroundColor3 = Colors.Accent,
-        BackgroundTransparency = 0.6
+        BackgroundTransparency = 0.4
     })
     liquidTween:Play()
     
     -- Create expanding bubble effect
-    createBubbleEffect(LiquidBackground, titleBarCenter, 35)
+    createBubbleEffect(LiquidBackground, titleBarCenter, 25)
     
     -- Create flow effects
-    for i = 1, 5 do
+    for i = 1, 8 do
         spawn(function()
-            wait(i * 0.06)
+            wait(i * 0.04)
             local startPos = Vector2.new(
-                titleBarCenter.X + math.random(-40, 40),
-                titleBarCenter.Y + math.random(-6, 6)
+                titleBarCenter.X + math.random(-30, 30),
+                titleBarCenter.Y + math.random(-4, 4)
             )
             local endPos = Vector2.new(
-                startPos.X + math.random(-50, 50),
-                startPos.Y + math.random(-20, 20)
+                startPos.X + math.random(-40, 40),
+                startPos.Y + math.random(-18, 18)
             )
-            createLiquidFlowEffect(LiquidBackground, startPos, endPos, Config.LiquidAnimationSpeed)
+            createLiquidFlowEffect(LiquidBackground, startPos, endPos, 0.7)
         end)
     end
     
     -- Fade out liquid background
     spawn(function()
-        wait(Config.LiquidAnimationSpeed * 0.8)
+        wait(0.6)
         local fadeTween = TweenService:Create(LiquidBackground, TweenInfo.new(
-            0.6, 
+            0.5, 
             Enum.EasingStyle.Quad, 
             Enum.EasingDirection.Out
         ), {
@@ -2957,34 +2972,40 @@ local function startWaveEffect()
         waveConnection:Disconnect()
     end
     
-    waveConnection = RunService.Heartbeat:Connect(function()
+    local waveTimer = 0
+    waveConnection = RunService.Heartbeat:Connect(function(deltaTime)
         if minimized then
-            local wave = Instance.new("Frame")
-            wave.Name = "LiquidWave"
-            wave.Size = UDim2.new(0, 30, 0, 2)
-            wave.Position = UDim2.new(0, -30, 0.5, -1)
-            wave.BackgroundColor3 = Colors.Accent
-            wave.BackgroundTransparency = 0.8
-            wave.BorderSizePixel = 0
-            wave.Parent = LiquidBackground
-            
-            local waveCorner = Instance.new("UICorner")
-            waveCorner.CornerRadius = UDim.new(0, 1)
-            waveCorner.Parent = wave
-            
-            local waveTween = TweenService:Create(wave, TweenInfo.new(
-                2, 
-                Enum.EasingStyle.Linear, 
-                Enum.EasingDirection.InOut
-            ), {
-                Position = UDim2.new(1, 0, 0.5, -1),
-                BackgroundTransparency = 1
-            })
-            
-            waveTween:Play()
-            waveTween.Completed:Connect(function()
-                wave:Destroy()
-            end)
+            waveTimer = waveTimer + deltaTime
+            if waveTimer >= 0.5 then -- Create wave every 0.5 seconds
+                waveTimer = 0
+                
+                local wave = Instance.new("Frame")
+                wave.Name = "LiquidWave"
+                wave.Size = UDim2.new(0, 20, 0, 2)
+                wave.Position = UDim2.new(0, -20, 0.5, -1)
+                wave.BackgroundColor3 = Colors.Accent
+                wave.BackgroundTransparency = 0.6
+                wave.BorderSizePixel = 0
+                wave.Parent = LiquidBackground
+                
+                local waveCorner = Instance.new("UICorner")
+                waveCorner.CornerRadius = UDim.new(0, 1)
+                waveCorner.Parent = wave
+                
+                local waveTween = TweenService:Create(wave, TweenInfo.new(
+                    1.5, 
+                    Enum.EasingStyle.Linear, 
+                    Enum.EasingDirection.InOut
+                ), {
+                    Position = UDim2.new(1, 0, 0.5, -1),
+                    BackgroundTransparency = 1
+                })
+                
+                waveTween:Play()
+                waveTween.Completed:Connect(function()
+                    wave:Destroy()
+                end)
+            end
         end
     end)
 end
@@ -3005,33 +3026,23 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Maximize with liquid animation
         animateLiquidMaximize()
         
-        -- Animate main window size
+        -- Animate main window size with bouncy effect
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
-            Config.LiquidAnimationSpeed, 
+            0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.Out
         ), {
             Size = Config.WindowSize
         })
         
-        -- Animate title bar width back to full
-        local titleBarTween = TweenService:Create(TitleBar, TweenInfo.new(
-            Config.LiquidAnimationSpeed, 
-            Enum.EasingStyle.Back, 
-            Enum.EasingDirection.Out
-        ), {
-            Size = UDim2.new(1, 0, 0, 24)
-        })
-        
         -- Show content with delay for liquid effect
         spawn(function()
-            wait(Config.LiquidAnimationSpeed * 0.3)
+            wait(0.2)
             MainContent.Visible = true
             Sidebar.Visible = true
         end)
         
         windowTween:Play()
-        titleBarTween:Play()
         minimized = false
         
         notify("Window Maximized", "success")
@@ -3039,22 +3050,13 @@ MinimizeButton.MouseButton1Click:Connect(function()
         -- Minimize with liquid animation
         animateLiquidMinimize()
         
-        -- Animate main window size
+        -- Animate main window size with bouncy effect
         local windowTween = TweenService:Create(MainWindow, TweenInfo.new(
-            Config.LiquidAnimationSpeed, 
+            0.6, 
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.In
         ), {
             Size = UDim2.new(0, Config.MinimizedWidth, 0, 24)
-        })
-        
-        -- Animate title bar width to fit content
-        local titleBarTween = TweenService:Create(TitleBar, TweenInfo.new(
-            Config.LiquidAnimationSpeed, 
-            Enum.EasingStyle.Back, 
-            Enum.EasingDirection.In
-        ), {
-            Size = UDim2.new(1, 0, 0, 24)
         })
         
         -- Hide content immediately
@@ -3062,12 +3064,11 @@ MinimizeButton.MouseButton1Click:Connect(function()
         Sidebar.Visible = false
         
         windowTween:Play()
-        titleBarTween:Play()
         minimized = true
         
         -- Start wave effect after animation completes
         spawn(function()
-            wait(Config.LiquidAnimationSpeed)
+            wait(0.7)
             startWaveEffect()
         end)
         
