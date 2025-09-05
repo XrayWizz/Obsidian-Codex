@@ -2030,7 +2030,7 @@ local function showHomepage()
     createSection("📝 Changelog")
     
     local changelogText = Instance.new("TextLabel")
-    changelogText.Size = UDim2.new(1, -8, 0, 140)
+    changelogText.Size = UDim2.new(1, -8, 0, 100)
     changelogText.BackgroundTransparency = 1
     changelogText.Font = Enum.Font.Gotham
     changelogText.TextSize = 10
@@ -2038,7 +2038,7 @@ local function showHomepage()
     changelogText.TextXAlignment = Enum.TextXAlignment.Left
     changelogText.TextYAlignment = Enum.TextYAlignment.Top
     changelogText.TextWrapped = true
-    changelogText.Text = "v1.2 - Fruits Tab & Enhanced UI\n• Added new Fruits tab with probability lists\n• Modern toggle switch for Normal/Summer Gacha\n• Complete fruit probability data (Update 27.2)\n• Color-coded rarity system for fruits\n• Enhanced minimize animation with particle effects\n• Improved titlebar positioning and animations\n\nv1.1 - UI Fixes & Improvements\n• Fixed sidebar button functionality and content display\n• Resolved TweenService errors and circular reference issues\n• Cleaned up duplicate sidebar buttons\n• Improved content loading and UI responsiveness\n• Enhanced debugging and error handling\n\nv1.0 - Initial Release\n• Deep dark metallic theme\n• Complete ESP system with player tracking\n• Auto farming for all enemy types\n• Quest automation system\n• Advanced teleportation tools\n• Shop utilities with auto-buy features\n• Anti-AFK and server management\n• Comprehensive visual effects\n• Streamlined UI with neon accents\n• AI Player System - Bot plays the game for you!"
+    changelogText.Text = "v1.2 - Fruits Tab & Enhanced UI\n• Added new Fruits tab with probability lists\n• Modern toggle switch for Normal/Summer Gacha\n• Complete fruit probability data (Update 27.2)\n• Color-coded rarity system for fruits\n• Enhanced minimize animation with particle effects\n• Improved titlebar positioning and animations\n• Interactive toggle switch (click either side)\n• Fixed shadow text effects in UI elements\n• Optimized particle animations and positioning\n• Better minimized titlebar visibility"
     changelogText.Parent = ContentScroller
 end
 
@@ -3135,7 +3135,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
                 Enum.EasingStyle.Quart, 
                 Enum.EasingDirection.Out
             ), {
-                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 5) -- Move up from Y=20 to Y=5 (better visibility)
+                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 15) -- Move up to blue icon height level
             })
             
             -- Create particles under the titlebar during upward movement
@@ -3368,28 +3368,20 @@ local function showFruits()
     toggleButtonCorner.CornerRadius = UDim.new(0, 6)
     toggleButtonCorner.Parent = toggleButton
     
-    -- Labels for each side
-    local normalLabel = Instance.new("TextLabel")
-    normalLabel.Size = UDim2.new(0, 100, 1, 0)
-    normalLabel.Position = UDim2.new(0, 0, 0, 0)
-    normalLabel.BackgroundTransparency = 1
-    normalLabel.Font = Enum.Font.GothamBold
-    normalLabel.TextSize = 10
-    normalLabel.TextColor3 = Colors.Text
-    normalLabel.TextXAlignment = Enum.TextXAlignment.Center
-    normalLabel.Text = "Normal Gacha"
-    normalLabel.Parent = toggleContainer
+    -- Clickable areas for each side
+    local normalClickArea = Instance.new("TextButton")
+    normalClickArea.Size = UDim2.new(0, 100, 1, 0)
+    normalClickArea.Position = UDim2.new(0, 0, 0, 0)
+    normalClickArea.BackgroundTransparency = 1
+    normalClickArea.Text = ""
+    normalClickArea.Parent = toggleContainer
     
-    local summerLabel = Instance.new("TextLabel")
-    summerLabel.Size = UDim2.new(0, 100, 1, 0)
-    summerLabel.Position = UDim2.new(0, 100, 0, 0)
-    summerLabel.BackgroundTransparency = 1
-    summerLabel.Font = Enum.Font.GothamBold
-    summerLabel.TextSize = 10
-    summerLabel.TextColor3 = Colors.TextDim
-    summerLabel.TextXAlignment = Enum.TextXAlignment.Center
-    summerLabel.Text = "Summer Gacha"
-    summerLabel.Parent = toggleContainer
+    local summerClickArea = Instance.new("TextButton")
+    summerClickArea.Size = UDim2.new(0, 100, 1, 0)
+    summerClickArea.Position = UDim2.new(0, 100, 0, 0)
+    summerClickArea.BackgroundTransparency = 1
+    summerClickArea.Text = ""
+    summerClickArea.Parent = toggleContainer
     
     -- Fruit display frame
     local fruitDisplayFrame = Instance.new("Frame")
@@ -3526,29 +3518,8 @@ local function showFruits()
             Position = targetPosition
         })
         
-        -- Animate label colors
-        local normalColor = toSummer and Colors.TextDim or Colors.Text
-        local summerColor = toSummer and Colors.Text or Colors.TextDim
-        
-        local normalTween = TweenService:Create(normalLabel, TweenInfo.new(
-            0.3, 
-            Enum.EasingStyle.Quart, 
-            Enum.EasingDirection.Out
-        ), {
-            TextColor3 = normalColor
-        })
-        
-        local summerTween = TweenService:Create(summerLabel, TweenInfo.new(
-            0.3, 
-            Enum.EasingStyle.Quart, 
-            Enum.EasingDirection.Out
-        ), {
-            TextColor3 = summerColor
-        })
-        
+        -- Animate button position only (labels removed to eliminate shadow text)
         buttonTween:Play()
-        normalTween:Play()
-        summerTween:Play()
         
         toggleButton.Text = targetText
         
@@ -3557,6 +3528,23 @@ local function showFruits()
         end)
     end
     
+    -- Function to handle gacha switching
+    local function switchGacha(toSummer)
+        currentGacha = toSummer and 2 or 1
+        animateToggle(toSummer)
+        updateFruitDisplay(currentGacha)
+    end
+    
+    -- Click handlers for both sides
+    normalClickArea.MouseButton1Click:Connect(function()
+        switchGacha(false) -- Switch to Normal Gacha
+    end)
+    
+    summerClickArea.MouseButton1Click:Connect(function()
+        switchGacha(true) -- Switch to Summer Gacha
+    end)
+    
+    -- Keep the main toggle button click handler as backup
     toggleButton.MouseButton1Click:Connect(function()
         currentGacha = currentGacha == 1 and 2 or 1
         local toSummer = currentGacha == 2
