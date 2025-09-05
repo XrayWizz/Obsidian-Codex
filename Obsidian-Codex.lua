@@ -1819,7 +1819,7 @@ local function showHomepage()
     clearContent()
     setActiveButton(HomepageButton)
     
-    createSection("🏠 Welcome to Obsidian-Codex v1.1")
+    createSection("🏠 Welcome to Obsidian-Codex v1.2")
     
     local welcomeText = Instance.new("TextLabel")
     welcomeText.Size = UDim2.new(1, -8, 0, 80)
@@ -2030,7 +2030,7 @@ local function showHomepage()
     createSection("📝 Changelog")
     
     local changelogText = Instance.new("TextLabel")
-    changelogText.Size = UDim2.new(1, -8, 0, 120)
+    changelogText.Size = UDim2.new(1, -8, 0, 140)
     changelogText.BackgroundTransparency = 1
     changelogText.Font = Enum.Font.Gotham
     changelogText.TextSize = 10
@@ -2038,7 +2038,7 @@ local function showHomepage()
     changelogText.TextXAlignment = Enum.TextXAlignment.Left
     changelogText.TextYAlignment = Enum.TextYAlignment.Top
     changelogText.TextWrapped = true
-    changelogText.Text = "v1.1 - UI Fixes & Improvements\n• Fixed sidebar button functionality and content display\n• Resolved TweenService errors and circular reference issues\n• Cleaned up duplicate sidebar buttons\n• Improved content loading and UI responsiveness\n• Enhanced debugging and error handling\n\nv1.0 - Initial Release\n• Deep dark metallic theme\n• Complete ESP system with player tracking\n• Auto farming for all enemy types\n• Quest automation system\n• Advanced teleportation tools\n• Shop utilities with auto-buy features\n• Anti-AFK and server management\n• Comprehensive visual effects\n• Streamlined UI with neon accents\n• AI Player System - Bot plays the game for you!"
+    changelogText.Text = "v1.2 - Fruits Tab & Enhanced UI\n• Added new Fruits tab with probability lists\n• Modern toggle switch for Normal/Summer Gacha\n• Complete fruit probability data (Update 27.2)\n• Color-coded rarity system for fruits\n• Enhanced minimize animation with particle effects\n• Improved titlebar positioning and animations\n\nv1.1 - UI Fixes & Improvements\n• Fixed sidebar button functionality and content display\n• Resolved TweenService errors and circular reference issues\n• Cleaned up duplicate sidebar buttons\n• Improved content loading and UI responsiveness\n• Enhanced debugging and error handling\n\nv1.0 - Initial Release\n• Deep dark metallic theme\n• Complete ESP system with player tracking\n• Auto farming for all enemy types\n• Quest automation system\n• Advanced teleportation tools\n• Shop utilities with auto-buy features\n• Anti-AFK and server management\n• Comprehensive visual effects\n• Streamlined UI with neon accents\n• AI Player System - Bot plays the game for you!"
     changelogText.Parent = ContentScroller
 end
 
@@ -3290,63 +3290,106 @@ local function showFruits()
         {
             name = "Summer Gacha (Update 27.2)",
             fruits = {
+                -- Regular gacha fruits (same as normal gacha)
+                {name = "Common Fruits", probability = "~69%", rarity = "Common"},
+                {name = "Uncommon Fruits", probability = "~14%", rarity = "Uncommon"},
+                {name = "Rare Fruits", probability = "~13%", rarity = "Rare"},
+                {name = "Legendary Fruits", probability = "~3%", rarity = "Legendary"},
+                {name = "Mythical Fruits", probability = "~1%", rarity = "Mythical"},
+                -- Diamond skin fruits (special summer event)
                 {name = "Emerald Diamond Skin", probability = "~1%", rarity = "Mythical"},
                 {name = "Rose Quartz Diamond Skin", probability = "~1%", rarity = "Mythical"},
                 {name = "Topaz Diamond Skin", probability = "~1%", rarity = "Mythical"},
-                {name = "Ruby Diamond Skin", probability = "~1%", rarity = "Mythical"},
-                {name = "Oni Red (Blood) Diamond Skin", probability = "~1%", rarity = "Mythical"}
+                {name = "Ruby Diamond Skin", probability = "~1%", rarity = "Mythical"}
             }
         }
     }
     
-    -- Create dropdown for gacha selection
-    local gachaSelectorFrame = Instance.new("Frame")
-    gachaSelectorFrame.Size = UDim2.new(1, -8, 0, 32)
-    gachaSelectorFrame.BackgroundColor3 = Colors.Secondary
-    gachaSelectorFrame.BorderSizePixel = 0
-    gachaSelectorFrame.Parent = ContentScroller
+    -- Create toggle switch for gacha selection
+    local gachaToggleFrame = Instance.new("Frame")
+    gachaToggleFrame.Size = UDim2.new(1, -8, 0, 40)
+    gachaToggleFrame.BackgroundColor3 = Colors.Secondary
+    gachaToggleFrame.BorderSizePixel = 0
+    gachaToggleFrame.Parent = ContentScroller
     
-    local gachaSelectorCorner = Instance.new("UICorner")
-    gachaSelectorCorner.CornerRadius = UDim.new(0, 4)
-    gachaSelectorCorner.Parent = gachaSelectorFrame
+    local gachaToggleCorner = Instance.new("UICorner")
+    gachaToggleCorner.CornerRadius = UDim.new(0, 4)
+    gachaToggleCorner.Parent = gachaToggleFrame
     
-    local gachaSelectorBorder = Instance.new("UIStroke")
-    gachaSelectorBorder.Thickness = 1
-    gachaSelectorBorder.Color = Colors.Border
-    gachaSelectorBorder.Transparency = 0.8
-    gachaSelectorBorder.Parent = gachaSelectorFrame
+    local gachaToggleBorder = Instance.new("UIStroke")
+    gachaToggleBorder.Thickness = 1
+    gachaToggleBorder.Color = Colors.Border
+    gachaToggleBorder.Transparency = 0.8
+    gachaToggleBorder.Parent = gachaToggleFrame
     
-    local gachaSelectorLabel = Instance.new("TextLabel")
-    gachaSelectorLabel.Size = UDim2.new(0.4, 0, 1, 0)
-    gachaSelectorLabel.BackgroundTransparency = 1
-    gachaSelectorLabel.Font = Enum.Font.GothamSemibold
-    gachaSelectorLabel.TextSize = 12
-    gachaSelectorLabel.TextColor3 = Colors.Text
-    gachaSelectorLabel.TextXAlignment = Enum.TextXAlignment.Left
-    gachaSelectorLabel.Text = "Select Gacha:"
-    gachaSelectorLabel.Parent = gachaSelectorFrame
+    local gachaToggleLabel = Instance.new("TextLabel")
+    gachaToggleLabel.Size = UDim2.new(1, 0, 0, 20)
+    gachaToggleLabel.Position = UDim2.new(0, 8, 0, 4)
+    gachaToggleLabel.BackgroundTransparency = 1
+    gachaToggleLabel.Font = Enum.Font.GothamSemibold
+    gachaToggleLabel.TextSize = 12
+    gachaToggleLabel.TextColor3 = Colors.Text
+    gachaToggleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    gachaToggleLabel.Text = "Gacha Type"
+    gachaToggleLabel.Parent = gachaToggleFrame
     
-    local gachaDropdown = Instance.new("TextButton")
-    gachaDropdown.Size = UDim2.new(0.6, -8, 1, 0)
-    gachaDropdown.Position = UDim2.new(0.4, 8, 0, 0)
-    gachaDropdown.BackgroundColor3 = Colors.Primary
-    gachaDropdown.BorderSizePixel = 0
-    gachaDropdown.AutoButtonColor = false
-    gachaDropdown.Font = Enum.Font.Gotham
-    gachaDropdown.TextSize = 11
-    gachaDropdown.TextColor3 = Colors.Text
-    gachaDropdown.Text = "Normal Gacha"
-    gachaDropdown.Parent = gachaSelectorFrame
+    -- Toggle switch container
+    local toggleContainer = Instance.new("Frame")
+    toggleContainer.Size = UDim2.new(0, 200, 0, 16)
+    toggleContainer.Position = UDim2.new(0.5, -100, 0, 20)
+    toggleContainer.BackgroundColor3 = Colors.Primary
+    toggleContainer.BorderSizePixel = 0
+    toggleContainer.Parent = gachaToggleFrame
     
-    local gachaDropdownCorner = Instance.new("UICorner")
-    gachaDropdownCorner.CornerRadius = UDim.new(0, 4)
-    gachaDropdownCorner.Parent = gachaDropdown
+    local toggleContainerCorner = Instance.new("UICorner")
+    toggleContainerCorner.CornerRadius = UDim.new(0, 8)
+    toggleContainerCorner.Parent = toggleContainer
     
-    local gachaDropdownBorder = Instance.new("UIStroke")
-    gachaDropdownBorder.Thickness = 1
-    gachaDropdownBorder.Color = Colors.Border
-    gachaDropdownBorder.Transparency = 0.8
-    gachaDropdownBorder.Parent = gachaDropdown
+    local toggleContainerBorder = Instance.new("UIStroke")
+    toggleContainerBorder.Thickness = 1
+    toggleContainerBorder.Color = Colors.Border
+    toggleContainerBorder.Transparency = 0.5
+    toggleContainerBorder.Parent = toggleContainer
+    
+    -- Toggle switch button
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Size = UDim2.new(0, 100, 1, 0)
+    toggleButton.Position = UDim2.new(0, 0, 0, 0)
+    toggleButton.BackgroundColor3 = Colors.Accent
+    toggleButton.BorderSizePixel = 0
+    toggleButton.AutoButtonColor = false
+    toggleButton.Font = Enum.Font.GothamBold
+    toggleButton.TextSize = 10
+    toggleButton.TextColor3 = Colors.Primary
+    toggleButton.Text = "Normal"
+    toggleButton.Parent = toggleContainer
+    
+    local toggleButtonCorner = Instance.new("UICorner")
+    toggleButtonCorner.CornerRadius = UDim.new(0, 6)
+    toggleButtonCorner.Parent = toggleButton
+    
+    -- Labels for each side
+    local normalLabel = Instance.new("TextLabel")
+    normalLabel.Size = UDim2.new(0, 100, 1, 0)
+    normalLabel.Position = UDim2.new(0, 0, 0, 0)
+    normalLabel.BackgroundTransparency = 1
+    normalLabel.Font = Enum.Font.GothamBold
+    normalLabel.TextSize = 10
+    normalLabel.TextColor3 = Colors.Text
+    normalLabel.TextXAlignment = Enum.TextXAlignment.Center
+    normalLabel.Text = "Normal Gacha"
+    normalLabel.Parent = toggleContainer
+    
+    local summerLabel = Instance.new("TextLabel")
+    summerLabel.Size = UDim2.new(0, 100, 1, 0)
+    summerLabel.Position = UDim2.new(0, 100, 0, 0)
+    summerLabel.BackgroundTransparency = 1
+    summerLabel.Font = Enum.Font.GothamBold
+    summerLabel.TextSize = 10
+    summerLabel.TextColor3 = Colors.TextDim
+    summerLabel.TextXAlignment = Enum.TextXAlignment.Center
+    summerLabel.Text = "Summer Gacha"
+    summerLabel.Parent = toggleContainer
     
     -- Fruit display frame
     local fruitDisplayFrame = Instance.new("Frame")
@@ -3463,11 +3506,61 @@ local function showFruits()
         fruitScroller.CanvasSize = UDim2.new(0, 0, 0, fruitLayout.AbsoluteContentSize.Y)
     end
     
-    -- Gacha dropdown functionality
+    -- Toggle switch functionality
     local currentGacha = 1
-    gachaDropdown.MouseButton1Click:Connect(function()
+    local isAnimating = false
+    
+    local function animateToggle(toSummer)
+        if isAnimating then return end
+        isAnimating = true
+        
+        local targetPosition = toSummer and UDim2.new(0, 100, 0, 0) or UDim2.new(0, 0, 0, 0)
+        local targetText = toSummer and "Summer" or "Normal"
+        
+        -- Animate button position
+        local buttonTween = TweenService:Create(toggleButton, TweenInfo.new(
+            0.3, 
+            Enum.EasingStyle.Quart, 
+            Enum.EasingDirection.Out
+        ), {
+            Position = targetPosition
+        })
+        
+        -- Animate label colors
+        local normalColor = toSummer and Colors.TextDim or Colors.Text
+        local summerColor = toSummer and Colors.Text or Colors.TextDim
+        
+        local normalTween = TweenService:Create(normalLabel, TweenInfo.new(
+            0.3, 
+            Enum.EasingStyle.Quart, 
+            Enum.EasingDirection.Out
+        ), {
+            TextColor3 = normalColor
+        })
+        
+        local summerTween = TweenService:Create(summerLabel, TweenInfo.new(
+            0.3, 
+            Enum.EasingStyle.Quart, 
+            Enum.EasingDirection.Out
+        ), {
+            TextColor3 = summerColor
+        })
+        
+        buttonTween:Play()
+        normalTween:Play()
+        summerTween:Play()
+        
+        toggleButton.Text = targetText
+        
+        buttonTween.Completed:Connect(function()
+            isAnimating = false
+        end)
+    end
+    
+    toggleButton.MouseButton1Click:Connect(function()
         currentGacha = currentGacha == 1 and 2 or 1
-        gachaDropdown.Text = fruitData[currentGacha].name
+        local toSummer = currentGacha == 2
+        animateToggle(toSummer)
         updateFruitDisplay(currentGacha)
     end)
     
@@ -3531,7 +3624,7 @@ local function showHelp()
     infoText.TextXAlignment = Enum.TextXAlignment.Left
     infoText.TextYAlignment = Enum.TextYAlignment.Top
     infoText.TextWrapped = true
-    infoText.Text = "Obsidian-Codex v1.1\nAdvanced Roblox Enhancement Suite\n\nFeatures: Player Enhancements, AI System, Auto Farming, ESP, Teleportation, Shop Utilities, and more!\n\n⚠️ Some features are still under development and will be available in future updates."
+    infoText.Text = "Obsidian-Codex v1.2\nAdvanced Roblox Enhancement Suite\n\nFeatures: Player Enhancements, AI System, Auto Farming, ESP, Teleportation, Shop Utilities, Fruit Probability Lists, and more!\n\n⚠️ Some features are still under development and will be available in future updates."
     infoText.Parent = ContentScroller
 end
 
@@ -3566,4 +3659,4 @@ task.wait(0.1) -- Small delay to ensure UI is fully loaded
 showHomepage()
 
 -- Initialize UI
-notify("Obsidian-Codex v1.1 loaded successfully!", "success")
+notify("Obsidian-Codex v1.2 loaded successfully!", "success")
