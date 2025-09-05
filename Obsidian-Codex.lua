@@ -3124,10 +3124,21 @@ MinimizeButton.MouseButton1Click:Connect(function()
         windowTween:Play()
         minimized = true
         
-        -- Start wave effect after animation completes
+        -- Start wave effect and secondary upward movement after animation completes
         spawn(function()
             wait(0.7)
             startWaveEffect()
+            
+            -- Secondary animation: move titlebar up slightly
+            local upwardTween = TweenService:Create(MainWindow, TweenInfo.new(
+                0.4, 
+                Enum.EasingStyle.Quart, 
+                Enum.EasingDirection.Out
+            ), {
+                Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 5) -- Move up from Y=20 to Y=5
+            })
+            
+            upwardTween:Play()
         end)
         
         notify("Window Minimized", "info")
