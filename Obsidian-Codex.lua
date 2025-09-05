@@ -568,6 +568,7 @@ local function createButton(text, icon, callback)
     button.TextColor3 = Colors.TextDim
     button.TextXAlignment = Enum.TextXAlignment.Left
     button.TextStrokeTransparency = 1
+    button.TextStrokeColor3 = Color3.new(0, 0, 0)
     button.Text = "  " .. (icon and icon .. " " or "") .. text
     button.Parent = SidebarScroller
     
@@ -3310,21 +3311,41 @@ local function showFruits()
     toggleSpacer.BackgroundTransparency = 1
     toggleSpacer.Parent = ContentScroller
     
-    -- Simple fruit display container
-    local fruitContainer = Instance.new("Frame")
-    fruitContainer.Size = UDim2.new(1, -8, 0, 0)
-    fruitContainer.BackgroundTransparency = 1
-    fruitContainer.Parent = ContentScroller
+    -- Fruit display frame
+    local fruitDisplayFrame = Instance.new("Frame")
+    fruitDisplayFrame.Size = UDim2.new(1, -8, 0, 0)
+    fruitDisplayFrame.BackgroundColor3 = Colors.Secondary
+    fruitDisplayFrame.BorderSizePixel = 0
+    fruitDisplayFrame.Parent = ContentScroller
+    
+    local fruitDisplayCorner = Instance.new("UICorner")
+    fruitDisplayCorner.CornerRadius = UDim.new(0, 4)
+    fruitDisplayCorner.Parent = fruitDisplayFrame
+    
+    local fruitDisplayBorder = Instance.new("UIStroke")
+    fruitDisplayBorder.Thickness = 1
+    fruitDisplayBorder.Color = Colors.Border
+    fruitDisplayBorder.Transparency = 0.8
+    fruitDisplayBorder.Parent = fruitDisplayFrame
+    
+    local fruitScroller = Instance.new("ScrollingFrame")
+    fruitScroller.Size = UDim2.new(1, -16, 1, -16)
+    fruitScroller.Position = UDim2.new(0, 8, 0, 8)
+    fruitScroller.BackgroundTransparency = 1
+    fruitScroller.BorderSizePixel = 0
+    fruitScroller.ScrollBarThickness = 4
+    fruitScroller.ScrollBarImageColor3 = Colors.Accent
+    fruitScroller.Parent = fruitDisplayFrame
     
     local fruitLayout = Instance.new("UIListLayout")
     fruitLayout.FillDirection = Enum.FillDirection.Vertical
     fruitLayout.SortOrder = Enum.SortOrder.LayoutOrder
     fruitLayout.Padding = UDim.new(0, 4)
-    fruitLayout.Parent = fruitContainer
+    fruitLayout.Parent = fruitScroller
     
     local function updateFruitDisplay(selectedGacha)
-        -- Clear existing content
-        for _, child in ipairs(fruitContainer:GetChildren()) do
+        -- Clear existing fruit items
+        for _, child in ipairs(fruitScroller:GetChildren()) do
             if child:IsA("GuiObject") and child.Name ~= "UIListLayout" then
                 child:Destroy()
             end
@@ -3353,77 +3374,73 @@ local function showFruits()
             Diamond = Color3.fromRGB(0, 255, 255)
         }
         
-        -- Create simple collapsible sections
+        -- Create separate sections for each rarity
         for _, rarity in ipairs(rarityOrder) do
             if fruitsByRarity[rarity] then
-                -- Create section header
-                local header = Instance.new("TextButton")
-                header.Size = UDim2.new(1, 0, 0, 28)
-                header.BackgroundColor3 = Colors.Secondary
-                header.BorderSizePixel = 0
-                header.AutoButtonColor = false
-                header.Font = Enum.Font.GothamSemibold
-                header.TextSize = 12
-                header.TextColor3 = rarityColors[rarity]
-                header.TextXAlignment = Enum.TextXAlignment.Left
-                header.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits) ▼"
-                header.Parent = fruitContainer
+                -- Create section header for this rarity
+                local sectionHeader = Instance.new("Frame")
+                sectionHeader.Size = UDim2.new(1, 0, 0, 24)
+                sectionHeader.BackgroundTransparency = 1
+                sectionHeader.Parent = fruitScroller
                 
-                local headerCorner = Instance.new("UICorner")
-                headerCorner.CornerRadius = UDim.new(0, 4)
-                headerCorner.Parent = header
+                local sectionLabel = Instance.new("TextLabel")
+                sectionLabel.Size = UDim2.new(1, 0, 1, 0)
+                sectionLabel.BackgroundTransparency = 1
+                sectionLabel.Font = Enum.Font.GothamBold
+                sectionLabel.TextSize = 12
+                sectionLabel.TextColor3 = rarityColors[rarity]
+                sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+                sectionLabel.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits)"
+                sectionLabel.Parent = sectionHeader
                 
-                local headerBorder = Instance.new("UIStroke")
-                headerBorder.Thickness = 1
-                headerBorder.Color = Colors.Border
-                headerBorder.Transparency = 0.8
-                headerBorder.Parent = header
-                
-                -- Create content frame (initially hidden)
-                local contentFrame = Instance.new("Frame")
-                contentFrame.Size = UDim2.new(1, -8, 0, 0)
-                contentFrame.BackgroundTransparency = 1
-                contentFrame.Visible = false
-                contentFrame.Parent = fruitContainer
-                
-                local contentLayout = Instance.new("UIListLayout")
-                contentLayout.FillDirection = Enum.FillDirection.Vertical
-                contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                contentLayout.Padding = UDim.new(0, 2)
-                contentLayout.Parent = contentFrame
-                
-                -- Add fruit items
+                -- Create fruit items for this rarity
                 for _, fruit in ipairs(fruitsByRarity[rarity]) do
-                    local fruitItem = Instance.new("TextLabel")
-                    fruitItem.Size = UDim2.new(1, 0, 0, 18)
-                    fruitItem.BackgroundTransparency = 1
-                    fruitItem.Font = Enum.Font.Gotham
-                    fruitItem.TextSize = 10
-                    fruitItem.TextColor3 = Colors.TextDim
-                    fruitItem.TextXAlignment = Enum.TextXAlignment.Left
-                    fruitItem.Text = "  " .. fruit.name .. " - " .. fruit.probability
-                    fruitItem.Parent = contentFrame
-                end
-                
-                -- Toggle functionality
-                local isExpanded = false
-                header.MouseButton1Click:Connect(function()
-                    isExpanded = not isExpanded
-                    header.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits) " .. (isExpanded and "▲" or "▼")
+                    local fruitItem = Instance.new("Frame")
+                    fruitItem.Size = UDim2.new(1, 0, 0, 24)
+                    fruitItem.BackgroundColor3 = Colors.Secondary
+                    fruitItem.BorderSizePixel = 0
+                    fruitItem.Parent = fruitScroller
                     
-                    if isExpanded then
-                        contentFrame.Visible = true
-                        contentFrame.Size = UDim2.new(1, -8, 0, contentLayout.AbsoluteContentSize.Y)
-                    else
-                        contentFrame.Visible = false
-                        contentFrame.Size = UDim2.new(1, -8, 0, 0)
-                    end
-                end)
+                    local fruitItemCorner = Instance.new("UICorner")
+                    fruitItemCorner.CornerRadius = UDim.new(0, 3)
+                    fruitItemCorner.Parent = fruitItem
+                    
+                    local fruitItemBorder = Instance.new("UIStroke")
+                    fruitItemBorder.Thickness = 1
+                    fruitItemBorder.Color = Colors.Border
+                    fruitItemBorder.Transparency = 0.9
+                    fruitItemBorder.Parent = fruitItem
+                    
+                    -- Fruit name
+                    local fruitName = Instance.new("TextLabel")
+                    fruitName.Size = UDim2.new(0.6, -8, 1, 0)
+                    fruitName.Position = UDim2.new(0, 6, 0, 0)
+                    fruitName.BackgroundTransparency = 1
+                    fruitName.Font = Enum.Font.Gotham
+                    fruitName.TextSize = 10
+                    fruitName.TextColor3 = Colors.Text
+                    fruitName.TextXAlignment = Enum.TextXAlignment.Left
+                    fruitName.Text = fruit.name
+                    fruitName.Parent = fruitItem
+                    
+                    -- Probability
+                    local fruitProbability = Instance.new("TextLabel")
+                    fruitProbability.Size = UDim2.new(0.4, -6, 1, 0)
+                    fruitProbability.Position = UDim2.new(0.6, 0, 0, 0)
+                    fruitProbability.BackgroundTransparency = 1
+                    fruitProbability.Font = Enum.Font.GothamBold
+                    fruitProbability.TextSize = 10
+                    fruitProbability.TextColor3 = Colors.Accent
+                    fruitProbability.TextXAlignment = Enum.TextXAlignment.Right
+                    fruitProbability.Text = fruit.probability
+                    fruitProbability.Parent = fruitItem
+                end
             end
         end
         
-        -- Update container size
-        fruitContainer.Size = UDim2.new(1, -8, 0, fruitLayout.AbsoluteContentSize.Y)
+        -- Update canvas size and frame height
+        fruitScroller.CanvasSize = UDim2.new(0, 0, 0, fruitLayout.AbsoluteContentSize.Y)
+        fruitDisplayFrame.Size = UDim2.new(1, -8, 0, math.min(fruitLayout.AbsoluteContentSize.Y + 16, 400))
     end
     
     -- Toggle switch functionality
