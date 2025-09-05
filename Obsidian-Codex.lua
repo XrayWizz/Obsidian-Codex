@@ -3377,12 +3377,18 @@ local function showFruits()
         -- Create collapsible sections for each rarity
         for _, rarity in ipairs(rarityOrder) do
             if fruitsByRarity[rarity] then
+                -- Create main container for this rarity section
+                local rarityContainer = Instance.new("Frame")
+                rarityContainer.Size = UDim2.new(1, 0, 0, 32)
+                rarityContainer.BackgroundTransparency = 1
+                rarityContainer.Parent = fruitScroller
+                
                 -- Create rarity section header
                 local raritySection = Instance.new("Frame")
                 raritySection.Size = UDim2.new(1, 0, 0, 32)
                 raritySection.BackgroundColor3 = Colors.Primary
                 raritySection.BorderSizePixel = 0
-                raritySection.Parent = fruitScroller
+                raritySection.Parent = rarityContainer
                 
                 local raritySectionCorner = Instance.new("UICorner")
                 raritySectionCorner.CornerRadius = UDim.new(0, 4)
@@ -3394,7 +3400,7 @@ local function showFruits()
                 raritySectionBorder.Transparency = 0.8
                 raritySectionBorder.Parent = raritySection
                 
-                -- Rarity header button
+                -- Rarity header button (entire bar is clickable)
                 local rarityHeader = Instance.new("TextButton")
                 rarityHeader.Size = UDim2.new(1, 0, 1, 0)
                 rarityHeader.BackgroundTransparency = 1
@@ -3417,13 +3423,12 @@ local function showFruits()
                 dropdownIcon.Text = "▼"
                 dropdownIcon.Parent = raritySection
                 
-                -- Content frame for fruits in this rarity
+                -- Content frame for fruits in this rarity (separate from header)
                 local contentFrame = Instance.new("Frame")
-                contentFrame.Size = UDim2.new(1, -16, 0, 0)
-                contentFrame.Position = UDim2.new(0, 8, 0, 32)
+                contentFrame.Size = UDim2.new(1, -8, 0, 0)
                 contentFrame.BackgroundTransparency = 1
                 contentFrame.Visible = false
-                contentFrame.Parent = raritySection
+                contentFrame.Parent = rarityContainer
                 
                 local contentLayout = Instance.new("UIListLayout")
                 contentLayout.FillDirection = Enum.FillDirection.Vertical
@@ -3478,23 +3483,33 @@ local function showFruits()
                 local isExpanded = false
                 rarityHeader.MouseButton1Click:Connect(function()
                     isExpanded = not isExpanded
-                    contentFrame.Visible = isExpanded
                     dropdownIcon.Text = isExpanded and "▲" or "▼"
                     
-                    -- Animate the dropdown
+                    -- Animate the dropdown by resizing the container
                     if isExpanded then
-                        contentFrame.Size = UDim2.new(1, -16, 0, 0)
+                        contentFrame.Visible = true
+                        contentFrame.Size = UDim2.new(1, -8, 0, 0)
+                        task.wait(0.1) -- Wait for layout to calculate
+                        local targetHeight = contentLayout.AbsoluteContentSize.Y
                         contentFrame:TweenSize(
-                            UDim2.new(1, -16, 0, contentLayout.AbsoluteContentSize.Y),
+                            UDim2.new(1, -8, 0, targetHeight),
+                            "Out", "Quad", 0.2, true
+                        )
+                        rarityContainer:TweenSize(
+                            UDim2.new(1, 0, 0, 32 + targetHeight + 4),
                             "Out", "Quad", 0.2, true
                         )
                     else
                         contentFrame:TweenSize(
-                            UDim2.new(1, -16, 0, 0),
+                            UDim2.new(1, -8, 0, 0),
                             "Out", "Quad", 0.2, true,
                             function()
                                 contentFrame.Visible = false
                             end
+                        )
+                        rarityContainer:TweenSize(
+                            UDim2.new(1, 0, 0, 32),
+                            "Out", "Quad", 0.2, true
                         )
                     end
                 end)
