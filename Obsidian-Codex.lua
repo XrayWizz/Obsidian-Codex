@@ -251,6 +251,7 @@ local autoBuySwords = false
 local darkModeEnabled = false
 local glowEffectsEnabled = false
 local rainbowModeEnabled = false
+local painGainEnabled = false
 
 -- ESP and Visual variables
 local espConnections = {}
@@ -568,7 +569,6 @@ local function createButton(text, icon, callback)
     button.TextColor3 = Colors.TextDim
     button.TextXAlignment = Enum.TextXAlignment.Left
     button.TextStrokeTransparency = 1
-    button.TextStrokeColor3 = Color3.new(0, 0, 0)
     button.Text = "  " .. (icon and icon .. " " or "") .. text
     button.Parent = SidebarScroller
     
@@ -1174,6 +1174,226 @@ end
 local function stopAutoMaterials()
     autoMaterials = false
     notify("Auto Materials: OFF", "info")
+end
+
+-- Pain-Gain Farming Functions
+local painGainConnection = nil
+local painGainCooldown = 0
+local painGainLastAttack = 0
+
+local function getCurrentQuest()
+    -- Try to detect current quest from various sources
+    local quests = {"Bandit Quest", "Marine Quest", "Pirate Quest", "Sky Quest", "Fishman Quest"}
+    
+    -- Check if player has any active quest indicators
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        -- This is a simplified quest detection - in practice, you'd check the game's quest system
+        return "Bandit Quest" -- Default fallback
+    end
+    
+    return nil
+end
+
+local function findStrongestNPC()
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
+    
+    local humanoidRootPart = character.HumanoidRootPart
+    local strongestNPC = nil
+    local highestLevel = 0
+    
+    -- Search for NPCs in workspace
+    for _, obj in pairs(Workspace:GetChildren()) do
+        if obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") and obj.Humanoid.Health > 0 then
+            -- Check if it's a valid enemy NPC
+            if obj.Name:find("Bandit") or obj.Name:find("Marine") or obj.Name:find("Pirate") or 
+               obj.Name:find("Sky Bandit") or obj.Name:find("Fishman") or obj.Name:find("Enemy") then
+                
+                local distance = (humanoidRootPart.Position - obj.HumanoidRootPart.Position).Magnitude
+                if distance < 200 then -- Within reasonable range
+                    -- Estimate level based on health (stronger NPCs have more health)
+                    local estimatedLevel = math.floor(obj.Humanoid.MaxHealth / 100)
+                    if estimatedLevel > highestLevel then
+                        highestLevel = estimatedLevel
+                        strongestNPC = obj
+                    end
+                end
+            end
+        end
+    end
+    
+    return strongestNPC
+end
+
+local function usePainZAttack(target)
+    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local currentTime = tick()
+    
+    -- Check cooldown (Pain Z attack has a cooldown)
+    if currentTime - painGainLastAttack < painGainCooldown then
+        return false
+    end
+    
+    local targetPosition = target.HumanoidRootPart.Position
+    local characterPosition = character.HumanoidRootPart.Position
+    
+    -- Position player slightly above the NPC for insta-kill
+    local attackPosition = targetPosition + Vector3.new(0, 8, 0) -- 8 studs above target
+    
+    -- Teleport to attack position
+    character.HumanoidRootPart.CFrame = CFrame.new(attackPosition)
+    wait(0.1) -- Small delay for positioning
+    
+    -- Use Pain Z attack (hold Z key)
+    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+        -- Simulate holding Z key for Pain attack
+        for i = 1, 3 do -- Hold for multiple frames to trigger the burst
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+            wait(0.1)
+        end
+        
+        painGainLastAttack = currentTime
+        painGainCooldown = 8 -- 8 second cooldown for Pain Z attack
+        return true
+    end
+    
+    return false
+end
+
+local function usePainXAttack(target)
+    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    -- Move close to target
+    local targetPosition = target.HumanoidRootPart.Position
+    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
+    
+    if distance > 15 then
+        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 5, 0))
+        wait(0.2)
+    end
+    
+    -- Use Pain X attack
+    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+        ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+        return true
+    end
+    
+    return false
+end
+
+local function usePainCAttack(target)
+    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    -- Move close to target
+    local targetPosition = target.HumanoidRootPart.Position
+    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
+    
+    if distance > 15 then
+        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 5, 0))
+        wait(0.2)
+    end
+    
+    -- Use Pain C attack
+    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+        ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+        return true
+    end
+    
+    return false
+end
+
+local function usePainVAttack(target)
+    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    -- Move close to target
+    local targetPosition = target.HumanoidRootPart.Position
+    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
+    
+    if distance > 15 then
+        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 5, 0))
+        wait(0.2)
+    end
+    
+    -- Use Pain V attack
+    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+        ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
+        return true
+    end
+    
+    return false
+end
+
+local function startPainGain()
+    painGainEnabled = true
+    notify("Pain-Gain: ON - Advanced Pain Fruit Farming", "success")
+    
+    painGainConnection = RunService.Heartbeat:Connect(function()
+        if not painGainEnabled or not LocalPlayer.Character then return end
+        
+        local character = LocalPlayer.Character
+        if not character:FindFirstChild("Humanoid") or not character:FindFirstChild("HumanoidRootPart") then return end
+        
+        -- Check if we need to start a new quest
+        local currentQuest = getCurrentQuest()
+        if not currentQuest then
+            -- Start a quest if none is active
+            if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
+                ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", "Bandit Quest")
+                wait(1) -- Wait for quest to start
+            end
+        end
+        
+        -- Find the strongest NPC to farm
+        local strongestNPC = findStrongestNPC()
+        if strongestNPC and strongestNPC.Humanoid.Health > 0 then
+            local currentTime = tick()
+            
+            -- Prioritize Z attack if cooldown is ready (most efficient)
+            if currentTime - painGainLastAttack >= painGainCooldown then
+                if usePainZAttack(strongestNPC) then
+                    notify("Pain Z Attack used on " .. strongestNPC.Name, "success")
+                    wait(0.5) -- Wait for attack to complete
+                end
+            else
+                -- Use other attacks while Z is on cooldown
+                local attackChoice = math.random(1, 3)
+                if attackChoice == 1 then
+                    usePainXAttack(strongestNPC)
+                elseif attackChoice == 2 then
+                    usePainCAttack(strongestNPC)
+                else
+                    usePainVAttack(strongestNPC)
+                end
+                wait(0.3)
+            end
+        else
+            -- No valid targets, wait a bit
+            wait(1)
+        end
+    end)
+end
+
+local function stopPainGain()
+    painGainEnabled = false
+    notify("Pain-Gain: OFF", "info")
+    
+    if painGainConnection then
+        painGainConnection:Disconnect()
+        painGainConnection = nil
+    end
 end
 
 -- Combat Functions
@@ -2316,6 +2536,14 @@ local function showFarming()
         end
     end)
     
+    createToggle("Pain-Gain", "💀", function(enabled)
+        if enabled then
+            startPainGain()
+        else
+            stopPainGain()
+        end
+    end)
+    
     createSection("🌊 Sea Events")
     
     createToggle("Auto Sea Event", "🌊", function(enabled)
@@ -3094,20 +3322,6 @@ local function showFruits()
     clearContent()
     setActiveButton(FruitsButton)
     
-    createSection("ℹ️ Information")
-    
-    local infoText = Instance.new("TextLabel")
-    infoText.Size = UDim2.new(1, -8, 0, 60)
-    infoText.BackgroundTransparency = 1
-    infoText.Font = Enum.Font.Gotham
-    infoText.TextSize = 10
-    infoText.TextColor3 = Colors.TextDim
-    infoText.TextXAlignment = Enum.TextXAlignment.Left
-    infoText.TextYAlignment = Enum.TextYAlignment.Top
-    infoText.TextWrapped = true
-    infoText.Text = "⚠️ Exact probabilities are estimates based on community testing.\n\nNormal Gacha: Standard fruit gacha with common to mythical fruits.\nSummer Gacha: Special event gacha with diamond skin fruits (Update 27.2)."
-    infoText.Parent = ContentScroller
-    
     createSection("🍎 Fruit Probability List")
     
     -- Fruit probability data with detailed fruit names
@@ -3325,41 +3539,21 @@ local function showFruits()
     toggleSpacer.BackgroundTransparency = 1
     toggleSpacer.Parent = ContentScroller
     
-    -- Fruit display frame
-    local fruitDisplayFrame = Instance.new("Frame")
-    fruitDisplayFrame.Size = UDim2.new(1, -8, 0, 0)
-    fruitDisplayFrame.BackgroundColor3 = Colors.Secondary
-    fruitDisplayFrame.BorderSizePixel = 0
-    fruitDisplayFrame.Parent = ContentScroller
-    
-    local fruitDisplayCorner = Instance.new("UICorner")
-    fruitDisplayCorner.CornerRadius = UDim.new(0, 4)
-    fruitDisplayCorner.Parent = fruitDisplayFrame
-    
-    local fruitDisplayBorder = Instance.new("UIStroke")
-    fruitDisplayBorder.Thickness = 1
-    fruitDisplayBorder.Color = Colors.Border
-    fruitDisplayBorder.Transparency = 0.8
-    fruitDisplayBorder.Parent = fruitDisplayFrame
-    
-    local fruitScroller = Instance.new("ScrollingFrame")
-    fruitScroller.Size = UDim2.new(1, -16, 1, -16)
-    fruitScroller.Position = UDim2.new(0, 8, 0, 8)
-    fruitScroller.BackgroundTransparency = 1
-    fruitScroller.BorderSizePixel = 0
-    fruitScroller.ScrollBarThickness = 4
-    fruitScroller.ScrollBarImageColor3 = Colors.Accent
-    fruitScroller.Parent = fruitDisplayFrame
+    -- Simple fruit display container
+    local fruitContainer = Instance.new("Frame")
+    fruitContainer.Size = UDim2.new(1, -8, 0, 0)
+    fruitContainer.BackgroundTransparency = 1
+    fruitContainer.Parent = ContentScroller
     
     local fruitLayout = Instance.new("UIListLayout")
     fruitLayout.FillDirection = Enum.FillDirection.Vertical
     fruitLayout.SortOrder = Enum.SortOrder.LayoutOrder
     fruitLayout.Padding = UDim.new(0, 4)
-    fruitLayout.Parent = fruitScroller
+    fruitLayout.Parent = fruitContainer
     
     local function updateFruitDisplay(selectedGacha)
-        -- Clear existing fruit items
-        for _, child in ipairs(fruitScroller:GetChildren()) do
+        -- Clear existing content
+        for _, child in ipairs(fruitContainer:GetChildren()) do
             if child:IsA("GuiObject") and child.Name ~= "UIListLayout" then
                 child:Destroy()
             end
@@ -3388,63 +3582,38 @@ local function showFruits()
             Diamond = Color3.fromRGB(0, 255, 255)
         }
         
-        -- Create collapsible sections for each rarity
+        -- Create simple collapsible sections
         for _, rarity in ipairs(rarityOrder) do
             if fruitsByRarity[rarity] then
-                -- Create main section frame
-                local raritySection = Instance.new("Frame")
-                raritySection.Size = UDim2.new(1, 0, 0, 32)
-                raritySection.BackgroundColor3 = Colors.Primary
-                raritySection.BorderSizePixel = 0
-                raritySection.Parent = fruitScroller
+                -- Create section header
+                local header = Instance.new("TextButton")
+                header.Size = UDim2.new(1, 0, 0, 28)
+                header.BackgroundColor3 = Colors.Secondary
+                header.BorderSizePixel = 0
+                header.AutoButtonColor = false
+                header.Font = Enum.Font.GothamSemibold
+                header.TextSize = 12
+                header.TextColor3 = rarityColors[rarity]
+                header.TextXAlignment = Enum.TextXAlignment.Left
+                header.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits) ▼"
+                header.Parent = fruitContainer
                 
-                local raritySectionCorner = Instance.new("UICorner")
-                raritySectionCorner.CornerRadius = UDim.new(0, 4)
-                raritySectionCorner.Parent = raritySection
+                local headerCorner = Instance.new("UICorner")
+                headerCorner.CornerRadius = UDim.new(0, 4)
+                headerCorner.Parent = header
                 
-                local raritySectionBorder = Instance.new("UIStroke")
-                raritySectionBorder.Thickness = 1
-                raritySectionBorder.Color = Colors.Border
-                raritySectionBorder.Transparency = 0.8
-                raritySectionBorder.Parent = raritySection
+                local headerBorder = Instance.new("UIStroke")
+                headerBorder.Thickness = 1
+                headerBorder.Color = Colors.Border
+                headerBorder.Transparency = 0.8
+                headerBorder.Parent = header
                 
-                -- Create layout for the entire section
-                local sectionLayout = Instance.new("UIListLayout")
-                sectionLayout.FillDirection = Enum.FillDirection.Vertical
-                sectionLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                sectionLayout.Padding = UDim.new(0, 0)
-                sectionLayout.Parent = raritySection
-                
-                -- Rarity header button (clickable to expand/collapse)
-                local rarityHeader = Instance.new("TextButton")
-                rarityHeader.Size = UDim2.new(1, 0, 0, 32)
-                rarityHeader.BackgroundTransparency = 1
-                rarityHeader.Font = Enum.Font.GothamSemibold
-                rarityHeader.TextSize = 12
-                rarityHeader.TextColor3 = rarityColors[rarity]
-                rarityHeader.TextXAlignment = Enum.TextXAlignment.Left
-                rarityHeader.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits)"
-                rarityHeader.Parent = raritySection
-                
-                -- Dropdown icon
-                local dropdownIcon = Instance.new("TextLabel")
-                dropdownIcon.Size = UDim2.new(0, 20, 0, 20)
-                dropdownIcon.Position = UDim2.new(1, -25, 0, 6)
-                dropdownIcon.BackgroundTransparency = 1
-                dropdownIcon.Font = Enum.Font.GothamBold
-                dropdownIcon.TextSize = 14
-                dropdownIcon.TextColor3 = Colors.Text
-                dropdownIcon.TextXAlignment = Enum.TextXAlignment.Center
-                dropdownIcon.Text = "▼"
-                dropdownIcon.Parent = rarityHeader
-                
-                -- Content frame for fruits in this rarity
+                -- Create content frame (initially hidden)
                 local contentFrame = Instance.new("Frame")
                 contentFrame.Size = UDim2.new(1, -8, 0, 0)
-                contentFrame.Position = UDim2.new(0, 4, 0, 32)
                 contentFrame.BackgroundTransparency = 1
                 contentFrame.Visible = false
-                contentFrame.Parent = raritySection
+                contentFrame.Parent = fruitContainer
                 
                 local contentLayout = Instance.new("UIListLayout")
                 contentLayout.FillDirection = Enum.FillDirection.Vertical
@@ -3452,90 +3621,38 @@ local function showFruits()
                 contentLayout.Padding = UDim.new(0, 2)
                 contentLayout.Parent = contentFrame
                 
-                -- Create fruit items for this rarity
+                -- Add fruit items
                 for _, fruit in ipairs(fruitsByRarity[rarity]) do
-                    local fruitItem = Instance.new("Frame")
-                    fruitItem.Size = UDim2.new(1, 0, 0, 24)
-                    fruitItem.BackgroundColor3 = Colors.Secondary
-                    fruitItem.BorderSizePixel = 0
+                    local fruitItem = Instance.new("TextLabel")
+                    fruitItem.Size = UDim2.new(1, 0, 0, 18)
+                    fruitItem.BackgroundTransparency = 1
+                    fruitItem.Font = Enum.Font.Gotham
+                    fruitItem.TextSize = 10
+                    fruitItem.TextColor3 = Colors.TextDim
+                    fruitItem.TextXAlignment = Enum.TextXAlignment.Left
+                    fruitItem.Text = "  " .. fruit.name .. " - " .. fruit.probability
                     fruitItem.Parent = contentFrame
-                    
-                    local fruitItemCorner = Instance.new("UICorner")
-                    fruitItemCorner.CornerRadius = UDim.new(0, 3)
-                    fruitItemCorner.Parent = fruitItem
-                    
-                    local fruitItemBorder = Instance.new("UIStroke")
-                    fruitItemBorder.Thickness = 1
-                    fruitItemBorder.Color = Colors.Border
-                    fruitItemBorder.Transparency = 0.9
-                    fruitItemBorder.Parent = fruitItem
-                    
-                    -- Fruit name
-                    local fruitName = Instance.new("TextLabel")
-                    fruitName.Size = UDim2.new(0.6, -8, 1, 0)
-                    fruitName.Position = UDim2.new(0, 6, 0, 0)
-                    fruitName.BackgroundTransparency = 1
-                    fruitName.Font = Enum.Font.Gotham
-                    fruitName.TextSize = 10
-                    fruitName.TextColor3 = Colors.Text
-                    fruitName.TextXAlignment = Enum.TextXAlignment.Left
-                    fruitName.Text = fruit.name
-                    fruitName.Parent = fruitItem
-                    
-                    -- Probability
-                    local fruitProbability = Instance.new("TextLabel")
-                    fruitProbability.Size = UDim2.new(0.4, -6, 1, 0)
-                    fruitProbability.Position = UDim2.new(0.6, 0, 0, 0)
-                    fruitProbability.BackgroundTransparency = 1
-                    fruitProbability.Font = Enum.Font.GothamBold
-                    fruitProbability.TextSize = 10
-                    fruitProbability.TextColor3 = Colors.Accent
-                    fruitProbability.TextXAlignment = Enum.TextXAlignment.Right
-                    fruitProbability.Text = fruit.probability
-                    fruitProbability.Parent = fruitItem
                 end
                 
                 -- Toggle functionality
                 local isExpanded = false
-                rarityHeader.MouseButton1Click:Connect(function()
+                header.MouseButton1Click:Connect(function()
                     isExpanded = not isExpanded
-                    dropdownIcon.Text = isExpanded and "▲" or "▼"
+                    header.Text = rarity .. " (" .. #fruitsByRarity[rarity] .. " fruits) " .. (isExpanded and "▲" or "▼")
                     
-                    -- Toggle content visibility and resize the main section
                     if isExpanded then
                         contentFrame.Visible = true
-                        contentFrame.Size = UDim2.new(1, -8, 0, 0)
-                        task.wait(0.1) -- Wait for layout to update
-                        local targetHeight = contentLayout.AbsoluteContentSize.Y + 8
-                        contentFrame:TweenSize(
-                            UDim2.new(1, -8, 0, targetHeight),
-                            "Out", "Quad", 0.2, true
-                        )
-                        raritySection:TweenSize(
-                            UDim2.new(1, 0, 0, 32 + targetHeight + 8),
-                            "Out", "Quad", 0.2, true
-                        )
+                        contentFrame.Size = UDim2.new(1, -8, 0, contentLayout.AbsoluteContentSize.Y)
                     else
-                        local currentHeight = contentFrame.Size.Y.Offset
-                        contentFrame:TweenSize(
-                            UDim2.new(1, -8, 0, 0),
-                            "Out", "Quad", 0.2, true,
-                            function()
-                                contentFrame.Visible = false
-                            end
-                        )
-                        raritySection:TweenSize(
-                            UDim2.new(1, 0, 0, 32),
-                            "Out", "Quad", 0.2, true
-                        )
+                        contentFrame.Visible = false
+                        contentFrame.Size = UDim2.new(1, -8, 0, 0)
                     end
                 end)
             end
         end
         
-        -- Update canvas size and frame height
-        fruitScroller.CanvasSize = UDim2.new(0, 0, 0, fruitLayout.AbsoluteContentSize.Y)
-        fruitDisplayFrame.Size = UDim2.new(1, -8, 0, math.min(fruitLayout.AbsoluteContentSize.Y + 16, 500))
+        -- Update container size
+        fruitContainer.Size = UDim2.new(1, -8, 0, fruitLayout.AbsoluteContentSize.Y)
     end
     
     -- Toggle switch functionality
@@ -3612,6 +3729,20 @@ local function showFruits()
     
     -- Initialize with normal gacha
     updateFruitDisplay(1)
+    
+    createSection("ℹ️ Information")
+    
+    local infoText = Instance.new("TextLabel")
+    infoText.Size = UDim2.new(1, -8, 0, 60)
+    infoText.BackgroundTransparency = 1
+    infoText.Font = Enum.Font.Gotham
+    infoText.TextSize = 10
+    infoText.TextColor3 = Colors.TextDim
+    infoText.TextXAlignment = Enum.TextXAlignment.Left
+    infoText.TextYAlignment = Enum.TextYAlignment.Top
+    infoText.TextWrapped = true
+    infoText.Text = "⚠️ Exact probabilities are estimates based on community testing.\n\nNormal Gacha: Standard fruit gacha with common to mythical fruits.\nSummer Gacha: Special event gacha with diamond skin fruits (Update 27.2)."
+    infoText.Parent = ContentScroller
 end
 
 local function showHelp()
