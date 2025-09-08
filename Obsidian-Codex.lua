@@ -12,18 +12,18 @@ local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
--- Deep Dark Metallic Color Scheme - Industrial Theme
+-- Ruby Blood Red Color Scheme - Elegant Theme
 local Colors = {
-    Primary = Color3.fromRGB(15, 15, 18),      -- Deep charcoal metallic
-    Secondary = Color3.fromRGB(22, 22, 26),    -- Dark steel
-    Accent = Color3.fromRGB(70, 130, 180),     -- Steel blue accent
-    Text = Color3.fromRGB(180, 180, 185),      -- Muted light text
-    TextDim = Color3.fromRGB(100, 100, 105),   -- Dark dimmed text
+    Primary = Color3.fromRGB(20, 8, 8),        -- Deep blood red base
+    Secondary = Color3.fromRGB(30, 12, 12),    -- Dark ruby
+    Accent = Color3.fromRGB(180, 40, 40),      -- Blood red accent
+    Text = Color3.fromRGB(200, 180, 160),      -- Warm light text
+    TextDim = Color3.fromRGB(120, 100, 80),    -- Dimmed warm text
     Success = Color3.fromRGB(60, 180, 60),     -- Dark green
-    Warning = Color3.fromRGB(200, 140, 60),    -- Dark orange
-    Error = Color3.fromRGB(180, 60, 60),       -- Dark red
-    Border = Color3.fromRGB(35, 35, 40),       -- Dark border
-    Glow = Color3.fromRGB(80, 120, 160)        -- Subtle glow
+    Warning = Color3.fromRGB(255, 180, 60),    -- Gold warning
+    Error = Color3.fromRGB(220, 40, 40),       -- Bright red error
+    Border = Color3.fromRGB(50, 20, 20),       -- Dark red border
+    Glow = Color3.fromRGB(255, 180, 60)        -- Gold glow
 }
 
 -- Configuration
@@ -35,7 +35,8 @@ local Config = {
     GlowIntensity = 0.3,
     LiquidAnimationSpeed = 0.8,
     BubbleEffectDuration = 1.2,
-    MinimizedWidth = 180 -- Width when minimized (just title + controls)
+    MinimizedWidth = 280, -- Increased width when minimized to support longer button text
+    TitleBarHeight = 32 -- Increased title bar height in minimized state
 }
 
 -- Create Main UI
@@ -77,7 +78,7 @@ WindowCorner.Parent = MainWindow
 -- Title Bar
 local TitleBar = Instance.new("Frame")
 TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 24)
+TitleBar.Size = UDim2.new(1, 0, 0, Config.TitleBarHeight)
 TitleBar.BackgroundColor3 = Colors.Secondary
 TitleBar.BorderSizePixel = 0
 TitleBar.Parent = MainWindow
@@ -97,7 +98,7 @@ LiquidBackground.Parent = TitleBar
 -- Title text with modern font
 local TitleText = Instance.new("TextLabel")
 TitleText.Name = "Title"
-TitleText.Size = UDim2.new(1, -70, 1, 0)
+TitleText.Size = UDim2.new(1, -180, 1, 0) -- More space for wider buttons
 TitleText.Position = UDim2.new(0, 8, 0, 0)
 TitleText.BackgroundTransparency = 1
 TitleText.Font = Enum.Font.GothamBold
@@ -107,17 +108,17 @@ TitleText.TextXAlignment = Enum.TextXAlignment.Left
 TitleText.Text = "Obsidian-Codex v1.2"
 TitleText.Parent = TitleBar
 
--- Window controls
+-- Window controls with increased spacing and text labels
 local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseButton"
-CloseButton.Size = UDim2.new(0, 22, 0, 20)
-CloseButton.Position = UDim2.new(1, -26, 0, 2)
-CloseButton.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+CloseButton.Size = UDim2.new(0, 80, 0, 26) -- Increased width for text
+CloseButton.Position = UDim2.new(1, -86, 0, 3) -- More spacing from edge
+CloseButton.BackgroundColor3 = Color3.fromRGB(180, 40, 40) -- Blood red
 CloseButton.BorderSizePixel = 0
 CloseButton.Font = Enum.Font.GothamBold
-CloseButton.TextSize = 10
+CloseButton.TextSize = 9
 CloseButton.TextColor3 = Colors.Text
-CloseButton.Text = "×"
+CloseButton.Text = "[X] - Close"
 CloseButton.Parent = TitleBar
 
 local CloseCorner = Instance.new("UICorner")
@@ -127,14 +128,14 @@ CloseCorner.Parent = CloseButton
 -- Minimize button
 local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, 22, 0, 20)
-MinimizeButton.Position = UDim2.new(1, -50, 0, 2)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+MinimizeButton.Size = UDim2.new(0, 80, 0, 26) -- Increased width for text
+MinimizeButton.Position = UDim2.new(1, -172, 0, 3) -- More spacing between buttons
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 180, 60) -- Gold
 MinimizeButton.BorderSizePixel = 0
 MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.TextSize = 10
-MinimizeButton.TextColor3 = Colors.Text
-MinimizeButton.Text = "−"
+MinimizeButton.TextSize = 9
+MinimizeButton.TextColor3 = Colors.Primary -- Dark text on gold background
+MinimizeButton.Text = "[–] - Minimize"
 MinimizeButton.Parent = TitleBar
 
 local MinimizeCorner = Instance.new("UICorner")
@@ -144,8 +145,8 @@ MinimizeCorner.Parent = MinimizeButton
 -- Sidebar
 local Sidebar = Instance.new("Frame")
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, Config.SidebarWidth, 1, -28)
-Sidebar.Position = UDim2.new(0, 4, 0, 28)
+Sidebar.Size = UDim2.new(0, Config.SidebarWidth, 1, -Config.TitleBarHeight - 4)
+Sidebar.Position = UDim2.new(0, 4, 0, Config.TitleBarHeight + 4)
 Sidebar.BackgroundColor3 = Colors.Secondary
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainWindow
@@ -182,8 +183,8 @@ SidebarLayout.Parent = SidebarScroller
 -- Main content area
 local MainContent = Instance.new("Frame")
 MainContent.Name = "MainContent"
-MainContent.Size = UDim2.new(1, -Config.SidebarWidth - 8, 1, -32)
-MainContent.Position = UDim2.new(0, Config.SidebarWidth + 4, 0, 28)
+MainContent.Size = UDim2.new(1, -Config.SidebarWidth - 8, 1, -Config.TitleBarHeight - 8)
+MainContent.Position = UDim2.new(0, Config.SidebarWidth + 4, 0, Config.TitleBarHeight + 4)
 MainContent.BackgroundColor3 = Colors.Primary
 MainContent.BorderSizePixel = 0
 MainContent.Parent = MainWindow
@@ -251,7 +252,6 @@ local autoBuySwords = false
 local darkModeEnabled = false
 local glowEffectsEnabled = false
 local rainbowModeEnabled = false
-local painGainEnabled = false
 
 -- ESP and Visual variables
 local espConnections = {}
@@ -1176,225 +1176,6 @@ local function stopAutoMaterials()
     notify("Auto Materials: OFF", "info")
 end
 
--- Pain-Gain Farming Functions
-local painGainConnection = nil
-local painGainCooldown = 0
-local painGainLastAttack = 0
-
-local function getCurrentQuest()
-    -- Try to detect current quest from various sources
-    local quests = {"Bandit Quest", "Marine Quest", "Pirate Quest", "Sky Quest", "Fishman Quest"}
-    
-    -- Check if player has any active quest indicators
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        -- This is a simplified quest detection - in practice, you'd check the game's quest system
-        return "Bandit Quest" -- Default fallback
-    end
-    
-    return nil
-end
-
-local function findStrongestNPC()
-    local character = LocalPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
-    
-    local humanoidRootPart = character.HumanoidRootPart
-    local strongestNPC = nil
-    local highestLevel = 0
-    
-    -- Search for NPCs in workspace
-    for _, obj in pairs(Workspace:GetChildren()) do
-        if obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") and obj.Humanoid.Health > 0 then
-            -- Check if it's a valid enemy NPC
-            if obj.Name:find("Bandit") or obj.Name:find("Marine") or obj.Name:find("Pirate") or 
-               obj.Name:find("Sky Bandit") or obj.Name:find("Fishman") or obj.Name:find("Enemy") then
-                
-                local distance = (humanoidRootPart.Position - obj.HumanoidRootPart.Position).Magnitude
-                if distance < 200 then -- Within reasonable range
-                    -- Estimate level based on health (stronger NPCs have more health)
-                    local estimatedLevel = math.floor(obj.Humanoid.MaxHealth / 100)
-                    if estimatedLevel > highestLevel then
-                        highestLevel = estimatedLevel
-                        strongestNPC = obj
-                    end
-                end
-            end
-        end
-    end
-    
-    return strongestNPC
-end
-
-local function usePainZAttack(target)
-    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
-    
-    local character = LocalPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
-    
-    local currentTime = tick()
-    
-    -- Check cooldown (Pain Z attack has a cooldown)
-    if currentTime - painGainLastAttack < painGainCooldown then
-        return false
-    end
-    
-    local targetPosition = target.HumanoidRootPart.Position
-    local characterPosition = character.HumanoidRootPart.Position
-    
-    -- Position player slightly above the NPC for insta-kill
-    local attackPosition = targetPosition + Vector3.new(0, 8, 0) -- 8 studs above target
-    
-    -- Teleport to attack position
-    character.HumanoidRootPart.CFrame = CFrame.new(attackPosition)
-    wait(0.1) -- Small delay for positioning
-    
-    -- Use Pain Z attack (hold Z key)
-    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
-        -- Simulate holding Z key for Pain attack
-        for i = 1, 3 do -- Hold for multiple frames to trigger the burst
-            ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
-            wait(0.1)
-        end
-        
-        painGainLastAttack = currentTime
-        painGainCooldown = 8 -- 8 second cooldown for Pain Z attack
-        return true
-    end
-    
-    return false
-end
-
-local function usePainXAttack(target)
-    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
-    
-    local character = LocalPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
-    
-    -- Move close to target
-    local targetPosition = target.HumanoidRootPart.Position
-    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
-    
-    if distance > 15 then
-        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 5, 0))
-        wait(0.2)
-    end
-    
-    -- Use Pain X attack
-    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
-        ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
-        return true
-    end
-    
-    return false
-end
-
-local function usePainCAttack(target)
-    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
-    
-    local character = LocalPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
-    
-    -- Move close to target
-    local targetPosition = target.HumanoidRootPart.Position
-    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
-    
-    if distance > 15 then
-        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 5, 0))
-        wait(0.2)
-    end
-    
-    -- Use Pain C attack
-    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
-        ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
-        return true
-    end
-    
-    return false
-end
-
-local function usePainVAttack(target)
-    if not target or not target:FindFirstChild("HumanoidRootPart") then return false end
-    
-    local character = LocalPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
-    
-    -- Move close to target
-    local targetPosition = target.HumanoidRootPart.Position
-    local distance = (character.HumanoidRootPart.Position - targetPosition).Magnitude
-    
-    if distance > 15 then
-        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 5, 0))
-        wait(0.2)
-    end
-    
-    -- Use Pain V attack
-    if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
-        ReplicatedStorage.Remotes.CommF_:InvokeServer("Attack", target.Name)
-        return true
-    end
-    
-    return false
-end
-
-local function startPainGain()
-    painGainEnabled = true
-    notify("Pain-Gain: ON - Advanced Pain Fruit Farming", "success")
-    
-    painGainConnection = RunService.Heartbeat:Connect(function()
-        if not painGainEnabled or not LocalPlayer.Character then return end
-        
-        local character = LocalPlayer.Character
-        if not character:FindFirstChild("Humanoid") or not character:FindFirstChild("HumanoidRootPart") then return end
-        
-        -- Check if we need to start a new quest
-        local currentQuest = getCurrentQuest()
-        if not currentQuest then
-            -- Start a quest if none is active
-            if ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("CommF_") then
-                ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", "Bandit Quest")
-                wait(1) -- Wait for quest to start
-            end
-        end
-        
-        -- Find the strongest NPC to farm
-        local strongestNPC = findStrongestNPC()
-        if strongestNPC and strongestNPC.Humanoid.Health > 0 then
-            local currentTime = tick()
-            
-            -- Prioritize Z attack if cooldown is ready (most efficient)
-            if currentTime - painGainLastAttack >= painGainCooldown then
-                if usePainZAttack(strongestNPC) then
-                    notify("Pain Z Attack used on " .. strongestNPC.Name, "success")
-                    wait(0.5) -- Wait for attack to complete
-                end
-            else
-                -- Use other attacks while Z is on cooldown
-                local attackChoice = math.random(1, 3)
-                if attackChoice == 1 then
-                    usePainXAttack(strongestNPC)
-                elseif attackChoice == 2 then
-                    usePainCAttack(strongestNPC)
-                else
-                    usePainVAttack(strongestNPC)
-                end
-                wait(0.3)
-            end
-        else
-            -- No valid targets, wait a bit
-            wait(1)
-        end
-    end)
-end
-
-local function stopPainGain()
-    painGainEnabled = false
-    notify("Pain-Gain: OFF", "info")
-    
-    if painGainConnection then
-        painGainConnection:Disconnect()
-        painGainConnection = nil
-    end
-end
 
 -- Combat Functions
 local function startAutoBlock()
@@ -2536,13 +2317,6 @@ local function showFarming()
         end
     end)
     
-    createToggle("Pain-Gain", "💀", function(enabled)
-        if enabled then
-            startPainGain()
-        else
-            stopPainGain()
-        end
-    end)
     
     createSection("🌊 Sea Events")
     
@@ -3002,101 +2776,101 @@ CloseButton.MouseButton1Click:Connect(function()
     script:Destroy()
 end)
 
--- Smoke effect for minimized state
-local smokeConnection = nil
-local function startSmokeEffect()
-    if smokeConnection then
-        smokeConnection:Disconnect()
+-- Burning ember effect for minimized state
+local emberConnection = nil
+local function startEmberEffect()
+    if emberConnection then
+        emberConnection:Disconnect()
     end
     
-    local smokeTimer = 0
-    smokeConnection = RunService.Heartbeat:Connect(function(deltaTime)
+    local emberTimer = 0
+    emberConnection = RunService.Heartbeat:Connect(function(deltaTime)
         if minimized then
-            smokeTimer = smokeTimer + deltaTime
+            emberTimer = emberTimer + deltaTime
             
-            -- Create smoke wisps every 0.3 seconds
-            if smokeTimer >= 0.3 then
-                smokeTimer = 0
+            -- Create burning embers every 0.4 seconds
+            if emberTimer >= 0.4 then
+                emberTimer = 0
                 
                 -- Get current titlebar dimensions for dynamic sizing
                 local titlebarSize = MainWindow.AbsoluteSize
                 local titlebarPos = MainWindow.AbsolutePosition
                 
-                -- Create smoke wisp with dynamic width based on titlebar size
-                local smokeWisp = Instance.new("Frame")
-                smokeWisp.Name = "SmokeWisp"
-                smokeWisp.Size = UDim2.new(0, math.random(20, math.min(40, titlebarSize.X * 0.3)), 0, math.random(15, 25))
-                smokeWisp.Position = UDim2.new(
-                    math.random(20, 80) / 100, -- Random X position across titlebar
-                    -smokeWisp.Size.X.Offset / 2, -- Center the wisp
-                    math.random(30, 70) / 100, -- Random Y position
-                    -smokeWisp.Size.Y.Offset / 2 -- Center vertically
+                -- Create burning ember with dynamic width based on titlebar size
+                local ember = Instance.new("Frame")
+                ember.Name = "BurningEmber"
+                ember.Size = UDim2.new(0, math.random(12, 20), 0, math.random(8, 16))
+                ember.Position = UDim2.new(
+                    math.random(15, 85) / 100, -- Random X position across titlebar
+                    -ember.Size.X.Offset / 2, -- Center the ember
+                    math.random(20, 80) / 100, -- Random Y position
+                    -ember.Size.Y.Offset / 2 -- Center vertically
                 )
-                smokeWisp.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-                smokeWisp.BackgroundTransparency = 0.4
-                smokeWisp.BorderSizePixel = 0
-                smokeWisp.Parent = LiquidBackground
+                ember.BackgroundColor3 = Color3.fromRGB(255, 100, 0) -- Orange-red burning color
+                ember.BackgroundTransparency = 0.2
+                ember.BorderSizePixel = 0
+                ember.Parent = LiquidBackground
                 
-                -- Create wispy smoke shape with gradient effect
-                local smokeCorner = Instance.new("UICorner")
-                smokeCorner.CornerRadius = UDim.new(0, math.random(8, 15))
-                smokeCorner.Parent = smokeWisp
+                -- Create burning ember shape
+                local emberCorner = Instance.new("UICorner")
+                emberCorner.CornerRadius = UDim.new(0, math.random(4, 8))
+                emberCorner.Parent = ember
                 
-                -- Add subtle glow effect
-                local smokeGlow = Instance.new("UIStroke")
-                smokeGlow.Thickness = 1
-                smokeGlow.Color = Color3.fromRGB(150, 150, 150)
-                smokeGlow.Transparency = 0.6
-                smokeGlow.Parent = smokeWisp
+                -- Add burning glow effect
+                local emberGlow = Instance.new("UIStroke")
+                emberGlow.Thickness = 2
+                emberGlow.Color = Color3.fromRGB(255, 180, 60) -- Gold glow
+                emberGlow.Transparency = 0.3
+                emberGlow.Parent = ember
                 
-                -- Create multiple smaller wisps for more realistic smoke
-                for i = 1, math.random(2, 4) do
+                -- Create smaller sparks around the ember
+                for i = 1, math.random(1, 3) do
                     spawn(function()
-                        wait(i * 0.1)
+                        wait(i * 0.05)
                         
-                        local miniWisp = Instance.new("Frame")
-                        miniWisp.Name = "MiniSmokeWisp"
-                        miniWisp.Size = UDim2.new(0, math.random(8, 15), 0, math.random(6, 12))
-                        miniWisp.Position = UDim2.new(
+                        local spark = Instance.new("Frame")
+                        spark.Name = "Spark"
+                        spark.Size = UDim2.new(0, math.random(3, 6), 0, math.random(3, 6))
+                        spark.Position = UDim2.new(
                             math.random(0, 100) / 100,
-                            -miniWisp.Size.X.Offset / 2,
+                            -spark.Size.X.Offset / 2,
                             math.random(0, 100) / 100,
-                            -miniWisp.Size.Y.Offset / 2
+                            -spark.Size.Y.Offset / 2
                         )
-                        miniWisp.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
-                        miniWisp.BackgroundTransparency = 0.5
-                        miniWisp.BorderSizePixel = 0
-                        miniWisp.Parent = smokeWisp
+                        spark.BackgroundColor3 = Color3.fromRGB(255, 200, 100) -- Bright spark
+                        spark.BackgroundTransparency = 0.1
+                        spark.BorderSizePixel = 0
+                        spark.Parent = ember
                         
-                        local miniCorner = Instance.new("UICorner")
-                        miniCorner.CornerRadius = UDim.new(0, math.random(4, 8))
-                        miniCorner.Parent = miniWisp
+                        local sparkCorner = Instance.new("UICorner")
+                        sparkCorner.CornerRadius = UDim.new(0.5, 0)
+                        sparkCorner.Parent = spark
                     end)
                 end
                 
-                -- Animate smoke wisp floating upward and fading
-                local floatTween = TweenService:Create(smokeWisp, TweenInfo.new(
-                    math.random(2, 4), -- Random duration for natural movement
+                -- Animate ember floating upward and fading
+                local floatTween = TweenService:Create(ember, TweenInfo.new(
+                    math.random(2.5, 4.5), -- Random duration for natural movement
                     Enum.EasingStyle.Quad, 
                     Enum.EasingDirection.Out
                 ), {
                     Position = UDim2.new(
-                        smokeWisp.Position.X.Scale + math.random(-20, 20) / 100, -- Slight horizontal drift
-                        smokeWisp.Position.X.Offset,
-                        smokeWisp.Position.Y.Scale - math.random(30, 60) / 100, -- Float upward
-                        smokeWisp.Position.Y.Offset - math.random(10, 20)
+                        ember.Position.X.Scale + math.random(-15, 15) / 100, -- Slight horizontal drift
+                        ember.Position.X.Offset,
+                        ember.Position.Y.Scale - math.random(40, 70) / 100, -- Float upward
+                        ember.Position.Y.Offset - math.random(15, 25)
                     ),
                     BackgroundTransparency = 1,
                     Size = UDim2.new(
-                        smokeWisp.Size.X.Scale * math.random(15, 25) / 10, -- Expand slightly
-                        smokeWisp.Size.X.Offset * math.random(12, 18) / 10,
-                        smokeWisp.Size.Y.Scale * math.random(8, 12) / 10, -- Shrink vertically
-                        smokeWisp.Size.Y.Offset * math.random(6, 10) / 10
+                        ember.Size.X.Scale * math.random(8, 12) / 10, -- Shrink slightly
+                        ember.Size.X.Offset * math.random(6, 10) / 10,
+                        ember.Size.Y.Scale * math.random(6, 10) / 10, -- Shrink vertically
+                        ember.Size.Y.Offset * math.random(4, 8) / 10
                     )
                 })
                 
-                local glowTween = TweenService:Create(smokeGlow, TweenInfo.new(
-                    math.random(2, 4),
+                local glowTween = TweenService:Create(emberGlow, TweenInfo.new(
+                    math.random(2.5, 4.5),
                     Enum.EasingStyle.Quad, 
                     Enum.EasingDirection.Out
                 ), {
@@ -3108,25 +2882,25 @@ local function startSmokeEffect()
                 glowTween:Play()
                 
                 floatTween.Completed:Connect(function()
-                    smokeWisp:Destroy()
+                    ember:Destroy()
                 end)
             end
         end
     end)
 end
 
-local function stopSmokeEffect()
-    if smokeConnection then
-        smokeConnection:Disconnect()
-        smokeConnection = nil
+local function stopEmberEffect()
+    if emberConnection then
+        emberConnection:Disconnect()
+        emberConnection = nil
     end
 end
 
 local minimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     if minimized then
-        -- Stop smoke effect
-        stopSmokeEffect()
+        -- Stop ember effect
+        stopEmberEffect()
         
         -- Maximize with liquid animation
         animateLiquidMaximize()
@@ -3162,7 +2936,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
             Enum.EasingStyle.Back, 
             Enum.EasingDirection.In
         ), {
-            Size = UDim2.new(0, Config.MinimizedWidth, 0, 24),
+            Size = UDim2.new(0, Config.MinimizedWidth, 0, Config.TitleBarHeight),
             Position = UDim2.new(0.5, -Config.MinimizedWidth/2, 0, 20)
         })
         
@@ -3173,10 +2947,10 @@ MinimizeButton.MouseButton1Click:Connect(function()
         windowTween:Play()
         minimized = true
         
-        -- Start smoke effect and secondary upward movement after animation completes
+        -- Start ember effect and secondary upward movement after animation completes
         spawn(function()
             wait(0.7)
-            startSmokeEffect()
+            startEmberEffect()
             
             -- Secondary animation: move titlebar much higher and add visible under-titlebar particles
             local upwardTween = TweenService:Create(MainWindow, TweenInfo.new(
@@ -3198,7 +2972,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
                     
                     -- Get current titlebar position for absolute positioning
                     local currentPos = MainWindow.Position
-                    local titlebarBottomY = currentPos.Y.Offset + 24 -- 24 is the height of minimized titlebar
+                    local titlebarBottomY = currentPos.Y.Offset + Config.TitleBarHeight -- Use config title bar height
                     
                     -- Create a particle under the titlebar with absolute positioning
                     local underParticle = Instance.new("Frame")
