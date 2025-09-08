@@ -12,17 +12,17 @@ local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
--- Ruby Blood Red Color Scheme - Elegant Theme
+-- Dry White Bone Color Scheme - Rough Elegant Theme
 local Colors = {
-    Primary = Color3.fromRGB(20, 8, 8),        -- Deep blood red base
-    Secondary = Color3.fromRGB(30, 12, 12),    -- Dark ruby
+    Primary = Color3.fromRGB(245, 240, 235),   -- Dry bone white base
+    Secondary = Color3.fromRGB(235, 230, 225), -- Slightly darker bone
     Accent = Color3.fromRGB(180, 40, 40),      -- Blood red accent
-    Text = Color3.fromRGB(200, 180, 160),      -- Warm light text
-    TextDim = Color3.fromRGB(120, 100, 80),    -- Dimmed warm text
+    Text = Color3.fromRGB(60, 50, 45),         -- Dark bone text
+    TextDim = Color3.fromRGB(100, 90, 85),     -- Dimmed bone text
     Success = Color3.fromRGB(60, 180, 60),     -- Dark green
-    Warning = Color3.fromRGB(255, 180, 60),    -- Gold warning
-    Error = Color3.fromRGB(220, 40, 40),       -- Bright red error
-    Border = Color3.fromRGB(50, 20, 20),       -- Dark red border
+    Warning = Color3.fromRGB(200, 120, 40),    -- Rusty orange warning
+    Error = Color3.fromRGB(180, 40, 40),       -- Blood red error
+    Border = Color3.fromRGB(200, 195, 190),    -- Bone border
     Glow = Color3.fromRGB(255, 180, 60)        -- Gold glow
 }
 
@@ -35,7 +35,7 @@ local Config = {
     GlowIntensity = 0.3,
     LiquidAnimationSpeed = 0.8,
     BubbleEffectDuration = 1.2,
-    MinimizedWidth = 280, -- Increased width when minimized to support longer button text
+    MinimizedWidth = 320, -- Increased width when minimized to support longer button text
     TitleBarHeight = 32 -- Increased title bar height in minimized state
 }
 
@@ -46,7 +46,7 @@ ScreenGui.Parent = game.CoreGui
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Main Window with metallic design
+-- Main Window with bone texture design
 local MainWindow = Instance.new("Frame")
 MainWindow.Name = "MainWindow"
 MainWindow.Size = Config.WindowSize
@@ -55,6 +55,65 @@ MainWindow.BackgroundColor3 = Colors.Primary
 MainWindow.BorderSizePixel = 0
 MainWindow.Parent = ScreenGui
 MainWindow.ClipsDescendants = true
+
+-- Bone texture overlay
+local BoneTexture = Instance.new("Frame")
+BoneTexture.Name = "BoneTexture"
+BoneTexture.Size = UDim2.new(1, 0, 1, 0)
+BoneTexture.BackgroundTransparency = 0.85
+BoneTexture.BackgroundColor3 = Color3.fromRGB(255, 250, 245)
+BoneTexture.BorderSizePixel = 0
+BoneTexture.Parent = MainWindow
+
+-- Add bone-like pattern with multiple overlays
+local function createBonePattern(parent)
+    -- Vertical bone striations
+    for i = 1, 8 do
+        local striation = Instance.new("Frame")
+        striation.Name = "BoneStriation"
+        striation.Size = UDim2.new(0, 1, 1, 0)
+        striation.Position = UDim2.new(0, i * 65, 0, 0)
+        striation.BackgroundColor3 = Color3.fromRGB(220, 215, 210)
+        striation.BackgroundTransparency = 0.7
+        striation.BorderSizePixel = 0
+        striation.Parent = parent
+    end
+    
+    -- Horizontal bone lines
+    for i = 1, 6 do
+        local line = Instance.new("Frame")
+        line.Name = "BoneLine"
+        line.Size = UDim2.new(1, 0, 0, 1)
+        line.Position = UDim2.new(0, 0, 0, i * 53)
+        line.BackgroundColor3 = Color3.fromRGB(210, 205, 200)
+        line.BackgroundTransparency = 0.8
+        line.BorderSizePixel = 0
+        line.Parent = parent
+    end
+    
+    -- Bone pores/speckles
+    for i = 1, 20 do
+        local pore = Instance.new("Frame")
+        pore.Name = "BonePore"
+        pore.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
+        pore.Position = UDim2.new(
+            math.random(0, 100) / 100,
+            -pore.Size.X.Offset / 2,
+            math.random(0, 100) / 100,
+            -pore.Size.Y.Offset / 2
+        )
+        pore.BackgroundColor3 = Color3.fromRGB(200, 195, 190)
+        pore.BackgroundTransparency = 0.6
+        pore.BorderSizePixel = 0
+        pore.Parent = parent
+        
+        local poreCorner = Instance.new("UICorner")
+        poreCorner.CornerRadius = UDim.new(0.5, 0)
+        poreCorner.Parent = pore
+    end
+end
+
+createBonePattern(BoneTexture)
 
 -- Deep metallic border with subtle glow
 local MainBorder = Instance.new("UIStroke")
@@ -75,7 +134,7 @@ local WindowCorner = Instance.new("UICorner")
 WindowCorner.CornerRadius = UDim.new(0, Config.BorderRadius)
 WindowCorner.Parent = MainWindow
 
--- Title Bar
+-- Title Bar with bone texture
 local TitleBar = Instance.new("Frame")
 TitleBar.Name = "TitleBar"
 TitleBar.Size = UDim2.new(1, 0, 0, Config.TitleBarHeight)
@@ -86,6 +145,18 @@ TitleBar.Parent = MainWindow
 local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, Config.BorderRadius)
 TitleCorner.Parent = TitleBar
+
+-- Title bar bone texture overlay
+local TitleBoneTexture = Instance.new("Frame")
+TitleBoneTexture.Name = "TitleBoneTexture"
+TitleBoneTexture.Size = UDim2.new(1, 0, 1, 0)
+TitleBoneTexture.BackgroundTransparency = 0.9
+TitleBoneTexture.BackgroundColor3 = Color3.fromRGB(250, 245, 240)
+TitleBoneTexture.BorderSizePixel = 0
+TitleBoneTexture.Parent = TitleBar
+
+-- Add bone pattern to title bar
+createBonePattern(TitleBoneTexture)
 
 -- Liquid background effect for title bar
 local LiquidBackground = Instance.new("Frame")
@@ -108,12 +179,12 @@ TitleText.TextXAlignment = Enum.TextXAlignment.Left
 TitleText.Text = "Obsidian-Codex v1.2"
 TitleText.Parent = TitleBar
 
--- Window controls with increased spacing and text labels
+-- Window controls with bone texture and increased spacing
 local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseButton"
 CloseButton.Size = UDim2.new(0, 80, 0, 26) -- Increased width for text
 CloseButton.Position = UDim2.new(1, -86, 0, 3) -- More spacing from edge
-CloseButton.BackgroundColor3 = Color3.fromRGB(180, 40, 40) -- Blood red
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 120, 40) -- Rusty bone color
 CloseButton.BorderSizePixel = 0
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.TextSize = 9
@@ -125,16 +196,25 @@ local CloseCorner = Instance.new("UICorner")
 CloseCorner.CornerRadius = UDim.new(0, 4)
 CloseCorner.Parent = CloseButton
 
+-- Add bone texture to close button
+local CloseBoneTexture = Instance.new("Frame")
+CloseBoneTexture.Name = "CloseBoneTexture"
+CloseBoneTexture.Size = UDim2.new(1, 0, 1, 0)
+CloseBoneTexture.BackgroundTransparency = 0.8
+CloseBoneTexture.BackgroundColor3 = Color3.fromRGB(220, 200, 180)
+CloseBoneTexture.BorderSizePixel = 0
+CloseBoneTexture.Parent = CloseButton
+
 -- Minimize button
 local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Name = "MinimizeButton"
 MinimizeButton.Size = UDim2.new(0, 80, 0, 26) -- Increased width for text
 MinimizeButton.Position = UDim2.new(1, -172, 0, 3) -- More spacing between buttons
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 180, 60) -- Gold
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(180, 160, 140) -- Bone color
 MinimizeButton.BorderSizePixel = 0
 MinimizeButton.Font = Enum.Font.GothamBold
 MinimizeButton.TextSize = 9
-MinimizeButton.TextColor3 = Colors.Primary -- Dark text on gold background
+MinimizeButton.TextColor3 = Colors.Text
 MinimizeButton.Text = "[–] - Minimize"
 MinimizeButton.Parent = TitleBar
 
@@ -142,7 +222,16 @@ local MinimizeCorner = Instance.new("UICorner")
 MinimizeCorner.CornerRadius = UDim.new(0, 4)
 MinimizeCorner.Parent = MinimizeButton
 
--- Sidebar
+-- Add bone texture to minimize button
+local MinimizeBoneTexture = Instance.new("Frame")
+MinimizeBoneTexture.Name = "MinimizeBoneTexture"
+MinimizeBoneTexture.Size = UDim2.new(1, 0, 1, 0)
+MinimizeBoneTexture.BackgroundTransparency = 0.8
+MinimizeBoneTexture.BackgroundColor3 = Color3.fromRGB(200, 190, 180)
+MinimizeBoneTexture.BorderSizePixel = 0
+MinimizeBoneTexture.Parent = MinimizeButton
+
+-- Sidebar with bone texture
 local Sidebar = Instance.new("Frame")
 Sidebar.Name = "Sidebar"
 Sidebar.Size = UDim2.new(0, Config.SidebarWidth, 1, -Config.TitleBarHeight - 4)
@@ -160,6 +249,18 @@ SidebarBorder.Thickness = 1
 SidebarBorder.Color = Colors.Border
 SidebarBorder.Transparency = 0.7
 SidebarBorder.Parent = Sidebar
+
+-- Sidebar bone texture overlay
+local SidebarBoneTexture = Instance.new("Frame")
+SidebarBoneTexture.Name = "SidebarBoneTexture"
+SidebarBoneTexture.Size = UDim2.new(1, 0, 1, 0)
+SidebarBoneTexture.BackgroundTransparency = 0.9
+SidebarBoneTexture.BackgroundColor3 = Color3.fromRGB(250, 245, 240)
+SidebarBoneTexture.BorderSizePixel = 0
+SidebarBoneTexture.Parent = Sidebar
+
+-- Add bone pattern to sidebar
+createBonePattern(SidebarBoneTexture)
 
 -- Sidebar scrolling
 local SidebarScroller = Instance.new("ScrollingFrame")
@@ -180,7 +281,7 @@ SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
 SidebarLayout.Padding = UDim.new(0, 3)
 SidebarLayout.Parent = SidebarScroller
 
--- Main content area
+-- Main content area with bone texture
 local MainContent = Instance.new("Frame")
 MainContent.Name = "MainContent"
 MainContent.Size = UDim2.new(1, -Config.SidebarWidth - 8, 1, -Config.TitleBarHeight - 8)
@@ -198,6 +299,18 @@ ContentBorder.Thickness = 1
 ContentBorder.Color = Colors.Border
 ContentBorder.Transparency = 0.7
 ContentBorder.Parent = MainContent
+
+-- Main content bone texture overlay
+local ContentBoneTexture = Instance.new("Frame")
+ContentBoneTexture.Name = "ContentBoneTexture"
+ContentBoneTexture.Size = UDim2.new(1, 0, 1, 0)
+ContentBoneTexture.BackgroundTransparency = 0.9
+ContentBoneTexture.BackgroundColor3 = Color3.fromRGB(250, 245, 240)
+ContentBoneTexture.BorderSizePixel = 0
+ContentBoneTexture.Parent = MainContent
+
+-- Add bone pattern to main content
+createBonePattern(ContentBoneTexture)
 
 -- Content scrolling
 local ContentScroller = Instance.new("ScrollingFrame")
