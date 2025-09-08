@@ -31,20 +31,20 @@ local LightColors = {
 }
 
 local DarkColors = {
-    Primary = Color3.fromRGB(30, 30, 35),      -- Dark background
-    Secondary = Color3.fromRGB(40, 40, 45),    -- Slightly lighter dark
+    Primary = Color3.fromRGB(25, 25, 30),      -- Dark background
+    Secondary = Color3.fromRGB(35, 35, 40),    -- Slightly lighter dark
     Accent = Color3.fromRGB(100, 200, 255),    -- Light blue accent
-    Text = Color3.fromRGB(220, 220, 220),      -- Light text
-    TextDim = Color3.fromRGB(180, 180, 180),   -- Dimmed light text
+    Text = Color3.fromRGB(240, 240, 240),      -- Light text
+    TextDim = Color3.fromRGB(200, 200, 200),   -- Dimmed light text
     Success = Color3.fromRGB(100, 255, 100),   -- Light green
     Warning = Color3.fromRGB(255, 200, 100),   -- Light orange warning
     Error = Color3.fromRGB(255, 100, 100),     -- Light red error
-    Border = Color3.fromRGB(80, 80, 85),       -- Dark border
+    Border = Color3.fromRGB(60, 60, 65),       -- Dark border
     Glow = Color3.fromRGB(100, 200, 255),      -- Light blue glow
     ToggleOn = Color3.fromRGB(100, 255, 100),  -- Light green for ON state
     ToggleOff = Color3.fromRGB(255, 100, 100), -- Light red for OFF state
-    ToggleTextOn = Color3.fromRGB(30, 30, 35), -- Dark text for ON
-    ToggleTextOff = Color3.fromRGB(30, 30, 35) -- Dark text for OFF
+    ToggleTextOn = Color3.fromRGB(25, 25, 30), -- Dark text for ON
+    ToggleTextOff = Color3.fromRGB(25, 25, 30) -- Dark text for OFF
 }
 
 -- Current color scheme (starts in light mode)
@@ -81,11 +81,11 @@ MainWindow.BorderSizePixel = 0
 MainWindow.Parent = ScreenGui
 MainWindow.ClipsDescendants = true
 
--- Bone texture overlay
+-- Bone texture overlay (disabled for clean look)
 local BoneTexture = Instance.new("Frame")
 BoneTexture.Name = "BoneTexture"
 BoneTexture.Size = UDim2.new(1, 0, 1, 0)
-BoneTexture.BackgroundTransparency = 0.85
+BoneTexture.BackgroundTransparency = 1
 BoneTexture.BackgroundColor3 = Color3.fromRGB(255, 250, 245)
 BoneTexture.BorderSizePixel = 0
 BoneTexture.Parent = MainWindow
@@ -138,7 +138,7 @@ local function createBonePattern(parent)
     end
 end
 
-createBonePattern(BoneTexture)
+-- createBonePattern(BoneTexture) -- Disabled for clean UI
 
 -- Deep metallic border with subtle glow
 local MainBorder = Instance.new("UIStroke")
@@ -171,17 +171,16 @@ local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, Config.BorderRadius)
 TitleCorner.Parent = TitleBar
 
--- Title bar bone texture overlay
+-- Title bar bone texture overlay (disabled for clean look)
 local TitleBoneTexture = Instance.new("Frame")
 TitleBoneTexture.Name = "TitleBoneTexture"
 TitleBoneTexture.Size = UDim2.new(1, 0, 1, 0)
-TitleBoneTexture.BackgroundTransparency = 0.9
+TitleBoneTexture.BackgroundTransparency = 1
 TitleBoneTexture.BackgroundColor3 = Color3.fromRGB(250, 245, 240)
 TitleBoneTexture.BorderSizePixel = 0
 TitleBoneTexture.Parent = TitleBar
 
--- Add bone pattern to title bar
-createBonePattern(TitleBoneTexture)
+-- createBonePattern(TitleBoneTexture) -- Disabled for clean UI
 
 -- Liquid background effect for title bar
 local LiquidBackground = Instance.new("Frame")
@@ -275,17 +274,16 @@ SidebarBorder.Color = Colors.Border
 SidebarBorder.Transparency = 0.7
 SidebarBorder.Parent = Sidebar
 
--- Sidebar bone texture overlay
+-- Sidebar bone texture overlay (disabled for clean look)
 local SidebarBoneTexture = Instance.new("Frame")
 SidebarBoneTexture.Name = "SidebarBoneTexture"
 SidebarBoneTexture.Size = UDim2.new(1, 0, 1, 0)
-SidebarBoneTexture.BackgroundTransparency = 0.9
+SidebarBoneTexture.BackgroundTransparency = 1
 SidebarBoneTexture.BackgroundColor3 = Color3.fromRGB(250, 245, 240)
 SidebarBoneTexture.BorderSizePixel = 0
 SidebarBoneTexture.Parent = Sidebar
 
--- Add bone pattern to sidebar
-createBonePattern(SidebarBoneTexture)
+-- createBonePattern(SidebarBoneTexture) -- Disabled for clean UI
 
 -- Sidebar scrolling
 local SidebarScroller = Instance.new("ScrollingFrame")
@@ -325,17 +323,16 @@ ContentBorder.Color = Colors.Border
 ContentBorder.Transparency = 0.7
 ContentBorder.Parent = MainContent
 
--- Main content bone texture overlay
+-- Main content bone texture overlay (disabled for clean look)
 local ContentBoneTexture = Instance.new("Frame")
 ContentBoneTexture.Name = "ContentBoneTexture"
 ContentBoneTexture.Size = UDim2.new(1, 0, 1, 0)
-ContentBoneTexture.BackgroundTransparency = 0.9
+ContentBoneTexture.BackgroundTransparency = 1
 ContentBoneTexture.BackgroundColor3 = Color3.fromRGB(250, 245, 240)
 ContentBoneTexture.BorderSizePixel = 0
 ContentBoneTexture.Parent = MainContent
 
--- Add bone pattern to main content
-createBonePattern(ContentBoneTexture)
+-- createBonePattern(ContentBoneTexture) -- Disabled for clean UI
 
 -- Content scrolling
 local ContentScroller = Instance.new("ScrollingFrame")
@@ -410,11 +407,11 @@ local function switchTheme(darkMode)
     -- Update title text
     TitleText.TextColor3 = Colors.Text
     
-    -- Update bone texture overlays
-    BoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(40, 40, 45) or Color3.fromRGB(255, 250, 245)
-    TitleBoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(50, 50, 55) or Color3.fromRGB(250, 245, 240)
-    SidebarBoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(50, 50, 55) or Color3.fromRGB(250, 245, 240)
-    ContentBoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(40, 40, 45) or Color3.fromRGB(250, 245, 240)
+    -- Update bone texture overlays (all transparent for clean look)
+    BoneTexture.BackgroundTransparency = 1
+    TitleBoneTexture.BackgroundTransparency = 1
+    SidebarBoneTexture.BackgroundTransparency = 1
+    ContentBoneTexture.BackgroundTransparency = 1
     
     -- Update scrollbar colors
     SidebarScroller.ScrollBarImageColor3 = Colors.Accent
@@ -1997,7 +1994,7 @@ local function showHomepage()
     createSection("🏠 Welcome to Obsidian-Codex v1.2")
     
     local welcomeText = Instance.new("TextLabel")
-    welcomeText.Size = UDim2.new(1, -8, 0, 80)
+    welcomeText.Size = UDim2.new(1, -8, 0, 100)
     welcomeText.BackgroundTransparency = 1
     welcomeText.Font = Enum.Font.Gotham
     welcomeText.TextSize = 11
@@ -2005,8 +2002,49 @@ local function showHomepage()
     welcomeText.TextXAlignment = Enum.TextXAlignment.Left
     welcomeText.TextYAlignment = Enum.TextYAlignment.Top
     welcomeText.TextWrapped = true
-    welcomeText.Text = "Advanced Roblox enhancement suite with comprehensive features:\n\n• Advanced Player Tracking & ESP\n• Auto Farming (All Seas)\n• Combat Enhancements\n• Quest Automation\n• Teleportation Tools\n• Visual Effects\n• Shop Utilities\n• Anti-AFK & Auto Rejoin"
+    welcomeText.Text = "Advanced Roblox enhancement suite with comprehensive features:\n\n• Advanced Player Tracking & ESP\n• Auto Farming (All Seas)\n• Combat Enhancements\n• Quest Automation\n• Teleportation Tools\n• Visual Effects\n• Shop Utilities\n• Anti-AFK & Auto Rejoin\n\n🎨 NEW: Choose between Light and Dark themes!"
     welcomeText.Parent = ContentScroller
+    
+    -- Quick access button to Visuals tab
+    local visualsButton = Instance.new("TextButton")
+    visualsButton.Size = UDim2.new(1, -8, 0, 32)
+    visualsButton.BackgroundColor3 = Colors.Accent
+    visualsButton.BorderSizePixel = 0
+    visualsButton.AutoButtonColor = false
+    visualsButton.Font = Enum.Font.GothamBold
+    visualsButton.TextSize = 12
+    visualsButton.TextColor3 = Colors.Primary
+    visualsButton.Text = "🎨 Go to Display Settings"
+    visualsButton.Parent = ContentScroller
+    
+    local visualsCorner = Instance.new("UICorner")
+    visualsCorner.CornerRadius = UDim.new(0, 4)
+    visualsCorner.Parent = visualsButton
+    
+    local visualsBorder = Instance.new("UIStroke")
+    visualsBorder.Thickness = 1
+    visualsBorder.Color = Colors.Border
+    visualsBorder.Transparency = 0.5
+    visualsBorder.Parent = visualsButton
+    
+    -- Hover effects for visuals button
+    visualsButton.MouseEnter:Connect(function()
+        TweenService:Create(visualsButton, TweenInfo.new(Config.AnimationSpeed), {
+            BackgroundColor3 = Colors.Success
+        }):Play()
+    end)
+    
+    visualsButton.MouseLeave:Connect(function()
+        TweenService:Create(visualsButton, TweenInfo.new(Config.AnimationSpeed), {
+            BackgroundColor3 = Colors.Accent
+        }):Play()
+    end)
+    
+    visualsButton.MouseButton1Click:Connect(function()
+        showVisuals()
+        setActiveButton(VisualsButton)
+        notify("Switched to Display Settings", "success")
+    end)
     
     
     createSection("📝 Changelog")
@@ -2020,7 +2058,7 @@ local function showHomepage()
     changelogText.TextXAlignment = Enum.TextXAlignment.Left
     changelogText.TextYAlignment = Enum.TextYAlignment.Top
     changelogText.TextWrapped = true
-    changelogText.Text = "v1.2 - Fruits Tab & Enhanced UI\n• Added new Fruits tab with probability lists\n• Modern toggle switch for Normal/Summer Gacha\n• Complete fruit probability data (Update 27.2)\n• Color-coded rarity system for fruits\n• Enhanced minimize animation with particle effects\n• Improved titlebar positioning and animations\n• Interactive toggle switch (click either side)\n• Fixed shadow text effects in UI elements\n• Optimized particle animations and positioning\n• Better minimized titlebar visibility"
+    changelogText.Text = "v1.2 - Theme System & UI Improvements\n• Added Light/Dark mode theme switching\n• Clean UI design - removed grid patterns\n• Improved toggle button colors for both themes\n• Enhanced Fruits tab layout and spacing\n• Modern toggle switch for Normal/Summer Gacha\n• Complete fruit probability data (Update 27.2)\n• Color-coded rarity system for fruits\n• Enhanced minimize animation with particle effects\n• Interactive toggle switch (click either side)\n• Optimized particle animations and positioning"
     changelogText.Parent = ContentScroller
 end
 
