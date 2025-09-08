@@ -12,9 +12,9 @@ local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
--- Dry White Bone Color Scheme - Rough Elegant Theme
-local Colors = {
-    Primary = Color3.fromRGB(245, 240, 235),   -- Dry bone white base
+-- Light/Dark Mode Color Schemes
+local LightColors = {
+    Primary = Color3.fromRGB(245, 240, 235),   -- Light bone white base
     Secondary = Color3.fromRGB(235, 230, 225), -- Slightly darker bone
     Accent = Color3.fromRGB(180, 40, 40),      -- Blood red accent
     Text = Color3.fromRGB(60, 50, 45),         -- Dark bone text
@@ -23,8 +23,33 @@ local Colors = {
     Warning = Color3.fromRGB(200, 120, 40),    -- Rusty orange warning
     Error = Color3.fromRGB(180, 40, 40),       -- Blood red error
     Border = Color3.fromRGB(200, 195, 190),    -- Bone border
-    Glow = Color3.fromRGB(255, 180, 60)        -- Gold glow
+    Glow = Color3.fromRGB(255, 180, 60),       -- Gold glow
+    ToggleOn = Color3.fromRGB(60, 180, 60),    -- Green for ON state
+    ToggleOff = Color3.fromRGB(180, 40, 40),   -- Red for OFF state
+    ToggleTextOn = Color3.fromRGB(255, 255, 255), -- White text for ON
+    ToggleTextOff = Color3.fromRGB(255, 255, 255) -- White text for OFF
 }
+
+local DarkColors = {
+    Primary = Color3.fromRGB(30, 30, 35),      -- Dark background
+    Secondary = Color3.fromRGB(40, 40, 45),    -- Slightly lighter dark
+    Accent = Color3.fromRGB(100, 200, 255),    -- Light blue accent
+    Text = Color3.fromRGB(220, 220, 220),      -- Light text
+    TextDim = Color3.fromRGB(180, 180, 180),   -- Dimmed light text
+    Success = Color3.fromRGB(100, 255, 100),   -- Light green
+    Warning = Color3.fromRGB(255, 200, 100),   -- Light orange warning
+    Error = Color3.fromRGB(255, 100, 100),     -- Light red error
+    Border = Color3.fromRGB(80, 80, 85),       -- Dark border
+    Glow = Color3.fromRGB(100, 200, 255),      -- Light blue glow
+    ToggleOn = Color3.fromRGB(100, 255, 100),  -- Light green for ON state
+    ToggleOff = Color3.fromRGB(255, 100, 100), -- Light red for OFF state
+    ToggleTextOn = Color3.fromRGB(30, 30, 35), -- Dark text for ON
+    ToggleTextOff = Color3.fromRGB(30, 30, 35) -- Dark text for OFF
+}
+
+-- Current color scheme (starts in light mode)
+local Colors = LightColors
+local isDarkMode = false
 
 -- Configuration
 local Config = {
@@ -365,6 +390,38 @@ local autoBuySwords = false
 local darkModeEnabled = false
 local glowEffectsEnabled = false
 local rainbowModeEnabled = false
+
+-- UI Theme Management
+local function switchTheme(darkMode)
+    isDarkMode = darkMode
+    Colors = darkMode and DarkColors or LightColors
+    
+    -- Update main UI elements
+    MainWindow.BackgroundColor3 = Colors.Primary
+    TitleBar.BackgroundColor3 = Colors.Secondary
+    Sidebar.BackgroundColor3 = Colors.Secondary
+    MainContent.BackgroundColor3 = Colors.Primary
+    
+    -- Update borders
+    MainBorder.Color = Colors.Border
+    SidebarBorder.Color = Colors.Border
+    ContentBorder.Color = Colors.Border
+    
+    -- Update title text
+    TitleText.TextColor3 = Colors.Text
+    
+    -- Update bone texture overlays
+    BoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(40, 40, 45) or Color3.fromRGB(255, 250, 245)
+    TitleBoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(50, 50, 55) or Color3.fromRGB(250, 245, 240)
+    SidebarBoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(50, 50, 55) or Color3.fromRGB(250, 245, 240)
+    ContentBoneTexture.BackgroundColor3 = darkMode and Color3.fromRGB(40, 40, 45) or Color3.fromRGB(250, 245, 240)
+    
+    -- Update scrollbar colors
+    SidebarScroller.ScrollBarImageColor3 = Colors.Accent
+    ContentScroller.ScrollBarImageColor3 = Colors.Accent
+    
+    notify("Theme switched to " .. (darkMode and "Dark" or "Light") .. " Mode", "success")
+end
 
 -- ESP and Visual variables
 local espConnections = {}
@@ -754,11 +811,11 @@ local function createToggle(name, icon, callback)
     local toggleButton = Instance.new("TextButton")
     toggleButton.Size = UDim2.new(0, 40, 0, 20)
     toggleButton.Position = UDim2.new(1, -48, 0, 6)
-    toggleButton.BackgroundColor3 = Colors.Error
+    toggleButton.BackgroundColor3 = Colors.ToggleOff
     toggleButton.BorderSizePixel = 0
     toggleButton.Font = Enum.Font.GothamBold
     toggleButton.TextSize = 10
-    toggleButton.TextColor3 = Colors.Text
+    toggleButton.TextColor3 = Colors.ToggleTextOff
     toggleButton.Text = "OFF"
     toggleButton.Parent = toggleFrame
     
@@ -770,7 +827,8 @@ local function createToggle(name, icon, callback)
     
     toggleButton.MouseButton1Click:Connect(function()
         isEnabled = not isEnabled
-        toggleButton.BackgroundColor3 = isEnabled and Colors.Success or Colors.Error
+        toggleButton.BackgroundColor3 = isEnabled and Colors.ToggleOn or Colors.ToggleOff
+        toggleButton.TextColor3 = isEnabled and Colors.ToggleTextOn or Colors.ToggleTextOff
         toggleButton.Text = isEnabled and "ON" or "OFF"
         
         if callback then
@@ -812,11 +870,11 @@ local function createToggleWithDropdown(name, icon, callback, dropdownContent)
     local toggleButton = Instance.new("TextButton")
     toggleButton.Size = UDim2.new(0, 40, 0, 20)
     toggleButton.Position = UDim2.new(1, -48, 0, 6)
-    toggleButton.BackgroundColor3 = Colors.Error
+    toggleButton.BackgroundColor3 = Colors.ToggleOff
     toggleButton.BorderSizePixel = 0
     toggleButton.Font = Enum.Font.GothamBold
     toggleButton.TextSize = 10
-    toggleButton.TextColor3 = Colors.Text
+    toggleButton.TextColor3 = Colors.ToggleTextOff
     toggleButton.Text = "OFF"
     toggleButton.Parent = toggleFrame
     
@@ -841,7 +899,8 @@ local function createToggleWithDropdown(name, icon, callback, dropdownContent)
     
     toggleButton.MouseButton1Click:Connect(function()
         isEnabled = not isEnabled
-        toggleButton.BackgroundColor3 = isEnabled and Colors.Success or Colors.Error
+        toggleButton.BackgroundColor3 = isEnabled and Colors.ToggleOn or Colors.ToggleOff
+        toggleButton.TextColor3 = isEnabled and Colors.ToggleTextOn or Colors.ToggleTextOff
         toggleButton.Text = isEnabled and "ON" or "OFF"
         
         -- Show/hide dropdown with animation and expand/collapse main frame
@@ -2594,11 +2653,11 @@ local function showVisuals()
         notify("Chams: " .. (enabled and "ON" or "OFF"), enabled and "success" or "info")
     end)
     
-    createSection("🎨 UI Customization")
+    createSection("🎨 Display Settings")
     
     createToggle("Dark Mode", "🌙", function(enabled)
         darkModeEnabled = enabled
-        notify("Dark Mode: " .. (enabled and "ON" or "OFF"), enabled and "success" or "info")
+        switchTheme(enabled)
     end)
     
     createToggle("Glow Effects", "✨", function(enabled)
@@ -3211,6 +3270,19 @@ local function showFruits()
     
     createSection("🍎 Fruit Probability List")
     
+    -- Information text moved above toggle switch
+    local infoText = Instance.new("TextLabel")
+    infoText.Size = UDim2.new(1, -8, 0, 60)
+    infoText.BackgroundTransparency = 1
+    infoText.Font = Enum.Font.Gotham
+    infoText.TextSize = 10
+    infoText.TextColor3 = Colors.TextDim
+    infoText.TextXAlignment = Enum.TextXAlignment.Left
+    infoText.TextYAlignment = Enum.TextYAlignment.Top
+    infoText.TextWrapped = true
+    infoText.Text = "⚠️ Exact probabilities are estimates based on community testing.\n\nNormal Gacha: Standard fruit gacha with common to mythical fruits.\nSummer Gacha: Special event gacha with diamond skin fruits (Update 27.2)."
+    infoText.Parent = ContentScroller
+    
     -- Fruit probability data with detailed fruit names
     local fruitData = {
         {
@@ -3505,16 +3577,16 @@ local function showFruits()
                 local contentLayout = Instance.new("UIListLayout")
                 contentLayout.FillDirection = Enum.FillDirection.Vertical
                 contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-                contentLayout.Padding = UDim.new(0, 2)
+                contentLayout.Padding = UDim.new(0, 3)
                 contentLayout.Parent = contentFrame
                 
-                -- Add fruit items
+                -- Add fruit items with better spacing
                 for _, fruit in ipairs(fruitsByRarity[rarity]) do
                     local fruitItem = Instance.new("TextLabel")
-                    fruitItem.Size = UDim2.new(1, 0, 0, 18)
+                    fruitItem.Size = UDim2.new(1, 0, 0, 20)
                     fruitItem.BackgroundTransparency = 1
                     fruitItem.Font = Enum.Font.Gotham
-                    fruitItem.TextSize = 10
+                    fruitItem.TextSize = 11
                     fruitItem.TextColor3 = Colors.TextDim
                     fruitItem.TextXAlignment = Enum.TextXAlignment.Left
                     fruitItem.Text = "  " .. fruit.name .. " - " .. fruit.probability
@@ -3616,20 +3688,6 @@ local function showFruits()
     
     -- Initialize with normal gacha
     updateFruitDisplay(1)
-    
-    createSection("ℹ️ Information")
-    
-    local infoText = Instance.new("TextLabel")
-    infoText.Size = UDim2.new(1, -8, 0, 60)
-    infoText.BackgroundTransparency = 1
-    infoText.Font = Enum.Font.Gotham
-    infoText.TextSize = 10
-    infoText.TextColor3 = Colors.TextDim
-    infoText.TextXAlignment = Enum.TextXAlignment.Left
-    infoText.TextYAlignment = Enum.TextYAlignment.Top
-    infoText.TextWrapped = true
-    infoText.Text = "⚠️ Exact probabilities are estimates based on community testing.\n\nNormal Gacha: Standard fruit gacha with common to mythical fruits.\nSummer Gacha: Special event gacha with diamond skin fruits (Update 27.2)."
-    infoText.Parent = ContentScroller
 end
 
 local function showHelp()
