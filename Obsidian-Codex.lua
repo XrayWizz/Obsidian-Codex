@@ -47,9 +47,9 @@ local DarkColors = {
     ToggleTextOff = Color3.fromRGB(25, 25, 30) -- Dark text for OFF
 }
 
--- Current color scheme (starts in light mode)
-local Colors = LightColors
-local isDarkMode = false
+-- Current color scheme (starts in dark mode)
+local Colors = DarkColors
+local isDarkMode = true
 
 -- Configuration
 local Config = {
@@ -389,10 +389,7 @@ local glowEffectsEnabled = false
 local rainbowModeEnabled = false
 
 -- UI Theme Management
-local function switchTheme(darkMode)
-    isDarkMode = darkMode
-    Colors = darkMode and DarkColors or LightColors
-    
+local function updateAllUIElements()
     -- Update main UI elements
     MainWindow.BackgroundColor3 = Colors.Primary
     TitleBar.BackgroundColor3 = Colors.Secondary
@@ -416,6 +413,99 @@ local function switchTheme(darkMode)
     -- Update scrollbar colors
     SidebarScroller.ScrollBarImageColor3 = Colors.Accent
     ContentScroller.ScrollBarImageColor3 = Colors.Accent
+    
+    -- Update all existing UI elements in content area
+    updateContentAreaElements()
+    
+    -- Update sidebar buttons
+    updateSidebarButtons()
+end
+
+local function updateContentAreaElements()
+    -- Update all frames, buttons, and labels in content area
+    for _, child in ipairs(ContentScroller:GetChildren()) do
+        if child:IsA("Frame") then
+            -- Update frame backgrounds
+            if child.BackgroundColor3 == LightColors.Secondary or child.BackgroundColor3 == DarkColors.Secondary then
+                child.BackgroundColor3 = Colors.Secondary
+            end
+            
+            -- Update borders
+            for _, grandchild in ipairs(child:GetChildren()) do
+                if grandchild:IsA("UIStroke") then
+                    grandchild.Color = Colors.Border
+                end
+            end
+        elseif child:IsA("TextButton") then
+            -- Update button colors
+            if child.BackgroundColor3 == LightColors.Accent or child.BackgroundColor3 == DarkColors.Accent then
+                child.BackgroundColor3 = Colors.Accent
+            elseif child.BackgroundColor3 == LightColors.Success or child.BackgroundColor3 == DarkColors.Success then
+                child.BackgroundColor3 = Colors.Success
+            elseif child.BackgroundColor3 == LightColors.Secondary or child.BackgroundColor3 == DarkColors.Secondary then
+                child.BackgroundColor3 = Colors.Secondary
+            end
+            
+            -- Update button text colors
+            if child.TextColor3 == LightColors.Text or child.TextColor3 == DarkColors.Text then
+                child.TextColor3 = Colors.Text
+            elseif child.TextColor3 == LightColors.Primary or child.TextColor3 == DarkColors.Primary then
+                child.TextColor3 = Colors.Primary
+            end
+            
+            -- Update borders
+            for _, grandchild in ipairs(child:GetChildren()) do
+                if grandchild:IsA("UIStroke") then
+                    grandchild.Color = Colors.Border
+                end
+            end
+        elseif child:IsA("TextLabel") then
+            -- Update label text colors
+            if child.TextColor3 == LightColors.Text or child.TextColor3 == DarkColors.Text then
+                child.TextColor3 = Colors.Text
+            elseif child.TextColor3 == LightColors.TextDim or child.TextColor3 == DarkColors.TextDim then
+                child.TextColor3 = Colors.TextDim
+            elseif child.TextColor3 == LightColors.Accent or child.TextColor3 == DarkColors.Accent then
+                child.TextColor3 = Colors.Accent
+            end
+        end
+    end
+end
+
+local function updateSidebarButtons()
+    -- Update sidebar button colors
+    for _, child in ipairs(SidebarScroller:GetChildren()) do
+        if child:IsA("TextButton") then
+            -- Update button backgrounds
+            if child.BackgroundColor3 == LightColors.Secondary or child.BackgroundColor3 == DarkColors.Secondary then
+                child.BackgroundColor3 = Colors.Secondary
+            elseif child.BackgroundColor3 == LightColors.Accent or child.BackgroundColor3 == DarkColors.Accent then
+                child.BackgroundColor3 = Colors.Accent
+            end
+            
+            -- Update button text colors
+            if child.TextColor3 == LightColors.TextDim or child.TextColor3 == DarkColors.TextDim then
+                child.TextColor3 = Colors.TextDim
+            elseif child.TextColor3 == LightColors.Primary or child.TextColor3 == DarkColors.Primary then
+                child.TextColor3 = Colors.Primary
+            end
+            
+            -- Update borders
+            for _, grandchild in ipairs(child:GetChildren()) do
+                if grandchild:IsA("UIStroke") then
+                    grandchild.Color = Colors.Border
+                end
+            end
+        end
+    end
+end
+
+local function switchTheme(darkMode)
+    isDarkMode = darkMode
+    Colors = darkMode and DarkColors or LightColors
+    
+    -- Update all UI elements immediately
+    updateAllUIElements()
     
     notify("Theme switched to " .. (darkMode and "Dark" or "Light") .. " Mode", "success")
 end
@@ -2042,7 +2132,6 @@ local function showHomepage()
     
     visualsButton.MouseButton1Click:Connect(function()
         showVisuals()
-        setActiveButton(VisualsButton)
         notify("Switched to Display Settings", "success")
     end)
     
@@ -2693,10 +2782,17 @@ local function showVisuals()
     
     createSection("🎨 Display Settings")
     
-    createToggle("Dark Mode", "🌙", function(enabled)
+    local darkModeToggle = createToggle("Dark Mode", "🌙", function(enabled)
         darkModeEnabled = enabled
         switchTheme(enabled)
     end)
+    
+    -- Set initial state to match current theme
+    if darkModeToggle and darkModeToggle[2] then
+        darkModeToggle[2].BackgroundColor3 = isDarkMode and Colors.ToggleOn or Colors.ToggleOff
+        darkModeToggle[2].TextColor3 = isDarkMode and Colors.ToggleTextOn or Colors.ToggleTextOff
+        darkModeToggle[2].Text = isDarkMode and "ON" or "OFF"
+    end
     
     createToggle("Glow Effects", "✨", function(enabled)
         glowEffectsEnabled = enabled
@@ -3800,9 +3896,12 @@ FruitsButton.MouseButton1Click:Connect(showFruits)
 MiscButton.MouseButton1Click:Connect(showMisc)
 HelpButton.MouseButton1Click:Connect(showHelp)
 
+-- Initialize UI with dark mode
+updateAllUIElements()
+
 -- Show default content
 task.wait(0.1) -- Small delay to ensure UI is fully loaded
 showHomepage()
 
 -- Initialize UI
-notify("Obsidian-Codex v1.2 loaded successfully!", "success")
+notify("Obsidian-Codex v1.2 loaded successfully! (Dark Mode)", "success")
